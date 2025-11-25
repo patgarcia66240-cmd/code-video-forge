@@ -185,6 +185,11 @@ Créé avec Code Typing Simulator`;
             <MdContentCopy className="w-5 h-5 mr-2" />
             Copier
           </Button>
+          {/* Delete Button */}
+          <Button onClick={onDelete} variant="destructive" size="lg" className="w-full h-14">
+            <MdDelete className="w-5 h-5 mr-2" />
+            Supprimer la vidéo
+          </Button>
         </div>
 
         {/* Social Media Share */}
@@ -224,12 +229,6 @@ Créé avec Code Typing Simulator`;
             </div>
           </CardContent>
         </Card>
-
-        {/* Delete Button */}
-        <Button onClick={onDelete} variant="destructive" size="lg" className="w-full h-14">
-          <MdDelete className="w-5 h-5 mr-2" />
-          Supprimer la vidéo
-        </Button>
       </div>
     </motion.div>
   );
