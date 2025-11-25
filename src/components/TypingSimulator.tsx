@@ -835,9 +835,32 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
               controls
               className="h-32 rounded border border-border bg-black"
             />
-            <div className="text-xs text-muted-foreground">
-              Format: {recordedBlob?.type.includes("mp4") ? "MP4" : "WebM"} •{" "}
-              Taille: {((recordedBlob?.size || 0) / 1024 / 1024).toFixed(2)} MB
+            <div className="flex-1 flex flex-col gap-2">
+              <div className="text-xs text-muted-foreground">
+                Format: {recordedBlob?.type.includes("mp4") ? "MP4" : "WebM"} •{" "}
+                Taille: {((recordedBlob?.size || 0) / 1024 / 1024).toFixed(2)} MB
+              </div>
+              <Button
+                onClick={() => {
+                  if (recordedBlob) {
+                    const url = URL.createObjectURL(recordedBlob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = `code-typing-${Date.now()}.${recordedBlob.type.includes("mp4") ? "mp4" : "webm"}`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    addLog("Vidéo téléchargée");
+                    toast({
+                      title: "Téléchargement lancé",
+                      description: "Votre vidéo a été téléchargée avec succès",
+                    });
+                  }
+                }}
+                className="w-fit"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Télécharger la vidéo
+              </Button>
             </div>
           </div>
         </motion.div>
