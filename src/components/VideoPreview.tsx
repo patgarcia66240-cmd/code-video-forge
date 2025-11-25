@@ -129,27 +129,10 @@ Créé avec Code Typing Simulator`;
       animate={{ opacity: 1, y: 0 }}
       className="h-full bg-background overflow-auto"
     >
-      <div className="container max-w-5xl mx-auto p-8 space-y-6">
-        {/* Header */}
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold text-foreground">Aperçu de la vidéo</h1>
-          <p className="text-muted-foreground">
-            Votre vidéo est prête à être téléchargée ou visionnée
-          </p>
-        </div>
-
+      <div className="container max-w-6xl mx-auto p-6 space-y-6">
         {/* Video Player */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MdInfo className="w-5 h-5" />
-              Lecteur vidéo
-            </CardTitle>
-            <CardDescription>
-              Visualisez votre animation avant de la télécharger
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+        <Card className="border-border">
+          <CardContent className="p-6">
             <div className="aspect-video w-full rounded-lg overflow-hidden bg-black border border-border">
               <video
                 src={videoUrl}
@@ -161,125 +144,114 @@ Créé avec Code Typing Simulator`;
         </Card>
 
         {/* Video Info */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+        <Card className="border-border">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-lg">
               <MdInfo className="w-5 h-5" />
               Informations de la vidéo
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <div className="space-y-1">
                 <div className="text-sm text-muted-foreground">Format</div>
-                <div className="text-lg font-semibold font-mono">{videoFormat}</div>
+                <div className="text-2xl font-bold font-mono">{videoFormat}</div>
               </div>
               <div className="space-y-1">
                 <div className="text-sm text-muted-foreground">Taille du fichier</div>
-                <div className="text-lg font-semibold">{videoSize}</div>
+                <div className="text-2xl font-bold">{videoSize}</div>
               </div>
               <div className="space-y-1">
                 <div className="text-sm text-muted-foreground">Type MIME</div>
-                <div className="text-sm font-mono text-muted-foreground">{videoBlob.type}</div>
+                <div className="text-sm font-mono text-muted-foreground mt-2">{videoBlob.type}</div>
               </div>
               <div className="space-y-1">
                 <div className="text-sm text-muted-foreground">Statut</div>
-                <div className="text-lg font-semibold text-green-500">✓ Prêt</div>
+                <div className="text-2xl font-bold text-green-500">✓ Prêt</div>
               </div>
             </div>
           </CardContent>
         </Card>
 
         {/* Actions */}
-        <div className="space-y-4">
-          <div className="flex gap-4">
-            <Button
-              onClick={onDownload}
-              size="lg"
-              className="flex-1"
-            >
-              <MdDownload className="w-5 h-5 mr-2" />
-              Télécharger la vidéo
-            </Button>
-            <Button
-              onClick={handleShare}
-              variant="secondary"
-              size="lg"
-              disabled={isSharing}
-            >
-              <MdShare className="w-5 h-5 mr-2" />
-              Partager
-            </Button>
-            <Button
-              onClick={handleCopyInfo}
-              variant="outline"
-              size="lg"
-            >
-              <MdContentCopy className="w-5 h-5 mr-2" />
-              Copier
-            </Button>
-            <Button
-              onClick={onDelete}
-              variant="destructive"
-              size="lg"
-            >
-              <MdDelete className="w-5 h-5" />
-            </Button>
-          </div>
-
-          {/* Social Media Share */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Partager sur les réseaux sociaux</CardTitle>
-              <CardDescription>
-                Téléchargez d'abord la vidéo, puis utilisez ces raccourcis pour la partager
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-3 gap-3">
-                <Button
-                  onClick={handleShareToYouTube}
-                  variant="outline"
-                  className="flex flex-col h-auto py-4 gap-2"
-                >
-                  <FaYoutube className="w-6 h-6 text-red-600" />
-                  <span className="text-xs">YouTube</span>
-                </Button>
-                <Button
-                  onClick={handleShareToTwitter}
-                  variant="outline"
-                  className="flex flex-col h-auto py-4 gap-2"
-                >
-                  <FaTwitter className="w-6 h-6 text-blue-400" />
-                  <span className="text-xs">Twitter</span>
-                </Button>
-                <Button
-                  onClick={handleShareToLinkedIn}
-                  variant="outline"
-                  className="flex flex-col h-auto py-4 gap-2"
-                >
-                  <FaLinkedin className="w-6 h-6 text-blue-700" />
-                  <span className="text-xs">LinkedIn</span>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-4 gap-3">
+          <Button
+            onClick={onDownload}
+            size="lg"
+            className="col-span-2 h-14"
+          >
+            <MdDownload className="w-5 h-5 mr-2" />
+            Télécharger la vidéo
+          </Button>
+          <Button
+            onClick={handleShare}
+            variant="secondary"
+            size="lg"
+            disabled={isSharing}
+            className="h-14"
+          >
+            <MdShare className="w-5 h-5 mr-2" />
+            Partager
+          </Button>
+          <Button
+            onClick={handleCopyInfo}
+            variant="secondary"
+            size="lg"
+            className="h-14"
+          >
+            <MdContentCopy className="w-5 h-5 mr-2" />
+            Copier
+          </Button>
         </div>
 
-        {/* Tips */}
-        <Card className="bg-accent/50">
-          <CardContent className="pt-6">
-            <div className="text-sm text-muted-foreground space-y-2">
-              <p className="font-semibold text-foreground">💡 Conseil</p>
-              <ul className="list-disc list-inside space-y-1 ml-2">
-                <li>La vidéo est stockée temporairement dans votre navigateur</li>
-                <li>Téléchargez-la avant de fermer la page</li>
-                <li>Utilisez le bouton "Partager" pour envoyer directement la vidéo</li>
-                <li>Le bouton "Copier" copie les informations de la vidéo</li>
-              </ul>
+        {/* Social Media Share */}
+        <Card className="border-border">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg">Partager sur les réseaux sociaux</CardTitle>
+            <CardDescription>
+              Téléchargez d'abord la vidéo, puis utilisez ces raccourcis pour la partager
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-3 gap-4">
+              <Button
+                onClick={handleShareToYouTube}
+                variant="outline"
+                className="h-24 flex flex-col gap-3 border-border hover:bg-secondary/50"
+              >
+                <FaYoutube className="w-8 h-8 text-red-600" />
+                <span className="text-sm font-medium">YouTube</span>
+              </Button>
+              <Button
+                onClick={handleShareToTwitter}
+                variant="outline"
+                className="h-24 flex flex-col gap-3 border-border hover:bg-secondary/50"
+              >
+                <FaTwitter className="w-8 h-8 text-blue-400" />
+                <span className="text-sm font-medium">Twitter</span>
+              </Button>
+              <Button
+                onClick={handleShareToLinkedIn}
+                variant="outline"
+                className="h-24 flex flex-col gap-3 border-border hover:bg-secondary/50"
+              >
+                <FaLinkedin className="w-8 h-8 text-blue-700" />
+                <span className="text-sm font-medium">LinkedIn</span>
+              </Button>
             </div>
           </CardContent>
         </Card>
+
+        {/* Delete Button */}
+        <Button
+          onClick={onDelete}
+          variant="destructive"
+          size="lg"
+          className="w-full h-14"
+        >
+          <MdDelete className="w-5 h-5 mr-2" />
+          Supprimer la vidéo
+        </Button>
       </div>
     </motion.div>
   );
