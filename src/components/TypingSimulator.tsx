@@ -57,7 +57,14 @@ const defaultShortcuts: KeyboardShortcuts = {
 const TypingSimulator = ({ code, onComplete, onSettingsReady }: TypingSimulatorProps) => {
   const [displayedCode, setDisplayedCode] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
+  const [autoStart, setAutoStart] = useState(() => {
+    const saved = localStorage.getItem("typingSimulatorAutoStart");
+    return saved ? JSON.parse(saved) : false;
+  });
+  const [isPaused, setIsPaused] = useState(() => {
+    const saved = localStorage.getItem("typingSimulatorAutoStart");
+    return saved ? !JSON.parse(saved) : true; // En pause si autoStart est false
+  });
   const [speed, setSpeed] = useState(() => {
     const saved = localStorage.getItem("typingSimulatorSpeed");
     return saved ? JSON.parse(saved) : 50;
@@ -111,10 +118,6 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady }: TypingSimulatorP
     return saved ? JSON.parse(saved) : false;
   });
   const [loopCount, setLoopCount] = useState(0);
-  const [autoStart, setAutoStart] = useState(() => {
-    const saved = localStorage.getItem("typingSimulatorAutoStart");
-    return saved ? JSON.parse(saved) : false;
-  });
 
   const recorderRef = useRef<RecordRTC | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -175,10 +178,10 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady }: TypingSimulatorP
 
   // Démarrage automatique de l'animation
   useEffect(() => {
-    if (autoStart && currentIndex === 0) {
-      setIsPaused(false);
+    if (currentIndex === 0) {
+      setIsPaused(!autoStart);
     }
-  }, [autoStart]);
+  }, [autoStart, currentIndex]);
 
   // Créer l'URL de prévisualisation quand recordedBlob change
   useEffect(() => {
