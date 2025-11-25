@@ -1,0 +1,68 @@
+import { MdInsertDriveFile, MdSearch, MdAccountTree, MdSettings } from "react-icons/md";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+interface ActivityBarProps {
+  onSettingsClick?: () => void;
+}
+
+const ActivityBar = ({ onSettingsClick }: ActivityBarProps) => {
+  return (
+    <TooltipProvider delayDuration={300}>
+      <div className="w-12 bg-vscode-activitybar flex flex-col items-center py-4 gap-4 border-r border-border">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button className="p-2 hover:bg-secondary rounded transition-colors">
+              <MdInsertDriveFile className="w-5 h-5 text-primary" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="right">
+            <p>Explorateur</p>
+          </TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button className="p-2 hover:bg-secondary rounded transition-colors">
+              <MdSearch className="w-5 h-5 text-muted-foreground" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="right">
+            <p>Rechercher</p>
+          </TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button className="p-2 hover:bg-secondary rounded transition-colors">
+              <MdAccountTree className="w-5 h-5 text-muted-foreground" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="right">
+            <p>Contrôle de code source</p>
+          </TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button 
+              className="p-2 hover:bg-secondary rounded transition-colors mt-auto"
+              onClick={onSettingsClick}
+            >
+              <MdSettings className="w-5 h-5 text-muted-foreground" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="right">
+            <p>Paramètres</p>
+          </TooltipContent>
+        </Tooltip>
+      </div>
+    </TooltipProvider>
+  );
+};
+
+export default ActivityBar;
