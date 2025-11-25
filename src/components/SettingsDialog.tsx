@@ -21,6 +21,8 @@ interface SettingsDialogProps {
   setSpeed: (speed: number) => void;
   isLoopEnabled: boolean;
   setIsLoopEnabled: (enabled: boolean) => void;
+  autoStart: boolean;
+  setAutoStart: (enabled: boolean) => void;
   isRecording: boolean;
   isConverting: boolean;
   exportFormat: "webm" | "mp4";
@@ -47,6 +49,8 @@ const SettingsDialog = ({
   setSpeed,
   isLoopEnabled,
   setIsLoopEnabled,
+  autoStart,
+  setAutoStart,
   isRecording,
   isConverting,
   exportFormat,
@@ -108,6 +112,23 @@ const SettingsDialog = ({
               </div>
 
               <SliderSpeed speed={speed} setSpeed={setSpeed} />
+
+              <div className="space-y-3">
+                <Label className="text-sm font-semibold">Lecture automatique</Label>
+                <div className="flex items-center justify-between p-4 bg-secondary/30 rounded-lg">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-sm font-medium">Démarrage automatique</span>
+                    <span className="text-xs text-muted-foreground">
+                      Lance l'animation automatiquement au démarrage
+                    </span>
+                  </div>
+                  <Switch
+                    checked={autoStart}
+                    onCheckedChange={setAutoStart}
+                    disabled={isRecording || isConverting}
+                  />
+                </div>
+              </div>
 
               <div className="space-y-3">
                 <Label className="text-sm font-semibold">Mode boucle</Label>
