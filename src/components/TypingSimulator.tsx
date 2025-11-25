@@ -18,11 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import TimelineControl from "@/components/TimelineControl";
-import {
-  ResizablePanelGroup,
-  ResizablePanel,
-  ResizableHandle,
-} from "@/components/ui/resizable";
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -831,7 +827,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
           </div>
 
           {/* Ligne 2: Timeline Control */}
-          <div className="px-4 py-3 flex items-start justify-center">
+          <div className="px-4 py-3 flex items-start ">
             <div className="w-full max-w-4xl my-2">
               <TimelineControl
                 currentIndex={currentIndex}
@@ -944,7 +940,11 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
                   </div>
                 </div>
                 <div className="flex-1 flex flex-col items-center justify-center p-4 gap-4">
-                  <video src={videoPreviewUrl} controls className="w-full max-h-[60vh] rounded border border-border bg-black" />
+                  <video
+                    src={videoPreviewUrl}
+                    controls
+                    className="w-full max-h-[60vh] rounded border border-border bg-black"
+                  />
                   <Button
                     onClick={() => {
                       if (recordedBlob) {
