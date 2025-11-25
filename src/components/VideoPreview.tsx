@@ -207,7 +207,7 @@ Créé avec Code Typing Simulator`;
                 variant="outline"
                 className="h-24 flex flex-row gap-3 border-border hover:bg-secondary/50"
               >
-                <FaYoutube className="w-8 h-8 text-red-600" />
+                <FaYoutube className="w-10 h-10 text-red-600" />
                 <span className="text-sm font-medium">YouTube</span>
               </Button>
               <Button
