@@ -61,10 +61,18 @@ export const loadFFmpeg = async (): Promise<FFmpeg> => {
   }
 };
 
+export interface ConversionOptions {
+  preset?: 'ultrafast' | 'fast' | 'medium';
+  crf?: number;
+  scale?: string | null;
+}
+
 export const convertWebMToMP4 = async (
   webmBlob: Blob,
+  options: ConversionOptions = {},
   onProgress?: (progress: number) => void
 ): Promise<Blob> => {
+  const { preset = 'ultrafast', crf = 28, scale = null } = options;
   console.log("[Convert] Démarrage conversion, taille:", webmBlob.size);
   
   const ffmpeg = await loadFFmpeg();
@@ -81,16 +89,27 @@ export const convertWebMToMP4 = async (
   await ffmpeg.writeFile("input.webm", await fetchFile(webmBlob));
 
   console.log("[Convert] Conversion en MP4...");
-  // Convertir en MP4 avec de bons paramètres
-  await ffmpeg.exec([
+  console.log(`[Convert] Paramètres: preset=${preset}, crf=${crf}, scale=${scale || 'original'}`);
+  
+  // Construire les arguments FFmpeg
+  const ffmpegArgs = [
     "-i", "input.webm",
     "-c:v", "libx264",
-    "-preset", "ultrafast", // Plus rapide
-    "-crf", "28", // Compression plus rapide
+    "-preset", preset,
+    "-crf", crf.toString(),
     "-pix_fmt", "yuv420p",
     "-movflags", "+faststart",
-    "output.mp4"
-  ]);
+  ];
+  
+  // Ajouter le filtre de résolution si demandé
+  if (scale) {
+    ffmpegArgs.push("-vf", scale);
+  }
+  
+  ffmpegArgs.push("output.mp4");
+  
+  // Convertir en MP4 avec les paramètres configurés
+  await ffmpeg.exec(ffmpegArgs);
 
   console.log("[Convert] Lecture du fichier de sortie...");
   // Lire le fichier de sortie
