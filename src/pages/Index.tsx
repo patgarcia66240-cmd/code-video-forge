@@ -44,6 +44,9 @@ print(f"Résultat: {result}")
     if (recordedBlob) {
       const url = URL.createObjectURL(recordedBlob);
       setVideoPreviewUrl(url);
+      // Naviguer automatiquement vers la page de prévisualisation
+      setShowVideoPreview(true);
+      setIsSimulating(false);
       return () => {
         URL.revokeObjectURL(url);
       };
