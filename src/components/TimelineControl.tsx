@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, SkipBack, SkipForward } from "lucide-react";
+import { MdChevronLeft, MdChevronRight, MdSkipPrevious, MdSkipNext } from "react-icons/md";
 import { Button } from "@/components/ui/button";
 import { useState, useRef, useEffect } from "react";
 
@@ -135,7 +135,7 @@ const TimelineControl = ({
             onClick={() => onPositionChange(0)}
             className="h-7 px-2"
           >
-            <SkipBack className="w-3 h-3" />
+            <MdSkipPrevious className="w-3 h-3" />
           </Button>
           <Button
             size="sm"
@@ -143,7 +143,7 @@ const TimelineControl = ({
             onClick={() => onPositionChange(Math.max(0, currentIndex - skipAmount))}
             className="h-7 px-2"
           >
-            <ChevronLeft className="w-3 h-3" />
+            <MdChevronLeft className="w-3 h-3" />
             <span className="text-xs ml-1">5%</span>
           </Button>
         </div>
@@ -168,7 +168,7 @@ const TimelineControl = ({
             className="h-7 px-2"
           >
             <span className="text-xs mr-1">5%</span>
-            <ChevronRight className="w-3 h-3" />
+            <MdChevronRight className="w-3 h-3" />
           </Button>
           <Button
             size="sm"
@@ -176,7 +176,7 @@ const TimelineControl = ({
             onClick={() => onPositionChange(totalLength)}
             className="h-7 px-2"
           >
-            <SkipForward className="w-3 h-3" />
+            <MdSkipNext className="w-3 h-3" />
           </Button>
         </div>
       </div>
