@@ -722,12 +722,10 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
               {isFullscreen ? (
                 <>
                   <MdFullscreenExit className="w-4 h-4 mr-2" />
-                  Quitter plein écran
                 </>
               ) : (
                 <>
                   <MdFullscreen className="w-4 h-4 mr-2" />
-                  Plein écran
                 </>
               )}
             </Button>
