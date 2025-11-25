@@ -72,6 +72,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
   });
   const [isShortcutsDialogOpen, setIsShortcutsDialogOpen] = useState(false);
   const [editingShortcut, setEditingShortcut] = useState<keyof KeyboardShortcuts | null>(null);
+  const [countdown, setCountdown] = useState<number | null>(null);
   
   const recorderRef = useRef<RecordRTC | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -200,8 +201,16 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
         audio: false
       });
 
-      addLog("Partage d'écran accepté, démarrage de l'enregistrement...");
+      addLog("Partage d'écran accepté, lancement du compte à rebours...");
       streamRef.current = stream;
+
+      // Afficher le compte à rebours avant de démarrer l'enregistrement
+      for (let i = 3; i > 0; i--) {
+        setCountdown(i);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+      setCountdown(null);
+      addLog("Démarrage de l'enregistrement...");
 
       const recorder = new RecordRTC(stream, {
         type: "video",
@@ -229,6 +238,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
     } catch (error) {
       console.error("Erreur lors du démarrage de l'enregistrement:", error);
       addLog("Erreur lors du démarrage de l'enregistrement");
+      setCountdown(null);
       toast({
         title: "Erreur",
         description: "Impossible de démarrer l'enregistrement. Assurez-vous d'avoir autorisé le partage d'écran.",
@@ -815,6 +825,26 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
         >
           <div className="w-3 h-3 bg-white rounded-full animate-pulse" />
           <span className="text-sm font-medium">Enregistrement en cours ({shortcuts.record} pour arrêter)</span>
+        </motion.div>
+      )}
+
+      {/* Countdown overlay */}
+      {countdown !== null && (
+        <motion.div
+          key={countdown}
+          initial={{ scale: 0.5, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 1.5, opacity: 0 }}
+          className="absolute inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+        >
+          <motion.div
+            initial={{ scale: 0.8 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            className="text-9xl font-bold text-white drop-shadow-2xl"
+          >
+            {countdown}
+          </motion.div>
         </motion.div>
       )}
 
