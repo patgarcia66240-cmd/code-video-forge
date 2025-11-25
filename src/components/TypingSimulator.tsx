@@ -43,10 +43,10 @@ interface KeyboardShortcuts {
 }
 
 const defaultShortcuts: KeyboardShortcuts = {
-  record: 'F9',
-  pause: ' ',
-  reset: 'r',
-  fullscreen: 'f',
+  record: "F9",
+  pause: " ",
+  reset: "r",
+  fullscreen: "f",
 };
 
 const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
@@ -59,30 +59,30 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
   const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
   const [isConverting, setIsConverting] = useState(false);
   const [conversionProgress, setConversionProgress] = useState(0);
-  const [exportFormat, setExportFormat] = useState<'webm' | 'mp4'>('webm');
-  const [mp4Quality, setMp4Quality] = useState<'high' | 'medium' | 'fast'>('medium');
-  const [mp4Preset, setMp4Preset] = useState<'ultrafast' | 'fast' | 'medium'>('ultrafast');
-  const [mp4Resolution, setMp4Resolution] = useState<'original' | '1080p' | '720p'>('original');
+  const [exportFormat, setExportFormat] = useState<"webm" | "mp4">("webm");
+  const [mp4Quality, setMp4Quality] = useState<"high" | "medium" | "fast">("medium");
+  const [mp4Preset, setMp4Preset] = useState<"ultrafast" | "fast" | "medium">("ultrafast");
+  const [mp4Resolution, setMp4Resolution] = useState<"original" | "1080p" | "720p">("original");
   const [saveWebmBackup, setSaveWebmBackup] = useState(true);
   const [logs, setLogs] = useState<string[]>([]);
   const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [captureMode, setCaptureMode] = useState<'screen' | 'editor'>('editor');
+  const [captureMode, setCaptureMode] = useState<"screen" | "editor">("editor");
   const [shortcuts, setShortcuts] = useState<KeyboardShortcuts>(() => {
-    const saved = localStorage.getItem('typingSimulatorShortcuts');
+    const saved = localStorage.getItem("typingSimulatorShortcuts");
     return saved ? JSON.parse(saved) : defaultShortcuts;
   });
   const [isShortcutsDialogOpen, setIsShortcutsDialogOpen] = useState(false);
   const [editingShortcut, setEditingShortcut] = useState<keyof KeyboardShortcuts | null>(null);
   const [countdown, setCountdown] = useState<number | null>(null);
-  
+
   const recorderRef = useRef<RecordRTC | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const { toast } = useToast();
 
   // Sauvegarder les raccourcis dans localStorage
   useEffect(() => {
-    localStorage.setItem('typingSimulatorShortcuts', JSON.stringify(shortcuts));
+    localStorage.setItem("typingSimulatorShortcuts", JSON.stringify(shortcuts));
   }, [shortcuts]);
 
   // Créer l'URL de prévisualisation quand recordedBlob change
@@ -103,9 +103,9 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
     const handleKeyPress = (e: KeyboardEvent) => {
       // Ignorer si on est en train d'éditer un raccourci
       if (editingShortcut) return;
-      
-      const key = e.key === ' ' ? ' ' : e.key;
-      
+
+      const key = e.key === " " ? " " : e.key;
+
       // Enregistrement
       if (key === shortcuts.record) {
         e.preventDefault();
@@ -115,7 +115,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
           startRecording();
         }
       }
-      
+
       // Pause/Reprendre avec Espace
       if (key === shortcuts.pause && !isConverting) {
         e.preventDefault();
@@ -124,25 +124,25 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
           addLog(isPaused ? "Animation reprise" : "Animation mise en pause");
         }
       }
-      
+
       // Flèche droite : avancer d'un caractère
-      if (e.key === 'ArrowRight' && !isConverting) {
+      if (e.key === "ArrowRight" && !isConverting) {
         e.preventDefault();
         const newIndex = Math.min(currentIndex + 1, code.length);
         setCurrentIndex(newIndex);
         setDisplayedCode(code.slice(0, newIndex));
         if (!isPaused) setIsPaused(true); // Pause automatique quand on navigue
       }
-      
+
       // Flèche gauche : reculer d'un caractère
-      if (e.key === 'ArrowLeft' && !isConverting) {
+      if (e.key === "ArrowLeft" && !isConverting) {
         e.preventDefault();
         const newIndex = Math.max(currentIndex - 1, 0);
         setCurrentIndex(newIndex);
         setDisplayedCode(code.slice(0, newIndex));
         if (!isPaused) setIsPaused(true); // Pause automatique quand on navigue
       }
-      
+
       // Reset
       if (key === shortcuts.reset && !isConverting) {
         e.preventDefault();
@@ -151,21 +151,21 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
           addLog("Animation réinitialisée pendant l'enregistrement");
         }
       }
-      
+
       // Plein écran (désactivé pendant l'enregistrement)
       if (key === shortcuts.fullscreen && !isRecording) {
         e.preventDefault();
         setIsFullscreen(!isFullscreen);
       }
-      
+
       // Echap pour quitter le mode plein écran (désactivé pendant l'enregistrement, mais autorisé après)
-      if (e.key === 'Escape' && isFullscreen && (!isRecording || recordedBlob)) {
+      if (e.key === "Escape" && isFullscreen && (!isRecording || recordedBlob)) {
         setIsFullscreen(false);
       }
     };
 
-    window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
+    window.addEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress);
   }, [isRecording, isConverting, isFullscreen, isPaused, shortcuts, editingShortcut, currentIndex, code]);
 
   useEffect(() => {
@@ -208,7 +208,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
     const totalSeconds = Math.floor(totalMs / 1000);
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
-    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
   };
 
   const addLog = (message: string) => {
@@ -223,13 +223,13 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
       setCurrentIndex(0);
       setIsPaused(true);
       addLog("Éditeur réinitialisé et mis en pause");
-      
+
       // Si mode éditeur, activer le plein écran d'abord
-      if (captureMode === 'editor' && !isFullscreen) {
+      if (captureMode === "editor" && !isFullscreen) {
         setIsFullscreen(true);
         addLog("Mode plein écran activé pour capture éditeur");
         // Attendre un peu que le rendu soit fait
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise((resolve) => setTimeout(resolve, 500));
       }
 
       addLog("Demande de partage d'écran...");
@@ -238,9 +238,9 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
           displaySurface: "browser",
           width: { ideal: 1920 },
           height: { ideal: 1080 },
-          frameRate: { ideal: 30 }
+          frameRate: { ideal: 30 },
         },
-        audio: false
+        audio: false,
       });
 
       addLog("Partage d'écran accepté, lancement du compte à rebours...");
@@ -249,7 +249,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
       // Afficher le compte à rebours avant de démarrer l'enregistrement
       for (let i = 3; i > 0; i--) {
         setCountdown(i);
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       }
       setCountdown(null);
       addLog("Démarrage de l'enregistrement...");
@@ -267,9 +267,10 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
 
       toast({
         title: "Enregistrement démarré",
-        description: captureMode === 'editor' 
-          ? "Partagez l'onglet entier pour capturer l'éditeur seul" 
-          : "La vidéo est en cours d'enregistrement",
+        description:
+          captureMode === "editor"
+            ? "Partagez l'onglet entier pour capturer l'éditeur seul"
+            : "La vidéo est en cours d'enregistrement",
       });
 
       // Arrêter automatiquement quand l'animation est terminée
@@ -297,17 +298,17 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
         setIsRecording(false);
 
         // Arrêter tous les tracks du stream
-        streamRef.current!.getTracks().forEach(track => track.stop());
+        streamRef.current!.getTracks().forEach((track) => track.stop());
         addLog(`Fichier WebM obtenu (${webmBlob.size} octets)`);
 
         // Désactiver le mode plein écran si on était en mode éditeur
-        if (captureMode === 'editor' && isFullscreen) {
+        if (captureMode === "editor" && isFullscreen) {
           setIsFullscreen(false);
           addLog("Mode plein écran désactivé");
         }
 
         // Si format WebM, télécharger directement
-        if (exportFormat === 'webm') {
+        if (exportFormat === "webm") {
           setRecordedBlob(webmBlob);
           addLog("Mode WebM : aucun traitement supplémentaire, prêt à télécharger.");
           toast({
@@ -339,13 +340,14 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
         try {
           setIsConverting(true);
           setConversionProgress(0);
-          
+
           // Paramètres de conversion basés sur les réglages
-          const crfValue = mp4Quality === 'high' ? 18 : mp4Quality === 'medium' ? 23 : 28;
-          const scaleFilter = mp4Resolution === '1080p' ? 'scale=-2:1080' : mp4Resolution === '720p' ? 'scale=-2:720' : null;
-          
+          const crfValue = mp4Quality === "high" ? 18 : mp4Quality === "medium" ? 23 : 28;
+          const scaleFilter =
+            mp4Resolution === "1080p" ? "scale=-2:1080" : mp4Resolution === "720p" ? "scale=-2:720" : null;
+
           const mp4Blob = await convertWebMToMP4(
-            webmBlob, 
+            webmBlob,
             {
               preset: mp4Preset,
               crf: crfValue,
@@ -354,9 +356,9 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
             (progress) => {
               setConversionProgress(progress);
               addLog(`Progression FFmpeg: ${progress}%`);
-            }
+            },
           );
-          
+
           setRecordedBlob(mp4Blob);
           setIsConverting(false);
           setConversionProgress(0);
@@ -373,7 +375,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
           addLog("Erreur lors de la conversion MP4. Fallback en WebM.");
           // En cas d'erreur, garder le WebM
           setRecordedBlob(webmBlob);
-          
+
           toast({
             title: "Conversion échouée",
             description: "Vidéo sauvegardée en WebM",
@@ -390,7 +392,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
     setIsConverting(false);
     setConversionProgress(0);
     addLog("Conversion annulée.");
-    
+
     toast({
       title: "Conversion annulée",
       description: "La conversion MP4 a été interrompue",
@@ -421,8 +423,8 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
 
   const handleShortcutCapture = (action: keyof KeyboardShortcuts, e: React.KeyboardEvent) => {
     e.preventDefault();
-    const key = e.key === ' ' ? ' ' : e.key;
-    setShortcuts(prev => ({ ...prev, [action]: key }));
+    const key = e.key === " " ? " " : e.key;
+    setShortcuts((prev) => ({ ...prev, [action]: key }));
     setEditingShortcut(null);
   };
 
@@ -438,431 +440,410 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
     <div className="flex-1 flex flex-col bg-editor relative">
       {/* Tab Bar */}
       {!isFullscreen && (
-      <div className="h-10 bg-panel-bg flex items-center px-4 border-b border-border">
-        <div className="flex items-center gap-2 px-3 py-1 bg-editor rounded-t border-t-2 border-primary">
-          <span className="text-sm text-foreground">typing-demo.py</span>
-          <span className="text-xs text-muted-foreground ml-2">
-            {currentIndex} / {code.length} caractères
-          </span>
+        <div className="h-10 bg-panel-bg flex items-center px-4 border-b border-border">
+          <div className="flex items-center gap-2 px-3 py-1 bg-editor rounded-t border-t-2 border-primary">
+            <span className="text-sm text-foreground">typing-demo.py</span>
+            <span className="text-xs text-muted-foreground ml-2">
+              {currentIndex} / {code.length} caractères
+            </span>
+          </div>
         </div>
-      </div>
       )}
 
       {/* Controls */}
       {!isFullscreen && (
-      <div className="bg-panel-bg border-b border-border">
-        {/* Ligne 1: Contrôles principaux */}
-        <div className="h-16 flex items-center px-4 gap-4 flex-wrap border-b border-border/50">
-        <div className="flex items-center gap-2">
-          <Button
-            onClick={() => setIsPaused(!isPaused)}
-            className="bg-vscode-button hover:bg-vscode-button-hover text-white"
-            size="sm"
-          >
-            {isPaused ? (
-              <>
-                <Play className="w-4 h-4 mr-2" />
-                Reprendre
-              </>
-            ) : (
-              <>
-                <Pause className="w-4 h-4 mr-2" />
-                Pause
-              </>
-            )}
-          </Button>
-
-          <Button
-            onClick={handleReset}
-            variant="outline"
-            size="sm"
-            className="border-border hover:bg-secondary"
-          >
-            <RotateCcw className="w-4 h-4 mr-2" />
-            Réinitialiser
-          </Button>
-        </div>
-
-        <div className="h-8 w-px bg-border" />
-
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-muted-foreground">Mode capture:</span>
-          <div className="flex items-center gap-2">
-            <span className={`text-xs ${captureMode === 'screen' ? 'text-foreground' : 'text-muted-foreground'}`}>
-              Écran
-            </span>
-            <Switch
-              checked={captureMode === 'editor'}
-              onCheckedChange={(checked) => setCaptureMode(checked ? 'editor' : 'screen')}
-              disabled={isRecording || isConverting}
-            />
-            <span className={`text-xs ${captureMode === 'editor' ? 'text-foreground' : 'text-muted-foreground'}`}>
-              Éditeur seul
-            </span>
-          </div>
-        </div>
-
-        <div className="h-8 w-px bg-border" />
-
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-muted-foreground">Format:</span>
-          <div className="flex items-center gap-2">
-            <span className={`text-xs font-mono ${exportFormat === 'webm' ? 'text-foreground' : 'text-muted-foreground'}`}>
-              WebM
-            </span>
-            <Switch
-              checked={exportFormat === 'mp4'}
-              onCheckedChange={(checked) => setExportFormat(checked ? 'mp4' : 'webm')}
-              disabled={isRecording || isConverting}
-            />
-            <span className={`text-xs font-mono ${exportFormat === 'mp4' ? 'text-foreground' : 'text-muted-foreground'}`}>
-              MP4
-            </span>
-          </div>
-          {exportFormat === 'mp4' && (
-            <>
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground">Backup WebM:</span>
-                <Switch
-                  checked={saveWebmBackup}
-                  onCheckedChange={setSaveWebmBackup}
-                  disabled={isRecording || isConverting}
-                />
-              </div>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    disabled={isRecording || isConverting}
-                    className="h-8 w-8 p-0"
-                  >
-                    <Settings className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 bg-popover z-50">
-                <DropdownMenuLabel>Paramètres MP4</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                
-                <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
-                  Qualité
-                </DropdownMenuLabel>
-                <DropdownMenuItem
-                  onClick={() => setMp4Quality('high')}
-                  className={mp4Quality === 'high' ? 'bg-accent' : ''}
-                >
-                  Haute (CRF 18) - Meilleure qualité
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => setMp4Quality('medium')}
-                  className={mp4Quality === 'medium' ? 'bg-accent' : ''}
-                >
-                  Moyenne (CRF 23) - Équilibrée
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => setMp4Quality('fast')}
-                  className={mp4Quality === 'fast' ? 'bg-accent' : ''}
-                >
-                  Rapide (CRF 28) - Plus petit
-                </DropdownMenuItem>
-                
-                <DropdownMenuSeparator />
-                
-                <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
-                  Vitesse de conversion
-                </DropdownMenuLabel>
-                <DropdownMenuItem
-                  onClick={() => setMp4Preset('ultrafast')}
-                  className={mp4Preset === 'ultrafast' ? 'bg-accent' : ''}
-                >
-                  Ultra rapide
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => setMp4Preset('fast')}
-                  className={mp4Preset === 'fast' ? 'bg-accent' : ''}
-                >
-                  Rapide
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => setMp4Preset('medium')}
-                  className={mp4Preset === 'medium' ? 'bg-accent' : ''}
-                >
-                  Moyenne
-                </DropdownMenuItem>
-                
-                <DropdownMenuSeparator />
-                
-                <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
-                  Résolution
-                </DropdownMenuLabel>
-                <DropdownMenuItem
-                  onClick={() => setMp4Resolution('original')}
-                  className={mp4Resolution === 'original' ? 'bg-accent' : ''}
-                >
-                  Originale
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => setMp4Resolution('1080p')}
-                  className={mp4Resolution === '1080p' ? 'bg-accent' : ''}
-                >
-                  1080p
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => setMp4Resolution('720p')}
-                  className={mp4Resolution === '720p' ? 'bg-accent' : ''}
-                >
-                  720p
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-              </DropdownMenu>
-            </>
-          )}
-        </div>
-
-        <div className="h-8 w-px bg-border" />
-
-        <div className="flex items-center gap-2">{!isRecording && !isConverting ? (
-            <Button
-              onClick={startRecording}
-              variant="outline"
-              size="sm"
-              className="border-destructive text-destructive hover:bg-destructive hover:text-white"
-            >
-              <Video className="w-4 h-4 mr-2" />
-              Enregistrer {exportFormat.toUpperCase()}
-            </Button>
-          ) : isRecording ? (
-            <Button
-              onClick={stopRecording}
-              variant="outline"
-              size="sm"
-              className="border-destructive text-destructive hover:bg-destructive hover:text-white animate-pulse"
-            >
-              <StopCircle className="w-4 h-4 mr-2" />
-              Arrêter
-            </Button>
-          ) : (
-            <div className="flex items-center gap-3">
+        <div className="bg-panel-bg border-b border-border">
+          {/* Ligne 1: Contrôles principaux */}
+          <div className="h-16 flex items-center px-4 gap-4 flex-wrap border-b border-border/50">
+            <div className="flex items-center gap-2">
               <Button
-                disabled
-                variant="outline"
+                onClick={() => setIsPaused(!isPaused)}
+                className="bg-vscode-button hover:bg-vscode-button-hover text-white"
                 size="sm"
-                className="border-border opacity-50"
               >
-                <div className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                Conversion MP4...
+                {isPaused ? (
+                  <>
+                    <Play className="w-4 h-4 mr-2" />
+                    Reprendre
+                  </>
+                ) : (
+                  <>
+                    <Pause className="w-4 h-4 mr-2" />
+                    Pause
+                  </>
+                )}
               </Button>
-              <div className="flex items-center gap-2 min-w-[120px]">
-                <div className="flex-1 h-2 bg-secondary rounded-full overflow-hidden">
-                  <motion.div
-                    className="h-full bg-primary"
-                    initial={{ width: 0 }}
-                    animate={{ width: `${conversionProgress}%` }}
-                    transition={{ duration: 0.3 }}
-                  />
-                </div>
-                <span className="text-xs text-muted-foreground font-mono min-w-[35px]">
-                  {conversionProgress}%
-                </span>
-              </div>
-              <Button
-                onClick={handleCancelConversion}
-                variant="outline"
-                size="sm"
-                className="border-destructive text-destructive hover:bg-destructive hover:text-white"
-              >
-                <StopCircle className="w-4 h-4 mr-2" />
-                Annuler
+
+              <Button onClick={handleReset} variant="outline" size="sm" className="border-border hover:bg-secondary">
+                <RotateCcw className="w-4 h-4 mr-2" />
+                Réinitialiser
               </Button>
             </div>
-          )}
 
-          {recordedBlob && !isConverting && (
-            <Button
-              onClick={downloadRecording}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground"
-              size="sm"
-            >
-              <Download className="w-4 h-4 mr-2" />
-              Télécharger {recordedBlob.type.includes("mp4") ? "MP4" : "WebM"}
+            <div className="h-8 w-px bg-border" />
+
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-muted-foreground">Mode capture:</span>
+              <div className="flex items-center gap-2">
+                <span className={`text-xs ${captureMode === "screen" ? "text-foreground" : "text-muted-foreground"}`}>
+                  Écran
+                </span>
+                <Switch
+                  checked={captureMode === "editor"}
+                  onCheckedChange={(checked) => setCaptureMode(checked ? "editor" : "screen")}
+                  disabled={isRecording || isConverting}
+                />
+                <span className={`text-xs ${captureMode === "editor" ? "text-foreground" : "text-muted-foreground"}`}>
+                  Éditeur seul
+                </span>
+              </div>
+            </div>
+
+            <div className="h-8 w-px bg-border" />
+
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-muted-foreground">Format:</span>
+              <div className="flex items-center gap-2">
+                <span
+                  className={`text-xs font-mono ${exportFormat === "webm" ? "text-foreground" : "text-muted-foreground"}`}
+                >
+                  WebM
+                </span>
+                <Switch
+                  checked={exportFormat === "mp4"}
+                  onCheckedChange={(checked) => setExportFormat(checked ? "mp4" : "webm")}
+                  disabled={isRecording || isConverting}
+                />
+                <span
+                  className={`text-xs font-mono ${exportFormat === "mp4" ? "text-foreground" : "text-muted-foreground"}`}
+                >
+                  MP4
+                </span>
+              </div>
+              {exportFormat === "mp4" && (
+                <>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground">Backup WebM:</span>
+                    <Switch
+                      checked={saveWebmBackup}
+                      onCheckedChange={setSaveWebmBackup}
+                      disabled={isRecording || isConverting}
+                    />
+                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" disabled={isRecording || isConverting} className="h-8 w-8 p-0">
+                        <Settings className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56 bg-popover z-50">
+                      <DropdownMenuLabel>Paramètres MP4</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+
+                      <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
+                        Qualité
+                      </DropdownMenuLabel>
+                      <DropdownMenuItem
+                        onClick={() => setMp4Quality("high")}
+                        className={mp4Quality === "high" ? "bg-accent" : ""}
+                      >
+                        Haute (CRF 18) - Meilleure qualité
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => setMp4Quality("medium")}
+                        className={mp4Quality === "medium" ? "bg-accent" : ""}
+                      >
+                        Moyenne (CRF 23) - Équilibrée
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => setMp4Quality("fast")}
+                        className={mp4Quality === "fast" ? "bg-accent" : ""}
+                      >
+                        Rapide (CRF 28) - Plus petit
+                      </DropdownMenuItem>
+
+                      <DropdownMenuSeparator />
+
+                      <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
+                        Vitesse de conversion
+                      </DropdownMenuLabel>
+                      <DropdownMenuItem
+                        onClick={() => setMp4Preset("ultrafast")}
+                        className={mp4Preset === "ultrafast" ? "bg-accent" : ""}
+                      >
+                        Ultra rapide
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => setMp4Preset("fast")}
+                        className={mp4Preset === "fast" ? "bg-accent" : ""}
+                      >
+                        Rapide
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => setMp4Preset("medium")}
+                        className={mp4Preset === "medium" ? "bg-accent" : ""}
+                      >
+                        Moyenne
+                      </DropdownMenuItem>
+
+                      <DropdownMenuSeparator />
+
+                      <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
+                        Résolution
+                      </DropdownMenuLabel>
+                      <DropdownMenuItem
+                        onClick={() => setMp4Resolution("original")}
+                        className={mp4Resolution === "original" ? "bg-accent" : ""}
+                      >
+                        Originale
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => setMp4Resolution("1080p")}
+                        className={mp4Resolution === "1080p" ? "bg-accent" : ""}
+                      >
+                        1080p
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => setMp4Resolution("720p")}
+                        className={mp4Resolution === "720p" ? "bg-accent" : ""}
+                      >
+                        720p
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </>
+              )}
+            </div>
+
+            <div className="h-8 w-px bg-border" />
+
+            <div className="flex items-center gap-2">
+              {!isRecording && !isConverting ? (
+                <Button
+                  onClick={startRecording}
+                  variant="outline"
+                  size="sm"
+                  className="border-destructive text-destructive hover:bg-destructive hover:text-white"
+                >
+                  <Video className="w-4 h-4 mr-2" />
+                  Enregistrer {exportFormat.toUpperCase()}
+                </Button>
+              ) : isRecording ? (
+                <Button
+                  onClick={stopRecording}
+                  variant="outline"
+                  size="sm"
+                  className="border-destructive text-destructive hover:bg-destructive hover:text-white animate-pulse"
+                >
+                  <StopCircle className="w-4 h-4 mr-2" />
+                  Arrêter
+                </Button>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <Button disabled variant="outline" size="sm" className="border-border opacity-50">
+                    <div className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                    Conversion MP4...
+                  </Button>
+                  <div className="flex items-center gap-2 min-w-[120px]">
+                    <div className="flex-1 h-2 bg-secondary rounded-full overflow-hidden">
+                      <motion.div
+                        className="h-full bg-primary"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${conversionProgress}%` }}
+                        transition={{ duration: 0.3 }}
+                      />
+                    </div>
+                    <span className="text-xs text-muted-foreground font-mono min-w-[35px]">{conversionProgress}%</span>
+                  </div>
+                  <Button
+                    onClick={handleCancelConversion}
+                    variant="outline"
+                    size="sm"
+                    className="border-destructive text-destructive hover:bg-destructive hover:text-white"
+                  >
+                    <StopCircle className="w-4 h-4 mr-2" />
+                    Annuler
+                  </Button>
+                </div>
+              )}
+
+              {recordedBlob && !isConverting && (
+                <Button
+                  onClick={downloadRecording}
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                  size="sm"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Télécharger {recordedBlob.type.includes("mp4") ? "MP4" : "WebM"}
+                </Button>
+              )}
+            </div>
+
+            <div className="flex items-center gap-3 ml-4 flex-1 max-w-xs">
+              <Gauge className="w-4 h-4 text-muted-foreground" />
+              <Slider
+                value={[speed]}
+                onValueChange={(value) => setSpeed(value[0])}
+                min={0}
+                max={100}
+                step={10}
+                className="flex-1"
+              />
+              <span className="text-xs text-muted-foreground min-w-[60px]">
+                {speed === 0 ? "Lent" : speed === 100 ? "Rapide" : "Moyen"}
+              </span>
+            </div>
+
+            <div className="h-8 w-px bg-border" />
+
+            <Button onClick={onComplete} variant="outline" size="sm" className="border-border hover:bg-secondary">
+              Retour à l'éditeur
             </Button>
-          )}
-        </div>
 
-        <div className="flex items-center gap-3 ml-4 flex-1 max-w-xs">
-          <Gauge className="w-4 h-4 text-muted-foreground" />
-          <Slider
-            value={[speed]}
-            onValueChange={(value) => setSpeed(value[0])}
-            min={0}
-            max={100}
-            step={10}
-            className="flex-1"
-          />
-          <span className="text-xs text-muted-foreground min-w-[60px]">
-            {speed === 0 ? "Lent" : speed === 100 ? "Rapide" : "Moyen"}
-          </span>
-        </div>
-
-        <div className="h-8 w-px bg-border" />
-
-        <Button
-          onClick={onComplete}
-          variant="outline"
-          size="sm"
-          className="border-border hover:bg-secondary"
-        >
-          Retour à l'éditeur
-        </Button>
-
-        <Button
-          onClick={() => setIsFullscreen(!isFullscreen)}
-          variant="outline"
-          size="sm"
-          className="border-border hover:bg-secondary"
-          title={`Mode plein écran (${shortcuts.fullscreen})`}
-        >
-          {isFullscreen ? (
-            <>
-              <MdFullscreenExit className="w-4 h-4 mr-2" />
-              Quitter plein écran
-            </>
-          ) : (
-            <>
-              <MdFullscreen className="w-4 h-4 mr-2" />
-              Plein écran
-            </>
-          )}
-        </Button>
-
-        <Dialog open={isShortcutsDialogOpen} onOpenChange={setIsShortcutsDialogOpen}>
-          <DialogTrigger asChild>
             <Button
+              onClick={() => setIsFullscreen(!isFullscreen)}
               variant="outline"
               size="sm"
               className="border-border hover:bg-secondary"
-              title="Configurer les raccourcis clavier"
+              title={`Mode plein écran (${shortcuts.fullscreen})`}
             >
-              <Keyboard className="w-4 h-4" />
+              {isFullscreen ? (
+                <>
+                  <MdFullscreenExit className="w-4 h-4 mr-2" />
+                  Quitter plein écran
+                </>
+              ) : (
+                <>
+                  <MdFullscreen className="w-4 h-4 mr-2" />
+                  Plein écran
+                </>
+              )}
             </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[500px]">
-            <DialogHeader>
-              <DialogTitle>Raccourcis clavier</DialogTitle>
-              <DialogDescription>
-                Cliquez sur un champ et appuyez sur la touche souhaitée pour configurer un raccourci.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="record">Démarrer/Arrêter l'enregistrement</Label>
-                <Input
-                  id="record"
-                  value={shortcuts.record}
-                  readOnly
-                  className="font-mono cursor-pointer"
-                  onFocus={() => setEditingShortcut('record')}
-                  onKeyDown={(e) => editingShortcut === 'record' && handleShortcutCapture('record', e)}
-                  placeholder="Appuyez sur une touche..."
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="pause">Pause/Reprendre l'animation</Label>
-                <Input
-                  id="pause"
-                  value={shortcuts.pause === ' ' ? 'Espace' : shortcuts.pause}
-                  readOnly
-                  className="font-mono cursor-pointer"
-                  onFocus={() => setEditingShortcut('pause')}
-                  onKeyDown={(e) => editingShortcut === 'pause' && handleShortcutCapture('pause', e)}
-                  placeholder="Appuyez sur une touche..."
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="reset">Réinitialiser l'animation</Label>
-                <Input
-                  id="reset"
-                  value={shortcuts.reset}
-                  readOnly
-                  className="font-mono cursor-pointer"
-                  onFocus={() => setEditingShortcut('reset')}
-                  onKeyDown={(e) => editingShortcut === 'reset' && handleShortcutCapture('reset', e)}
-                  placeholder="Appuyez sur une touche..."
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="fullscreen">Activer/Désactiver plein écran</Label>
-                <Input
-                  id="fullscreen"
-                  value={shortcuts.fullscreen}
-                  readOnly
-                  className="font-mono cursor-pointer"
-                  onFocus={() => setEditingShortcut('fullscreen')}
-                  onKeyDown={(e) => editingShortcut === 'fullscreen' && handleShortcutCapture('fullscreen', e)}
-                  placeholder="Appuyez sur une touche..."
-                />
-              </div>
-              
-              <div className="pt-4 border-t border-border space-y-2">
-                <Label className="text-sm font-semibold">Raccourcis fixes</Label>
-                <div className="space-y-2 text-sm text-muted-foreground">
-                  <div className="flex justify-between items-center p-2 bg-secondary/50 rounded">
-                    <span>Avancer d'un caractère</span>
-                    <span className="font-mono text-foreground">→</span>
+
+            <Dialog open={isShortcutsDialogOpen} onOpenChange={setIsShortcutsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-border hover:bg-secondary"
+                  title="Configurer les raccourcis clavier"
+                >
+                  <Keyboard className="w-4 h-4" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[500px]">
+                <DialogHeader>
+                  <DialogTitle>Raccourcis clavier</DialogTitle>
+                  <DialogDescription>
+                    Cliquez sur un champ et appuyez sur la touche souhaitée pour configurer un raccourci.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="record">Démarrer/Arrêter l'enregistrement</Label>
+                    <Input
+                      id="record"
+                      value={shortcuts.record}
+                      readOnly
+                      className="font-mono cursor-pointer"
+                      onFocus={() => setEditingShortcut("record")}
+                      onKeyDown={(e) => editingShortcut === "record" && handleShortcutCapture("record", e)}
+                      placeholder="Appuyez sur une touche..."
+                    />
                   </div>
-                  <div className="flex justify-between items-center p-2 bg-secondary/50 rounded">
-                    <span>Reculer d'un caractère</span>
-                    <span className="font-mono text-foreground">←</span>
+                  <div className="space-y-2">
+                    <Label htmlFor="pause">Pause/Reprendre l'animation</Label>
+                    <Input
+                      id="pause"
+                      value={shortcuts.pause === " " ? "Espace" : shortcuts.pause}
+                      readOnly
+                      className="font-mono cursor-pointer"
+                      onFocus={() => setEditingShortcut("pause")}
+                      onKeyDown={(e) => editingShortcut === "pause" && handleShortcutCapture("pause", e)}
+                      placeholder="Appuyez sur une touche..."
+                    />
                   </div>
-                  <div className="flex justify-between items-center p-2 bg-secondary/50 rounded">
-                    <span>Quitter le plein écran</span>
-                    <span className="font-mono text-foreground">Échap</span>
+                  <div className="space-y-2">
+                    <Label htmlFor="reset">Réinitialiser l'animation</Label>
+                    <Input
+                      id="reset"
+                      value={shortcuts.reset}
+                      readOnly
+                      className="font-mono cursor-pointer"
+                      onFocus={() => setEditingShortcut("reset")}
+                      onKeyDown={(e) => editingShortcut === "reset" && handleShortcutCapture("reset", e)}
+                      placeholder="Appuyez sur une touche..."
+                    />
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="fullscreen">Activer/Désactiver plein écran</Label>
+                    <Input
+                      id="fullscreen"
+                      value={shortcuts.fullscreen}
+                      readOnly
+                      className="font-mono cursor-pointer"
+                      onFocus={() => setEditingShortcut("fullscreen")}
+                      onKeyDown={(e) => editingShortcut === "fullscreen" && handleShortcutCapture("fullscreen", e)}
+                      placeholder="Appuyez sur une touche..."
+                    />
+                  </div>
+
+                  <div className="pt-4 border-t border-border space-y-2">
+                    <Label className="text-sm font-semibold">Raccourcis fixes</Label>
+                    <div className="space-y-2 text-sm text-muted-foreground">
+                      <div className="flex justify-between items-center p-2 bg-secondary/50 rounded">
+                        <span>Avancer d'un caractère</span>
+                        <span className="font-mono text-foreground">→</span>
+                      </div>
+                      <div className="flex justify-between items-center p-2 bg-secondary/50 rounded">
+                        <span>Reculer d'un caractère</span>
+                        <span className="font-mono text-foreground">←</span>
+                      </div>
+                      <div className="flex justify-between items-center p-2 bg-secondary/50 rounded">
+                        <span>Quitter le plein écran</span>
+                        <span className="font-mono text-foreground">Échap</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Button variant="outline" onClick={resetShortcutsToDefault} className="w-full">
+                    Réinitialiser par défaut
+                  </Button>
                 </div>
-              </div>
+              </DialogContent>
+            </Dialog>
+          </div>
 
-              <Button
-                variant="outline"
-                onClick={resetShortcutsToDefault}
-                className="w-full"
-              >
-                Réinitialiser par défaut
-              </Button>
+          {/* Ligne 2: Timeline Control */}
+          <div className="px-4 py-3 flex items-center justify-center">
+            <div className="w-full max-w-4xl mt-2">
+              <TimelineControl
+                currentIndex={currentIndex}
+                totalLength={code.length}
+                speed={speed}
+                onPositionChange={(index) => {
+                  setCurrentIndex(index);
+                  setDisplayedCode(code.slice(0, index));
+                  if (!isPaused) setIsPaused(true);
+                }}
+                onDragStart={() => setIsDraggingSlider(true)}
+                onDragEnd={() => setIsDraggingSlider(false)}
+              />
             </div>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      {/* Ligne 2: Timeline Control */}
-      <div className="px-4 py-3 flex items-center justify-center">
-        <div className="w-full max-w-4xl">
-          <TimelineControl
-            currentIndex={currentIndex}
-            totalLength={code.length}
-            speed={speed}
-            onPositionChange={(index) => {
-              setCurrentIndex(index);
-              setDisplayedCode(code.slice(0, index));
-              if (!isPaused) setIsPaused(true);
-            }}
-            onDragStart={() => setIsDraggingSlider(true)}
-            onDragEnd={() => setIsDraggingSlider(false)}
-          />
+          </div>
         </div>
-      </div>
-      </div>
       )}
 
       {/* Progress Bar */}
       {!isFullscreen && (
-      <div className="h-1 bg-secondary">
-        <motion.div
-          className="h-full bg-primary"
-          initial={{ width: 0 }}
-          animate={{ width: `${progress}%` }}
-          transition={{ duration: 0.1 }}
-        />
-      </div>
+        <div className="h-1 bg-secondary">
+          <motion.div
+            className="h-full bg-primary"
+            initial={{ width: 0 }}
+            animate={{ width: `${progress}%` }}
+            transition={{ duration: 0.1 }}
+          />
+        </div>
       )}
 
       {/* Video Preview */}
@@ -873,18 +854,12 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
           className="bg-panel-bg border-b border-border p-4"
         >
           <div className="flex items-center gap-4">
-            <div className="text-sm text-muted-foreground font-medium">
-              Aperçu de la vidéo :
-            </div>
-            <video
-              src={videoPreviewUrl}
-              controls
-              className="h-32 rounded border border-border bg-black"
-            />
+            <div className="text-sm text-muted-foreground font-medium">Aperçu de la vidéo :</div>
+            <video src={videoPreviewUrl} controls className="h-32 rounded border border-border bg-black" />
             <div className="flex-1 flex flex-col gap-2">
               <div className="text-xs text-muted-foreground">
-                Format: {recordedBlob?.type.includes("mp4") ? "MP4" : "WebM"} •{" "}
-                Taille: {((recordedBlob?.size || 0) / 1024 / 1024).toFixed(2)} MB
+                Format: {recordedBlob?.type.includes("mp4") ? "MP4" : "WebM"} • Taille:{" "}
+                {((recordedBlob?.size || 0) / 1024 / 1024).toFixed(2)} MB
               </div>
               <Button
                 onClick={() => {
@@ -957,7 +932,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
             cursorBlinking: "solid",
           }}
         />
-        
+
         {/* Cursor effect */}
         {currentIndex < code.length && !isPaused && (
           <motion.div
@@ -974,30 +949,30 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
 
       {/* Console */}
       {!isFullscreen && (
-      <div className="h-32 bg-panel-bg border-t border-border px-4 py-2 text-xs font-mono overflow-y-auto">
-        <div className="flex items-center justify-between mb-1">
-          <span className="text-muted-foreground">Console</span>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 px-2 text-[11px] text-muted-foreground"
-            onClick={() => setLogs([])}
-          >
-            Effacer
-          </Button>
-        </div>
-        {logs.length === 0 ? (
-          <div className="text-muted-foreground/70">Aucun log pour le moment.</div>
-        ) : (
-          <div className="space-y-0.5">
-            {logs.map((log, index) => (
-              <div key={index} className="text-muted-foreground whitespace-pre-wrap">
-                {log}
-              </div>
-            ))}
+        <div className="h-32 bg-panel-bg border-t border-border px-4 py-2 text-xs font-mono overflow-y-auto">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-muted-foreground">Console</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-[11px] text-muted-foreground"
+              onClick={() => setLogs([])}
+            >
+              Effacer
+            </Button>
           </div>
-        )}
-      </div>
+          {logs.length === 0 ? (
+            <div className="text-muted-foreground/70">Aucun log pour le moment.</div>
+          ) : (
+            <div className="space-y-0.5">
+              {logs.map((log, index) => (
+                <div key={index} className="text-muted-foreground whitespace-pre-wrap">
+                  {log}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       )}
     </div>
   );
