@@ -82,6 +82,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
   const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
   const [editingShortcut, setEditingShortcut] = useState<keyof KeyboardShortcuts | null>(null);
   const [countdown, setCountdown] = useState<number | null>(null);
+  const [isLoopEnabled, setIsLoopEnabled] = useState(false);
 
   const recorderRef = useRef<RecordRTC | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -177,7 +178,15 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
 
   useEffect(() => {
     if (currentIndex >= code.length) {
-      // Arrêter automatiquement à la fin
+      // Si mode boucle activé, redémarrer automatiquement
+      if (isLoopEnabled) {
+        const timer = setTimeout(() => {
+          setCurrentIndex(0);
+          setDisplayedCode("");
+        }, 500); // Petite pause avant de recommencer
+        return () => clearTimeout(timer);
+      }
+      // Sinon, arrêter automatiquement à la fin
       if (!isPaused) {
         setIsPaused(true);
       }
@@ -192,7 +201,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
     }, delay);
 
     return () => clearTimeout(timer);
-  }, [currentIndex, code, isPaused, speed, isDraggingSlider]);
+  }, [currentIndex, code, isPaused, speed, isDraggingSlider, isLoopEnabled]);
 
   const handleReset = () => {
     setDisplayedCode("");
@@ -712,6 +721,23 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
                               ? "Rapide"
                               : "Très rapide"}
                     </span>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <Label className="text-sm font-semibold">Mode boucle</Label>
+                  <div className="flex items-center justify-between p-4 bg-secondary/30 rounded-lg">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-sm font-medium">Boucle automatique</span>
+                      <span className="text-xs text-muted-foreground">
+                        Redémarre l'animation automatiquement à la fin
+                      </span>
+                    </div>
+                    <Switch
+                      checked={isLoopEnabled}
+                      onCheckedChange={setIsLoopEnabled}
+                      disabled={isRecording || isConverting}
+                    />
                   </div>
                 </div>
 
