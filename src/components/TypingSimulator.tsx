@@ -19,6 +19,11 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import TimelineControl from "@/components/TimelineControl";
 import {
+  ResizablePanelGroup,
+  ResizablePanel,
+  ResizableHandle,
+} from "@/components/ui/resizable";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -857,47 +862,6 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
         </div>
       )}
 
-      {/* Video Preview */}
-      {videoPreviewUrl && !isFullscreen && (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-panel-bg border-b border-border p-4"
-        >
-          <div className="flex items-center gap-4">
-            <div className="text-sm text-muted-foreground font-medium">Aperçu de la vidéo :</div>
-            <video src={videoPreviewUrl} controls className="h-32 rounded border border-border bg-black" />
-            <div className="flex-1 flex flex-col gap-2">
-              <div className="text-xs text-muted-foreground">
-                Format: {recordedBlob?.type.includes("mp4") ? "MP4" : "WebM"} • Taille:{" "}
-                {((recordedBlob?.size || 0) / 1024 / 1024).toFixed(2)} MB
-              </div>
-              <Button
-                onClick={() => {
-                  if (recordedBlob) {
-                    const url = URL.createObjectURL(recordedBlob);
-                    const a = document.createElement("a");
-                    a.href = url;
-                    a.download = `code-typing-${Date.now()}.${recordedBlob.type.includes("mp4") ? "mp4" : "webm"}`;
-                    a.click();
-                    URL.revokeObjectURL(url);
-                    addLog("Vidéo téléchargée");
-                    toast({
-                      title: "Téléchargement lancé",
-                      description: "Votre vidéo a été téléchargée avec succès",
-                    });
-                  }
-                }}
-                className="w-fit"
-              >
-                <MdDownload className="w-4 h-4 mr-2" />
-                Télécharger la vidéo
-              </Button>
-            </div>
-          </div>
-        </motion.div>
-      )}
-
       {/* Recording Guide */}
       {isRecording && !isFullscreen && <RecordingGuide />}
 
@@ -921,42 +885,93 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
         </motion.div>
       )}
 
-      {/* Editor with typing effect */}
-      <div className="flex-1 overflow-hidden relative">
-        <Editor
-          height="100%"
-          defaultLanguage="python"
-          value={displayedCode}
-          theme="vs-dark"
-          options={{
-            fontSize: 14,
-            fontFamily: "Fira Code, Consolas, Monaco, monospace",
-            minimap: { enabled: false },
-            lineNumbers: "on",
-            renderLineHighlight: "all",
-            scrollBeyondLastLine: false,
-            automaticLayout: true,
-            tabSize: 4,
-            wordWrap: "on",
-            readOnly: true,
-            cursorStyle: "block",
-            cursorBlinking: "solid",
-          }}
-        />
+      {/* Editor and Video Preview Layout */}
+      <ResizablePanelGroup direction="horizontal" className="flex-1">
+        {/* Editor Panel */}
+        <ResizablePanel defaultSize={videoPreviewUrl && !isFullscreen ? 65 : 100} minSize={30}>
+          <div className="h-full overflow-hidden relative">
+            <Editor
+              height="100%"
+              defaultLanguage="python"
+              value={displayedCode}
+              theme="vs-dark"
+              options={{
+                fontSize: 14,
+                fontFamily: "Fira Code, Consolas, Monaco, monospace",
+                minimap: { enabled: false },
+                lineNumbers: "on",
+                renderLineHighlight: "all",
+                scrollBeyondLastLine: false,
+                automaticLayout: true,
+                tabSize: 4,
+                wordWrap: "on",
+                readOnly: true,
+                cursorStyle: "block",
+                cursorBlinking: "solid",
+              }}
+            />
 
-        {/* Cursor effect */}
-        {currentIndex < code.length && !isPaused && (
-          <motion.div
-            className="absolute w-2 h-5 bg-primary"
-            animate={{ opacity: [1, 0, 1] }}
-            transition={{ duration: 0.8, repeat: Infinity }}
-            style={{
-              left: `${(currentIndex % 80) * 8}px`,
-              top: `${Math.floor(currentIndex / 80) * 20}px`,
-            }}
-          />
+            {/* Cursor effect */}
+            {currentIndex < code.length && !isPaused && (
+              <motion.div
+                className="absolute w-2 h-5 bg-primary"
+                animate={{ opacity: [1, 0, 1] }}
+                transition={{ duration: 0.8, repeat: Infinity }}
+                style={{
+                  left: `${(currentIndex % 80) * 8}px`,
+                  top: `${Math.floor(currentIndex / 80) * 20}px`,
+                }}
+              />
+            )}
+          </div>
+        </ResizablePanel>
+
+        {/* Video Preview Panel */}
+        {videoPreviewUrl && !isFullscreen && (
+          <>
+            <ResizableHandle withHandle />
+            <ResizablePanel defaultSize={35} minSize={20}>
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="h-full bg-panel-bg border-l border-border flex flex-col"
+              >
+                <div className="p-4 border-b border-border">
+                  <div className="text-sm text-muted-foreground font-medium mb-2">Aperçu de la vidéo</div>
+                  <div className="text-xs text-muted-foreground">
+                    Format: {recordedBlob?.type.includes("mp4") ? "MP4" : "WebM"} • Taille:{" "}
+                    {((recordedBlob?.size || 0) / 1024 / 1024).toFixed(2)} MB
+                  </div>
+                </div>
+                <div className="flex-1 flex flex-col items-center justify-center p-4 gap-4">
+                  <video src={videoPreviewUrl} controls className="w-full max-h-[60vh] rounded border border-border bg-black" />
+                  <Button
+                    onClick={() => {
+                      if (recordedBlob) {
+                        const url = URL.createObjectURL(recordedBlob);
+                        const a = document.createElement("a");
+                        a.href = url;
+                        a.download = `code-typing-${Date.now()}.${recordedBlob.type.includes("mp4") ? "mp4" : "webm"}`;
+                        a.click();
+                        URL.revokeObjectURL(url);
+                        addLog("Vidéo téléchargée");
+                        toast({
+                          title: "Téléchargement lancé",
+                          description: "Votre vidéo a été téléchargée avec succès",
+                        });
+                      }
+                    }}
+                    className="w-full"
+                  >
+                    <MdDownload className="w-4 h-4 mr-2" />
+                    Télécharger la vidéo
+                  </Button>
+                </div>
+              </motion.div>
+            </ResizablePanel>
+          </>
         )}
-      </div>
+      </ResizablePanelGroup>
 
       {/* Console */}
       {!isFullscreen && (
