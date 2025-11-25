@@ -114,26 +114,32 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
         }
       }
       
-      // Pause/Reprendre
-      if (key === shortcuts.pause && !isRecording && !isConverting) {
+      // Pause/Reprendre (autorisé même pendant l'enregistrement)
+      if (key === shortcuts.pause && !isConverting) {
         e.preventDefault();
         setIsPaused(!isPaused);
+        if (isRecording) {
+          addLog(isPaused ? "Animation reprise" : "Animation mise en pause");
+        }
       }
       
-      // Reset
-      if (key === shortcuts.reset && !isRecording && !isConverting) {
+      // Reset (autorisé même pendant l'enregistrement pour recommencer)
+      if (key === shortcuts.reset && !isConverting) {
         e.preventDefault();
         handleReset();
+        if (isRecording) {
+          addLog("Animation réinitialisée pendant l'enregistrement");
+        }
       }
       
-      // Plein écran
+      // Plein écran (désactivé pendant l'enregistrement)
       if (key === shortcuts.fullscreen && !isRecording) {
         e.preventDefault();
         setIsFullscreen(!isFullscreen);
       }
       
-      // Echap pour quitter le mode plein écran
-      if (e.key === 'Escape' && isFullscreen) {
+      // Echap pour quitter le mode plein écran (désactivé pendant l'enregistrement)
+      if (e.key === 'Escape' && isFullscreen && !isRecording) {
         setIsFullscreen(false);
       }
     };
@@ -182,6 +188,10 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
 
   const startRecording = async () => {
     try {
+      // Réinitialiser l'animation au début
+      handleReset();
+      addLog("Animation réinitialisée avant l'enregistrement");
+      
       // Si mode éditeur, activer le plein écran d'abord
       if (captureMode === 'editor' && !isFullscreen) {
         setIsFullscreen(true);
