@@ -1,7 +1,19 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import Editor from "@monaco-editor/react";
-import { MdPause, MdPlayArrow, MdRefresh, MdSpeed, MdVideocam, MdDownload, MdStopCircle, MdSettings, MdKeyboard, MdFullscreen, MdFullscreenExit } from "react-icons/md";
+import {
+  MdPause,
+  MdPlayArrow,
+  MdRefresh,
+  MdSpeed,
+  MdVideocam,
+  MdDownload,
+  MdStopCircle,
+  MdSettings,
+  MdKeyboard,
+  MdFullscreen,
+  MdFullscreenExit,
+} from "react-icons/md";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
@@ -815,7 +827,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
 
           {/* Ligne 2: Timeline Control */}
           <div className="px-4 py-3 flex items-center justify-center">
-            <div className="w-full max-w-4xl mt-2">
+            <div className="w-full max-w-4xl my-2">
               <TimelineControl
                 currentIndex={currentIndex}
                 totalLength={code.length}
