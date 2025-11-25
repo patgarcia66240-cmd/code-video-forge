@@ -5,9 +5,10 @@ import ActivityBar from "./ActivityBar";
 interface VSCodeLayoutProps {
   children: ReactNode;
   onSettingsClick?: () => void;
+  onExplorerClick?: () => void;
 }
 
-const VSCodeLayout = ({ children, onSettingsClick }: VSCodeLayoutProps) => {
+const VSCodeLayout = ({ children, onSettingsClick, onExplorerClick }: VSCodeLayoutProps) => {
   return (
     <div className="h-screen w-screen flex flex-col bg-background overflow-hidden">
       {/* Title Bar */}
@@ -17,7 +18,7 @@ const VSCodeLayout = ({ children, onSettingsClick }: VSCodeLayoutProps) => {
       </div>
 
       <div className="flex flex-1 overflow-hidden">
-        <ActivityBar onSettingsClick={onSettingsClick} />
+        <ActivityBar onSettingsClick={onSettingsClick} onExplorerClick={onExplorerClick} />
 
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
