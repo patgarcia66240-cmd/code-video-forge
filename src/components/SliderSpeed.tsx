@@ -9,7 +9,7 @@ interface SliderSpeedProps {
 
 const SliderSpeed = ({ speed, setSpeed }: SliderSpeedProps) => {
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-3">
       {speed < 30 ? (
         <GiTurtle className="w-6 h-6 text-muted-foreground transition-all duration-300" />
       ) : speed < 70 ? (
