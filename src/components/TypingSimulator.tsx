@@ -84,6 +84,7 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady }: TypingSimulatorP
   const [editingShortcut, setEditingShortcut] = useState<keyof KeyboardShortcuts | null>(null);
   const [countdown, setCountdown] = useState<number | null>(null);
   const [isLoopEnabled, setIsLoopEnabled] = useState(false);
+  const [loopCount, setLoopCount] = useState(0);
 
   const recorderRef = useRef<RecordRTC | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -191,6 +192,7 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady }: TypingSimulatorP
         const timer = setTimeout(() => {
           setCurrentIndex(0);
           setDisplayedCode("");
+          setLoopCount(prev => prev + 1); // Incrémenter le compteur de boucles
         }, 500); // Petite pause avant de recommencer
         return () => clearTimeout(timer);
       }
@@ -218,6 +220,7 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady }: TypingSimulatorP
     setRecordedBlob(null);
     setVideoPreviewUrl(null);
     setLogs([]);
+    setLoopCount(0); // Réinitialiser le compteur de boucles
   };
 
   const handleSliderChange = (value: number[]) => {
@@ -512,6 +515,14 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady }: TypingSimulatorP
                 <MdRefresh className="w-4 h-4 mr-2" />
                 Réinitialiser
               </Button>
+
+              {/* Compteur de boucles */}
+              {isLoopEnabled && loopCount > 0 && (
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 border border-primary/20 rounded text-xs text-primary font-medium animate-fade-in">
+                  <MdRefresh className="w-3.5 h-3.5" />
+                  <span>{loopCount} boucle{loopCount > 1 ? 's' : ''}</span>
+                </div>
+              )}
             </div>
 
             <div className="h-8 w-px bg-border" />
