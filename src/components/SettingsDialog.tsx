@@ -76,10 +76,11 @@ const SettingsDialog = ({
         </DialogHeader>
 
         <Tabs defaultValue="general" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="general">Général</TabsTrigger>
             <TabsTrigger value="video">Vidéo</TabsTrigger>
             <TabsTrigger value="audio">Audio</TabsTrigger>
+            <TabsTrigger value="about">À propos</TabsTrigger>
           </TabsList>
 
           {/* Onglet Général */}
@@ -305,6 +306,73 @@ const SettingsDialog = ({
                 <p className="text-xs text-muted-foreground mt-2">
                   Cette fonctionnalité sera ajoutée dans une prochaine version.
                 </p>
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* Onglet À propos */}
+          <TabsContent value="about" className="space-y-6 py-4">
+            <div className="space-y-6">
+              {/* Version */}
+              <div className="space-y-3">
+                <Label className="text-sm font-semibold">Version</Label>
+                <div className="p-4 bg-secondary/30 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Code Typing Simulator</span>
+                    <span className="text-sm font-mono font-semibold">v1.0.0</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div className="space-y-3">
+                <Label className="text-sm font-semibold">Description</Label>
+                <div className="p-4 bg-secondary/30 rounded-lg">
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Simulateur de frappe de code avec enregistrement vidéo. Créez des animations professionnelles 
+                    de code qui s'écrit automatiquement, parfait pour les tutoriels, présentations et démos.
+                  </p>
+                </div>
+              </div>
+
+              {/* Crédits */}
+              <div className="space-y-3">
+                <Label className="text-sm font-semibold">Technologies</Label>
+                <div className="p-4 bg-secondary/30 rounded-lg space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Interface</span>
+                    <span className="font-medium">React + Vite</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Éditeur de code</span>
+                    <span className="font-medium">Monaco Editor</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Animations</span>
+                    <span className="font-medium">Framer Motion</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Enregistrement</span>
+                    <span className="font-medium">RecordRTC</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Conversion vidéo</span>
+                    <span className="font-medium">FFmpeg.wasm</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Design</span>
+                    <span className="font-medium">Tailwind CSS</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Informations supplémentaires */}
+              <div className="space-y-3">
+                <div className="p-4 bg-accent/30 rounded-lg border border-border">
+                  <p className="text-xs text-muted-foreground text-center">
+                    Tous les paramètres sont automatiquement sauvegardés dans votre navigateur
+                  </p>
+                </div>
               </div>
             </div>
           </TabsContent>
