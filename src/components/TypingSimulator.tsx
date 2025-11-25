@@ -1,9 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import Editor from "@monaco-editor/react";
-import { Pause, Play, RotateCcw, Gauge } from "lucide-react";
+import { Pause, Play, RotateCcw, Gauge, Video, Download, StopCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import { useToast } from "@/hooks/use-toast";
+import RecordRTC from "recordrtc";
+import RecordingGuide from "./RecordingGuide";
 
 interface TypingSimulatorProps {
   code: string;
@@ -15,6 +18,12 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [speed, setSpeed] = useState(50);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
+  
+  const recorderRef = useRef<RecordRTC | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (currentIndex >= code.length) return;
@@ -33,12 +42,92 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
     setDisplayedCode("");
     setCurrentIndex(0);
     setIsPaused(false);
+    setRecordedBlob(null);
+  };
+
+  const startRecording = async () => {
+    try {
+      // Capture l'écran de l'éditeur
+      const stream = await navigator.mediaDevices.getDisplayMedia({
+        video: {
+          displaySurface: "browser",
+          width: { ideal: 1920 },
+          height: { ideal: 1080 },
+          frameRate: { ideal: 30 }
+        },
+        audio: false
+      });
+
+      streamRef.current = stream;
+
+      const recorder = new RecordRTC(stream, {
+        type: "video",
+        mimeType: "video/webm",
+        videoBitsPerSecond: 2500000,
+        frameRate: 30,
+      });
+
+      recorder.startRecording();
+      recorderRef.current = recorder;
+      setIsRecording(true);
+
+      toast({
+        title: "Enregistrement démarré",
+        description: "La vidéo est en cours d'enregistrement",
+      });
+
+      // Arrêter automatiquement quand l'animation est terminée
+      stream.getVideoTracks()[0].addEventListener("ended", () => {
+        stopRecording();
+      });
+    } catch (error) {
+      console.error("Erreur lors du démarrage de l'enregistrement:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de démarrer l'enregistrement. Assurez-vous d'avoir autorisé le partage d'écran.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const stopRecording = () => {
+    if (recorderRef.current && streamRef.current) {
+      recorderRef.current.stopRecording(() => {
+        const blob = recorderRef.current!.getBlob();
+        setRecordedBlob(blob);
+        setIsRecording(false);
+
+        // Arrêter tous les tracks du stream
+        streamRef.current!.getTracks().forEach(track => track.stop());
+
+        toast({
+          title: "Enregistrement terminé",
+          description: "Votre vidéo est prête à être téléchargée",
+        });
+      });
+    }
+  };
+
+  const downloadRecording = () => {
+    if (recordedBlob) {
+      const url = URL.createObjectURL(recordedBlob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `code-typing-${Date.now()}.webm`;
+      a.click();
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: "Téléchargement lancé",
+        description: "Votre vidéo a été téléchargée",
+      });
+    }
   };
 
   const progress = (currentIndex / code.length) * 100;
 
   return (
-    <div className="flex-1 flex flex-col bg-editor">
+    <div className="flex-1 flex flex-col bg-editor relative">
       {/* Tab Bar */}
       <div className="h-10 bg-panel-bg flex items-center px-4 border-b border-border">
         <div className="flex items-center gap-2 px-3 py-1 bg-editor rounded-t border-t-2 border-primary">
@@ -50,34 +139,73 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
       </div>
 
       {/* Controls */}
-      <div className="h-16 bg-panel-bg border-b border-border flex items-center px-4 gap-4">
-        <Button
-          onClick={() => setIsPaused(!isPaused)}
-          className="bg-vscode-button hover:bg-vscode-button-hover text-white"
-          size="sm"
-        >
-          {isPaused ? (
-            <>
-              <Play className="w-4 h-4 mr-2" />
-              Reprendre
-            </>
-          ) : (
-            <>
-              <Pause className="w-4 h-4 mr-2" />
-              Pause
-            </>
-          )}
-        </Button>
+      <div className="h-16 bg-panel-bg border-b border-border flex items-center px-4 gap-4 flex-wrap">
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={() => setIsPaused(!isPaused)}
+            className="bg-vscode-button hover:bg-vscode-button-hover text-white"
+            size="sm"
+          >
+            {isPaused ? (
+              <>
+                <Play className="w-4 h-4 mr-2" />
+                Reprendre
+              </>
+            ) : (
+              <>
+                <Pause className="w-4 h-4 mr-2" />
+                Pause
+              </>
+            )}
+          </Button>
 
-        <Button
-          onClick={handleReset}
-          variant="outline"
-          size="sm"
-          className="border-border hover:bg-secondary"
-        >
-          <RotateCcw className="w-4 h-4 mr-2" />
-          Réinitialiser
-        </Button>
+          <Button
+            onClick={handleReset}
+            variant="outline"
+            size="sm"
+            className="border-border hover:bg-secondary"
+          >
+            <RotateCcw className="w-4 h-4 mr-2" />
+            Réinitialiser
+          </Button>
+        </div>
+
+        <div className="h-8 w-px bg-border" />
+
+        <div className="flex items-center gap-2">
+          {!isRecording ? (
+            <Button
+              onClick={startRecording}
+              variant="outline"
+              size="sm"
+              className="border-destructive text-destructive hover:bg-destructive hover:text-white"
+            >
+              <Video className="w-4 h-4 mr-2" />
+              Enregistrer
+            </Button>
+          ) : (
+            <Button
+              onClick={stopRecording}
+              variant="outline"
+              size="sm"
+              className="border-destructive text-destructive hover:bg-destructive hover:text-white animate-pulse"
+            >
+              <StopCircle className="w-4 h-4 mr-2" />
+              Arrêter
+            </Button>
+          )}
+
+          {recordedBlob && (
+            <Button
+              onClick={downloadRecording}
+              className="bg-primary hover:bg-primary/90 text-primary-foreground"
+              size="sm"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Télécharger MP4
+            </Button>
+          )}
+        </div>
 
         <div className="flex items-center gap-3 ml-4 flex-1 max-w-xs">
           <Gauge className="w-4 h-4 text-muted-foreground" />
@@ -113,6 +241,9 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
           transition={{ duration: 0.1 }}
         />
       </div>
+
+      {/* Recording Guide */}
+      {isRecording && <RecordingGuide />}
 
       {/* Editor with typing effect */}
       <div className="flex-1 overflow-hidden relative">
