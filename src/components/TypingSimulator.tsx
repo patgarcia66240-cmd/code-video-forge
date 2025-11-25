@@ -37,6 +37,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
   const [mp4Quality, setMp4Quality] = useState<'high' | 'medium' | 'fast'>('medium');
   const [mp4Preset, setMp4Preset] = useState<'ultrafast' | 'fast' | 'medium'>('ultrafast');
   const [mp4Resolution, setMp4Resolution] = useState<'original' | '1080p' | '720p'>('original');
+  const [logs, setLogs] = useState<string[]>([]);
   
   const recorderRef = useRef<RecordRTC | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -60,6 +61,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
     setCurrentIndex(0);
     setIsPaused(false);
     setRecordedBlob(null);
+    setLogs([]);
   };
 
   const handleSliderChange = (value: number[]) => {
@@ -73,8 +75,14 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
     setIsDraggingSlider(false);
   };
 
+  const addLog = (message: string) => {
+    const timestamp = new Date().toLocaleTimeString();
+    setLogs((prev) => [...prev.slice(-98), `[${timestamp}] ${message}`]);
+  };
+
   const startRecording = async () => {
     try {
+      addLog("Demande de partage d'écran...");
       // Capture l'écran de l'éditeur
       const stream = await navigator.mediaDevices.getDisplayMedia({
         video: {
@@ -86,6 +94,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
         audio: false
       });
 
+      addLog("Partage d'écran accepté, démarrage de l'enregistrement...");
       streamRef.current = stream;
 
       const recorder = new RecordRTC(stream, {
@@ -106,10 +115,12 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
 
       // Arrêter automatiquement quand l'animation est terminée
       stream.getVideoTracks()[0].addEventListener("ended", () => {
+        addLog("Partage d'écran arrêté par l'utilisateur");
         stopRecording();
       });
     } catch (error) {
       console.error("Erreur lors du démarrage de l'enregistrement:", error);
+      addLog("Erreur lors du démarrage de l'enregistrement");
       toast({
         title: "Erreur",
         description: "Impossible de démarrer l'enregistrement. Assurez-vous d'avoir autorisé le partage d'écran.",
@@ -120,16 +131,19 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
 
   const stopRecording = async () => {
     if (recorderRef.current && streamRef.current) {
+      addLog("Arrêt de l'enregistrement, récupération du fichier WebM...");
       recorderRef.current.stopRecording(async () => {
         const webmBlob = recorderRef.current!.getBlob();
         setIsRecording(false);
 
         // Arrêter tous les tracks du stream
         streamRef.current!.getTracks().forEach(track => track.stop());
+        addLog(`Fichier WebM obtenu (${webmBlob.size} octets)`);
 
         // Si format WebM, télécharger directement
         if (exportFormat === 'webm') {
           setRecordedBlob(webmBlob);
+          addLog("Mode WebM : aucun traitement supplémentaire, prêt à télécharger.");
           toast({
             title: "Vidéo prête !",
             description: "Votre vidéo WebM est prête à être téléchargée",
@@ -142,6 +156,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
           title: "Conversion en MP4",
           description: "Conversion de la vidéo en cours...",
         });
+        addLog("Démarrage de la conversion MP4 via FFmpeg...");
 
         try {
           setIsConverting(true);
@@ -160,12 +175,14 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
             },
             (progress) => {
               setConversionProgress(progress);
+              addLog(`Progression FFmpeg: ${progress}%`);
             }
           );
           
           setRecordedBlob(mp4Blob);
           setIsConverting(false);
           setConversionProgress(0);
+          addLog("Conversion MP4 terminée avec succès.");
 
           toast({
             title: "Vidéo prête !",
@@ -175,6 +192,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
           console.error("Erreur lors de la conversion:", error);
           setIsConverting(false);
           setConversionProgress(0);
+          addLog("Erreur lors de la conversion MP4. Fallback en WebM.");
           // En cas d'erreur, garder le WebM
           setRecordedBlob(webmBlob);
           
@@ -197,6 +215,8 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
       a.download = `code-typing-${Date.now()}.${extension}`;
       a.click();
       URL.revokeObjectURL(url);
+
+      addLog(`Téléchargement du fichier ${extension.toUpperCase()} demandé.`);
 
       toast({
         title: "Téléchargement lancé",
@@ -509,6 +529,32 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
               top: `${Math.floor(currentIndex / 80) * 20}px`,
             }}
           />
+        )}
+      </div>
+
+      {/* Console */}
+      <div className="h-32 bg-panel-bg border-t border-border px-4 py-2 text-xs font-mono overflow-y-auto">
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-muted-foreground">Console</span>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 px-2 text-[11px] text-muted-foreground"
+            onClick={() => setLogs([])}
+          >
+            Effacer
+          </Button>
+        </div>
+        {logs.length === 0 ? (
+          <div className="text-muted-foreground/70">Aucun log pour le moment.</div>
+        ) : (
+          <div className="space-y-0.5">
+            {logs.map((log, index) => (
+              <div key={index} className="text-muted-foreground whitespace-pre-wrap">
+                {log}
+              </div>
+            ))}
+          </div>
         )}
       </div>
     </div>
