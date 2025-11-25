@@ -192,7 +192,7 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady }: TypingSimulatorP
         const timer = setTimeout(() => {
           setCurrentIndex(0);
           setDisplayedCode("");
-          setLoopCount(prev => prev + 1); // Incrémenter le compteur de boucles
+          setLoopCount((prev) => prev + 1); // Incrémenter le compteur de boucles
         }, 500); // Petite pause avant de recommencer
         return () => clearTimeout(timer);
       }
@@ -520,23 +520,14 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady }: TypingSimulatorP
               {isLoopEnabled && loopCount > 0 && (
                 <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 border border-primary/20 rounded text-xs text-primary font-medium animate-fade-in">
                   <MdRefresh className="w-3.5 h-3.5" />
-                  <span>{loopCount} boucle{loopCount > 1 ? 's' : ''}</span>
+                  <span>
+                    {loopCount} boucle{loopCount > 1 ? "s" : ""}
+                  </span>
                 </div>
               )}
             </div>
 
             <div className="h-8 w-px bg-border" />
-
-            <Button
-              variant="ghost"
-              size="sm"
-              disabled={isRecording || isConverting}
-              className="h-8 w-8 p-0"
-              onClick={() => setIsSettingsDialogOpen(true)}
-              title="Paramètres"
-            >
-              <MdSettings className="h-4 w-4" />
-            </Button>
 
             <div className="h-8 w-px bg-border" />
 
@@ -601,17 +592,6 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady }: TypingSimulatorP
                 </Button>
               )}
             </div>
-
-            <Button
-              variant="ghost"
-              size="sm"
-              disabled={isRecording || isConverting}
-              className="h-8 w-8 p-0"
-              onClick={() => setIsSettingsDialogOpen(true)}
-              title="Paramètres"
-            >
-              <MdSettings className="h-4 w-4" />
-            </Button>
 
             <div className="h-8 w-px bg-border" />
 
