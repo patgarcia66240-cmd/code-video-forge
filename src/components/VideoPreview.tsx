@@ -153,11 +153,11 @@ Créé avec Code Typing Simulator`;
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <div className="space-y-1">
                 <div className="text-sm text-muted-foreground">Format</div>
-                <div className="text-md font-bold font-mono">{videoFormat}</div>
+                <div className="text-md font-semibold font-mono">{videoFormat}</div>
               </div>
               <div className="space-y-1">
                 <div className="text-sm text-muted-foreground">Taille du fichier</div>
-                <div className="text-md font-bold">{videoSize}</div>
+                <div className="text-md font-semibold">{videoSize}</div>
               </div>
               <div className="space-y-1">
                 <div className="text-sm text-muted-foreground">Type MIME</div>
@@ -165,7 +165,7 @@ Créé avec Code Typing Simulator`;
               </div>
               <div className="space-y-1">
                 <div className="text-sm text-muted-foreground">Statut</div>
-                <div className="text-md font-bold text-green-500">✓ Prêt</div>
+                <div className="text-md font-semibold text-green-500">✓ Prêt</div>
               </div>
             </div>
           </CardContent>
