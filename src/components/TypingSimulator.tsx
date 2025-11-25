@@ -38,6 +38,7 @@ import { convertWebMToMP4, cancelConversion } from "@/lib/ffmpeg";
 interface TypingSimulatorProps {
   code: string;
   onComplete: () => void;
+  onSettingsReady?: (callback: () => void) => void;
 }
 
 interface KeyboardShortcuts {
@@ -54,7 +55,7 @@ const defaultShortcuts: KeyboardShortcuts = {
   fullscreen: "f",
 };
 
-const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
+const TypingSimulator = ({ code, onComplete, onSettingsReady }: TypingSimulatorProps) => {
   const [displayedCode, setDisplayedCode] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -92,6 +93,13 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
   useEffect(() => {
     localStorage.setItem("typingSimulatorShortcuts", JSON.stringify(shortcuts));
   }, [shortcuts]);
+
+  // Fournir la fonction d'ouverture des paramètres au parent
+  useEffect(() => {
+    if (onSettingsReady) {
+      onSettingsReady(() => () => setIsSettingsDialogOpen(true));
+    }
+  }, [onSettingsReady]);
 
   // Créer l'URL de prévisualisation quand recordedBlob change
   useEffect(() => {

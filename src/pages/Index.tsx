@@ -32,12 +32,18 @@ result = processor.process()
 print(f"Résultat: {result}")
 `);
 
+  const [onSettingsClick, setOnSettingsClick] = useState<(() => void) | undefined>(undefined);
+
   return (
-    <VSCodeLayout>
+    <VSCodeLayout onSettingsClick={onSettingsClick}>
       {!isSimulating ? (
         <CodeEditor code={code} setCode={setCode} onStartSimulation={() => setIsSimulating(true)} />
       ) : (
-        <TypingSimulator code={code} onComplete={() => setIsSimulating(false)} />
+        <TypingSimulator 
+          code={code} 
+          onComplete={() => setIsSimulating(false)}
+          onSettingsReady={setOnSettingsClick}
+        />
       )}
     </VSCodeLayout>
   );
