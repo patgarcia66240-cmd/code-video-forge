@@ -100,10 +100,11 @@ Créé avec Code Typing Simulator`;
 
   const handleShareToYouTube = () => {
     toast({
-      title: "YouTube",
-      description: "Téléchargez d'abord la vidéo, puis uploadez-la sur YouTube Studio",
+      title: "Partager sur YouTube",
+      description: "Téléchargez la vidéo, puis allez sur YouTube > Créer > Importer une vidéo",
+      duration: 5000,
     });
-    window.open("https://studio.youtube.com/channel/upload", "_blank");
+    window.open("https://www.youtube.com", "_blank");
   };
 
   const handleShareToTwitter = () => {
