@@ -5,7 +5,6 @@ import {
   MdPause,
   MdPlayArrow,
   MdRefresh,
-  MdSpeed,
   MdVideocam,
   MdDownload,
   MdStopCircle,
@@ -15,9 +14,9 @@ import {
   MdFullscreenExit,
 } from "react-icons/md";
 import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import TimelineControl from "@/components/TimelineControl";
+import SliderSpeed from "@/components/SliderSpeed";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import SettingsDialog from "@/components/SettingsDialog";
 import {
@@ -596,18 +595,7 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady }: TypingSimulatorP
             <div className="h-8 w-px bg-border" />
 
             <div className="flex items-center gap-3 ml-4 flex-1 max-w-xs">
-              <MdSpeed className="w-4 h-4 text-muted-foreground" />
-              <Slider
-                value={[speed]}
-                onValueChange={(value) => setSpeed(value[0])}
-                min={0}
-                max={100}
-                step={10}
-                className="flex-1"
-              />
-              <span className="text-xs text-muted-foreground min-w-[60px]">
-                {speed === 0 ? "Lent" : speed === 100 ? "Rapide" : "Moyen"}
-              </span>
+              <SliderSpeed speed={speed} setSpeed={setSpeed} />
             </div>
 
             <Button onClick={onComplete} variant="outline" size="sm" className="border-border hover:bg-secondary">
