@@ -791,6 +791,25 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
                   placeholder="Appuyez sur une touche..."
                 />
               </div>
+              
+              <div className="pt-4 border-t border-border space-y-2">
+                <Label className="text-sm font-semibold">Raccourcis fixes</Label>
+                <div className="space-y-2 text-sm text-muted-foreground">
+                  <div className="flex justify-between items-center p-2 bg-secondary/50 rounded">
+                    <span>Avancer d'un caractère</span>
+                    <span className="font-mono text-foreground">→</span>
+                  </div>
+                  <div className="flex justify-between items-center p-2 bg-secondary/50 rounded">
+                    <span>Reculer d'un caractère</span>
+                    <span className="font-mono text-foreground">←</span>
+                  </div>
+                  <div className="flex justify-between items-center p-2 bg-secondary/50 rounded">
+                    <span>Quitter le plein écran</span>
+                    <span className="font-mono text-foreground">Échap</span>
+                  </div>
+                </div>
+              </div>
+
               <Button
                 variant="outline"
                 onClick={resetShortcutsToDefault}
