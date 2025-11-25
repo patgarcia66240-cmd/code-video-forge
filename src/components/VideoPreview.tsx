@@ -1,7 +1,9 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { MdDownload, MdDelete, MdInfo } from "react-icons/md";
+import { MdDownload, MdDelete, MdInfo, MdShare, MdContentCopy } from "react-icons/md";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 interface VideoPreviewProps {
   videoUrl: string;
@@ -11,6 +13,9 @@ interface VideoPreviewProps {
 }
 
 const VideoPreview = ({ videoUrl, videoBlob, onDownload, onDelete }: VideoPreviewProps) => {
+  const { toast } = useToast();
+  const [isSharing, setIsSharing] = useState(false);
+
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 B';
     const k = 1024;
@@ -26,6 +31,71 @@ const VideoPreview = ({ videoUrl, videoBlob, onDownload, onDelete }: VideoPrevie
 
   const videoFormat = videoBlob.type.includes("mp4") ? "MP4" : "WebM";
   const videoSize = formatFileSize(videoBlob.size);
+
+  const handleShare = async () => {
+    setIsSharing(true);
+    
+    try {
+      // Créer un fichier à partir du blob pour le partage
+      const fileName = `typing-animation-${Date.now()}.${videoFormat.toLowerCase()}`;
+      const file = new File([videoBlob], fileName, { type: videoBlob.type });
+
+      // Vérifier si l'API Web Share est disponible
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          title: 'Animation de code',
+          text: 'Regardez cette animation de code que j\'ai créée !',
+          files: [file],
+        });
+        
+        toast({
+          title: "Partagé !",
+          description: "La vidéo a été partagée avec succès",
+        });
+      } else {
+        // Fallback : copier les informations dans le presse-papier
+        const shareText = `Animation de code - Format: ${videoFormat}, Taille: ${videoSize}`;
+        await navigator.clipboard.writeText(shareText);
+        
+        toast({
+          title: "Informations copiées",
+          description: "Les détails de la vidéo ont été copiés. Pour partager la vidéo, téléchargez-la d'abord.",
+        });
+      }
+    } catch (error) {
+      console.error('Erreur lors du partage:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de partager. Téléchargez la vidéo pour la partager.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSharing(false);
+    }
+  };
+
+  const handleCopyInfo = async () => {
+    const info = `Animation de code typographique
+Format: ${videoFormat}
+Taille: ${videoSize}
+Type: ${videoBlob.type}
+
+Créé avec Code Typing Simulator`;
+
+    try {
+      await navigator.clipboard.writeText(info);
+      toast({
+        title: "Copié !",
+        description: "Les informations de la vidéo ont été copiées",
+      });
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de copier dans le presse-papier",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <motion.div
@@ -105,12 +175,28 @@ const VideoPreview = ({ videoUrl, videoBlob, onDownload, onDelete }: VideoPrevie
             Télécharger la vidéo
           </Button>
           <Button
+            onClick={handleShare}
+            variant="secondary"
+            size="lg"
+            disabled={isSharing}
+          >
+            <MdShare className="w-5 h-5 mr-2" />
+            Partager
+          </Button>
+          <Button
+            onClick={handleCopyInfo}
+            variant="outline"
+            size="lg"
+          >
+            <MdContentCopy className="w-5 h-5 mr-2" />
+            Copier
+          </Button>
+          <Button
             onClick={onDelete}
             variant="destructive"
             size="lg"
           >
-            <MdDelete className="w-5 h-5 mr-2" />
-            Supprimer
+            <MdDelete className="w-5 h-5" />
           </Button>
         </div>
 
@@ -122,7 +208,8 @@ const VideoPreview = ({ videoUrl, videoBlob, onDownload, onDelete }: VideoPrevie
               <ul className="list-disc list-inside space-y-1 ml-2">
                 <li>La vidéo est stockée temporairement dans votre navigateur</li>
                 <li>Téléchargez-la avant de fermer la page</li>
-                <li>Vous pouvez créer une nouvelle vidéo en retournant au simulateur</li>
+                <li>Utilisez le bouton "Partager" pour envoyer directement la vidéo</li>
+                <li>Le bouton "Copier" copie les informations de la vidéo</li>
               </ul>
             </div>
           </CardContent>
