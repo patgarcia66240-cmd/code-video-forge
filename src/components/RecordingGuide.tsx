@@ -26,9 +26,12 @@ const RecordingGuide = () => {
                 <p>L'animation sera capturée en temps réel avec l'audio système (optionnel)</p>
               </div>
             </div>
-            <div className="pt-2 border-t border-border">
+            <div className="pt-2 border-t border-border space-y-1">
               <p className="text-xs text-muted-foreground">
-                💡 <strong>Astuce</strong> : Mettez le navigateur en plein écran pour une meilleure qualité
+                💡 <strong>Astuce</strong> : Plein écran pour meilleure qualité
+              </p>
+              <p className="text-xs text-primary">
+                ✨ La vidéo sera automatiquement convertie en MP4
               </p>
             </div>
           </div>
