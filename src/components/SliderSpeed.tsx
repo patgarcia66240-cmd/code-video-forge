@@ -11,11 +11,11 @@ const SliderSpeed = ({ speed, setSpeed }: SliderSpeedProps) => {
   return (
     <div className="flex items-center gap-1">
       {speed < 30 ? (
-        <GiTurtle className="w-6 h-6 text-muted-foreground transition-all duration-300" />
+        <GiTurtle className="mr-1 w-6 h-6 text-muted-foreground transition-all duration-300" />
       ) : speed < 70 ? (
-        <MdDirectionsWalk className="w-6 h-6 text-muted-foreground transition-all duration-300" />
+        <MdDirectionsWalk className="mr-1 w-6 h-6 text-muted-foreground transition-all duration-300" />
       ) : (
-        <GiRabbit className="w-6 h-6 text-muted-foreground transition-all duration-300" />
+        <GiRabbit className="mr-1 w-6 h-6 text-muted-foreground transition-all duration-300" />
       )}
       <Slider
         value={[speed]}
@@ -23,7 +23,7 @@ const SliderSpeed = ({ speed, setSpeed }: SliderSpeedProps) => {
         min={0}
         max={100}
         step={10}
-        className=" min-w-[200px]"
+        className="flex-1 min-w-[200px]"
       />
       <span className="text-sm text-muted-foreground min-w-[80px] text-right">
         {speed === 0
