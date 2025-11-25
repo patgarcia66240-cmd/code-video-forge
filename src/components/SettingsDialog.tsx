@@ -1,4 +1,5 @@
-import { MdKeyboard, MdDirectionsWalk, MdFlashOn } from "react-icons/md";
+import { MdKeyboard, MdDirectionsWalk } from "react-icons/md";
+import { GiTurtle, GiRabbit } from "react-icons/gi";
 import {
   Dialog,
   DialogContent,
@@ -111,11 +112,11 @@ const SettingsDialog = ({
                 <Label className="text-sm font-semibold">Vitesse d'animation</Label>
                 <div className="flex items-center gap-4">
                   {speed < 30 ? (
-                    <span className="text-2xl transition-all duration-300">🐢</span>
+                    <GiTurtle className="w-6 h-6 text-muted-foreground transition-all duration-300" />
                   ) : speed < 70 ? (
                     <MdDirectionsWalk className="w-6 h-6 text-muted-foreground transition-all duration-300" />
                   ) : (
-                    <span className="text-2xl transition-all duration-300">🐰</span>
+                    <GiRabbit className="w-6 h-6 text-muted-foreground transition-all duration-300" />
                   )}
                   <Slider
                     value={[speed]}
