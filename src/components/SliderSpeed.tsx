@@ -25,6 +25,17 @@ const SliderSpeed = ({ speed, setSpeed }: SliderSpeedProps) => {
         step={10}
         className="flex-1"
       />
+      <span className="text-sm text-muted-foreground min-w-[80px] text-right">
+        {speed === 0
+          ? "Très lent"
+          : speed < 30
+            ? "Lent"
+            : speed < 70
+              ? "Moyen"
+              : speed < 100
+                ? "Rapide"
+                : "Très rapide"}
+      </span>
     </div>
   );
 };
