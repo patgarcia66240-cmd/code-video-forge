@@ -3,9 +3,10 @@ import { MdCode, MdInsertDriveFile, MdAccountTree, MdSearch, MdSettings, MdPlayA
 
 interface VSCodeLayoutProps {
   children: ReactNode;
+  onSettingsClick?: () => void;
 }
 
-const VSCodeLayout = ({ children }: VSCodeLayoutProps) => {
+const VSCodeLayout = ({ children, onSettingsClick }: VSCodeLayoutProps) => {
   return (
     <div className="h-screen w-screen flex flex-col bg-background overflow-hidden">
       {/* Title Bar */}
@@ -26,7 +27,10 @@ const VSCodeLayout = ({ children }: VSCodeLayoutProps) => {
           <button className="p-2 hover:bg-secondary rounded transition-colors">
             <MdAccountTree className="w-5 h-5 text-muted-foreground" />
           </button>
-          <button className="p-2 hover:bg-secondary rounded transition-colors mt-auto">
+          <button 
+            className="p-2 hover:bg-secondary rounded transition-colors mt-auto"
+            onClick={onSettingsClick}
+          >
             <MdSettings className="w-5 h-5 text-muted-foreground" />
           </button>
         </div>
