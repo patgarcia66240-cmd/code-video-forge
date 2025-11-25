@@ -156,8 +156,8 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
         setIsFullscreen(!isFullscreen);
       }
       
-      // Echap pour quitter le mode plein écran (désactivé pendant l'enregistrement)
-      if (e.key === 'Escape' && isFullscreen && !isRecording) {
+      // Echap pour quitter le mode plein écran (désactivé pendant l'enregistrement, mais autorisé après)
+      if (e.key === 'Escape' && isFullscreen && (!isRecording || recordedBlob)) {
         setIsFullscreen(false);
       }
     };
