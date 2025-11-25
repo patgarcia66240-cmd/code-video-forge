@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { MdDownload, MdDelete, MdInfo, MdShare, MdContentCopy } from "react-icons/md";
+import { FaYoutube, FaTwitter, FaLinkedin } from "react-icons/fa";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -97,6 +98,31 @@ Créé avec Code Typing Simulator`;
     }
   };
 
+  const handleShareToYouTube = () => {
+    toast({
+      title: "YouTube",
+      description: "Téléchargez d'abord la vidéo, puis uploadez-la sur YouTube Studio",
+    });
+    window.open('https://studio.youtube.com/channel/upload', '_blank');
+  };
+
+  const handleShareToTwitter = () => {
+    const text = encodeURIComponent('Regardez cette animation de code que j\'ai créée avec Code Typing Simulator ! 🎥💻 #coding #animation');
+    window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
+    toast({
+      title: "Twitter",
+      description: "Téléchargez la vidéo et ajoutez-la à votre tweet",
+    });
+  };
+
+  const handleShareToLinkedIn = () => {
+    window.open('https://www.linkedin.com/feed/?shareActive=true', '_blank');
+    toast({
+      title: "LinkedIn",
+      description: "Téléchargez la vidéo et ajoutez-la à votre post LinkedIn",
+    });
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -165,39 +191,79 @@ Créé avec Code Typing Simulator`;
         </Card>
 
         {/* Actions */}
-        <div className="flex gap-4">
-          <Button
-            onClick={onDownload}
-            size="lg"
-            className="flex-1"
-          >
-            <MdDownload className="w-5 h-5 mr-2" />
-            Télécharger la vidéo
-          </Button>
-          <Button
-            onClick={handleShare}
-            variant="secondary"
-            size="lg"
-            disabled={isSharing}
-          >
-            <MdShare className="w-5 h-5 mr-2" />
-            Partager
-          </Button>
-          <Button
-            onClick={handleCopyInfo}
-            variant="outline"
-            size="lg"
-          >
-            <MdContentCopy className="w-5 h-5 mr-2" />
-            Copier
-          </Button>
-          <Button
-            onClick={onDelete}
-            variant="destructive"
-            size="lg"
-          >
-            <MdDelete className="w-5 h-5" />
-          </Button>
+        <div className="space-y-4">
+          <div className="flex gap-4">
+            <Button
+              onClick={onDownload}
+              size="lg"
+              className="flex-1"
+            >
+              <MdDownload className="w-5 h-5 mr-2" />
+              Télécharger la vidéo
+            </Button>
+            <Button
+              onClick={handleShare}
+              variant="secondary"
+              size="lg"
+              disabled={isSharing}
+            >
+              <MdShare className="w-5 h-5 mr-2" />
+              Partager
+            </Button>
+            <Button
+              onClick={handleCopyInfo}
+              variant="outline"
+              size="lg"
+            >
+              <MdContentCopy className="w-5 h-5 mr-2" />
+              Copier
+            </Button>
+            <Button
+              onClick={onDelete}
+              variant="destructive"
+              size="lg"
+            >
+              <MdDelete className="w-5 h-5" />
+            </Button>
+          </div>
+
+          {/* Social Media Share */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Partager sur les réseaux sociaux</CardTitle>
+              <CardDescription>
+                Téléchargez d'abord la vidéo, puis utilisez ces raccourcis pour la partager
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-3 gap-3">
+                <Button
+                  onClick={handleShareToYouTube}
+                  variant="outline"
+                  className="flex flex-col h-auto py-4 gap-2"
+                >
+                  <FaYoutube className="w-6 h-6 text-red-600" />
+                  <span className="text-xs">YouTube</span>
+                </Button>
+                <Button
+                  onClick={handleShareToTwitter}
+                  variant="outline"
+                  className="flex flex-col h-auto py-4 gap-2"
+                >
+                  <FaTwitter className="w-6 h-6 text-blue-400" />
+                  <span className="text-xs">Twitter</span>
+                </Button>
+                <Button
+                  onClick={handleShareToLinkedIn}
+                  variant="outline"
+                  className="flex flex-col h-auto py-4 gap-2"
+                >
+                  <FaLinkedin className="w-6 h-6 text-blue-700" />
+                  <span className="text-xs">LinkedIn</span>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Tips */}
