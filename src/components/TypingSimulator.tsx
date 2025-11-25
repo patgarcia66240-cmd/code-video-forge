@@ -40,6 +40,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
   const [saveWebmBackup, setSaveWebmBackup] = useState(true);
   const [logs, setLogs] = useState<string[]>([]);
   const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   
   const recorderRef = useRef<RecordRTC | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -57,6 +58,27 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
       setVideoPreviewUrl(null);
     }
   }, [recordedBlob]);
+
+  // Raccourci clavier F9 pour démarrer/arrêter l'enregistrement
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.key === 'F9') {
+        e.preventDefault();
+        if (isRecording) {
+          stopRecording();
+        } else if (!isConverting) {
+          startRecording();
+        }
+      }
+      // Echap pour quitter le mode plein écran
+      if (e.key === 'Escape' && isFullscreen) {
+        setIsFullscreen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [isRecording, isConverting, isFullscreen]);
 
   useEffect(() => {
     if (currentIndex >= code.length) return;
@@ -272,6 +294,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
   return (
     <div className="flex-1 flex flex-col bg-editor relative">
       {/* Tab Bar */}
+      {!isFullscreen && (
       <div className="h-10 bg-panel-bg flex items-center px-4 border-b border-border">
         <div className="flex items-center gap-2 px-3 py-1 bg-editor rounded-t border-t-2 border-primary">
           <span className="text-sm text-foreground">typing-demo.py</span>
@@ -280,8 +303,10 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
           </span>
         </div>
       </div>
+      )}
 
       {/* Controls */}
+      {!isFullscreen && (
       <div className="h-16 bg-panel-bg border-b border-border flex items-center px-4 gap-4 flex-wrap">
         <div className="flex items-center gap-2">
           <Button
@@ -537,13 +562,25 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
           onClick={onComplete}
           variant="outline"
           size="sm"
-          className="ml-auto border-border hover:bg-secondary"
+          className="border-border hover:bg-secondary"
         >
           Retour à l'éditeur
         </Button>
+
+        <Button
+          onClick={() => setIsFullscreen(!isFullscreen)}
+          variant="outline"
+          size="sm"
+          className="border-border hover:bg-secondary"
+          title="Mode plein écran (F9 pour enregistrer)"
+        >
+          {isFullscreen ? "Quitter plein écran" : "Plein écran"}
+        </Button>
       </div>
+      )}
 
       {/* Progress Bar */}
+      {!isFullscreen && (
       <div className="h-1 bg-secondary">
         <motion.div
           className="h-full bg-primary"
@@ -552,9 +589,10 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
           transition={{ duration: 0.1 }}
         />
       </div>
+      )}
 
       {/* Video Preview */}
-      {videoPreviewUrl && (
+      {videoPreviewUrl && !isFullscreen && (
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -578,7 +616,19 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
       )}
 
       {/* Recording Guide */}
-      {isRecording && <RecordingGuide />}
+      {isRecording && !isFullscreen && <RecordingGuide />}
+
+      {/* Fullscreen recording indicator */}
+      {isRecording && isFullscreen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="absolute top-4 right-4 z-50 bg-destructive/90 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-lg"
+        >
+          <div className="w-3 h-3 bg-white rounded-full animate-pulse" />
+          <span className="text-sm font-medium">Enregistrement en cours (F9 pour arrêter)</span>
+        </motion.div>
+      )}
 
       {/* Editor with typing effect */}
       <div className="flex-1 overflow-hidden relative">
@@ -618,6 +668,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
       </div>
 
       {/* Console */}
+      {!isFullscreen && (
       <div className="h-32 bg-panel-bg border-t border-border px-4 py-2 text-xs font-mono overflow-y-auto">
         <div className="flex items-center justify-between mb-1">
           <span className="text-muted-foreground">Console</span>
@@ -642,6 +693,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
           </div>
         )}
       </div>
+      )}
     </div>
   );
 };
