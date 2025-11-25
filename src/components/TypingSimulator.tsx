@@ -7,6 +7,7 @@ import { Slider } from "@/components/ui/slider";
 import { useToast } from "@/hooks/use-toast";
 import RecordRTC from "recordrtc";
 import RecordingGuide from "./RecordingGuide";
+import { convertWebMToMP4 } from "@/lib/ffmpeg";
 
 interface TypingSimulatorProps {
   code: string;
@@ -20,6 +21,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
   const [speed, setSpeed] = useState(50);
   const [isRecording, setIsRecording] = useState(false);
   const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
+  const [isConverting, setIsConverting] = useState(false);
   
   const recorderRef = useRef<RecordRTC | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -90,20 +92,42 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
     }
   };
 
-  const stopRecording = () => {
+  const stopRecording = async () => {
     if (recorderRef.current && streamRef.current) {
-      recorderRef.current.stopRecording(() => {
-        const blob = recorderRef.current!.getBlob();
-        setRecordedBlob(blob);
+      recorderRef.current.stopRecording(async () => {
+        const webmBlob = recorderRef.current!.getBlob();
         setIsRecording(false);
 
         // Arrêter tous les tracks du stream
         streamRef.current!.getTracks().forEach(track => track.stop());
 
         toast({
-          title: "Enregistrement terminé",
-          description: "Votre vidéo est prête à être téléchargée",
+          title: "Conversion en MP4",
+          description: "Conversion de la vidéo en cours...",
         });
+
+        try {
+          setIsConverting(true);
+          const mp4Blob = await convertWebMToMP4(webmBlob);
+          setRecordedBlob(mp4Blob);
+          setIsConverting(false);
+
+          toast({
+            title: "Vidéo prête !",
+            description: "Votre vidéo MP4 est prête à être téléchargée",
+          });
+        } catch (error) {
+          console.error("Erreur lors de la conversion:", error);
+          setIsConverting(false);
+          // En cas d'erreur, garder le WebM
+          setRecordedBlob(webmBlob);
+          
+          toast({
+            title: "Conversion échouée",
+            description: "Vidéo sauvegardée en WebM",
+            variant: "destructive",
+          });
+        }
       });
     }
   };
@@ -113,13 +137,14 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
       const url = URL.createObjectURL(recordedBlob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `code-typing-${Date.now()}.webm`;
+      const extension = recordedBlob.type.includes("mp4") ? "mp4" : "webm";
+      a.download = `code-typing-${Date.now()}.${extension}`;
       a.click();
       URL.revokeObjectURL(url);
 
       toast({
         title: "Téléchargement lancé",
-        description: "Votre vidéo a été téléchargée",
+        description: `Votre vidéo ${extension.toUpperCase()} a été téléchargée`,
       });
     }
   };
@@ -173,7 +198,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
         <div className="h-8 w-px bg-border" />
 
         <div className="flex items-center gap-2">
-          {!isRecording ? (
+          {!isRecording && !isConverting ? (
             <Button
               onClick={startRecording}
               variant="outline"
@@ -181,9 +206,9 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
               className="border-destructive text-destructive hover:bg-destructive hover:text-white"
             >
               <Video className="w-4 h-4 mr-2" />
-              Enregistrer
+              Enregistrer MP4
             </Button>
-          ) : (
+          ) : isRecording ? (
             <Button
               onClick={stopRecording}
               variant="outline"
@@ -193,9 +218,19 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
               <StopCircle className="w-4 h-4 mr-2" />
               Arrêter
             </Button>
+          ) : (
+            <Button
+              disabled
+              variant="outline"
+              size="sm"
+              className="border-border opacity-50"
+            >
+              <div className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+              Conversion...
+            </Button>
           )}
 
-          {recordedBlob && (
+          {recordedBlob && !isConverting && (
             <Button
               onClick={downloadRecording}
               className="bg-primary hover:bg-primary/90 text-primary-foreground"
