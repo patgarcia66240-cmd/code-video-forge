@@ -16,7 +16,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import RecordRTC from "recordrtc";
 import RecordingGuide from "./RecordingGuide";
-import { convertWebMToMP4 } from "@/lib/ffmpeg";
+import { convertWebMToMP4, cancelConversion } from "@/lib/ffmpeg";
 
 interface TypingSimulatorProps {
   code: string;
@@ -204,6 +204,20 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
         }
       });
     }
+  };
+
+  const handleCancelConversion = async () => {
+    addLog("Annulation de la conversion demandée...");
+    await cancelConversion();
+    setIsConverting(false);
+    setConversionProgress(0);
+    addLog("Conversion annulée.");
+    
+    toast({
+      title: "Conversion annulée",
+      description: "La conversion MP4 a été interrompue",
+      variant: "destructive",
+    });
   };
 
   const downloadRecording = () => {
@@ -424,6 +438,15 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
                   {conversionProgress}%
                 </span>
               </div>
+              <Button
+                onClick={handleCancelConversion}
+                variant="outline"
+                size="sm"
+                className="border-destructive text-destructive hover:bg-destructive hover:text-white"
+              >
+                <StopCircle className="w-4 h-4 mr-2" />
+                Annuler
+              </Button>
             </div>
           )}
 

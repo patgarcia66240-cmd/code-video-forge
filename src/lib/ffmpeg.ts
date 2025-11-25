@@ -54,6 +54,20 @@ export const loadFFmpeg = async (): Promise<FFmpeg> => {
   return loadPromise;
 };
 
+export const cancelConversion = async (): Promise<void> => {
+  if (ffmpegInstance) {
+    console.log("[FFmpeg] Annulation de la conversion en cours...");
+    try {
+      await ffmpegInstance.terminate();
+      ffmpegInstance = null;
+      (loadFFmpeg as any)._loadingPromise = undefined;
+      console.log("[FFmpeg] Instance terminée avec succès");
+    } catch (error) {
+      console.error("[FFmpeg] Erreur lors de l'annulation:", error);
+    }
+  }
+};
+
 export interface ConversionOptions {
   preset?: 'ultrafast' | 'fast' | 'medium';
   crf?: number;
