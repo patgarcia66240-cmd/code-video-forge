@@ -5,6 +5,7 @@ import { Pause, Play, RotateCcw, Gauge, Video, Download, StopCircle, Settings, K
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
+import TimelineControl from "@/components/TimelineControl";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -702,26 +703,18 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
 
         <div className="h-8 w-px bg-border" />
 
-        <div className="flex flex-col gap-1 flex-1 max-w-md">
-          <div className="flex justify-between items-center px-1 mb-1">
-            <span className="text-xs text-foreground font-mono font-semibold">
-              {getTimecode(currentIndex)}
-            </span>
-            <span className="text-xs text-foreground/70 font-mono">
-              {getTimecode(code.length)}
-            </span>
-          </div>
-          <div className="flex items-center gap-3">
-            <Slider
-              value={[currentIndex]}
-              onValueChange={handleSliderChange}
-              onValueCommit={handleSliderCommit}
-              min={0}
-              max={code.length}
-              step={1}
-              className="flex-1"
-            />
-          </div>
+        <div className="flex-1 max-w-2xl px-4">
+          <TimelineControl
+            currentIndex={currentIndex}
+            totalLength={code.length}
+            speed={speed}
+            onPositionChange={(index) => {
+              setCurrentIndex(index);
+              setDisplayedCode(code.slice(0, index));
+            }}
+            onDragStart={() => setIsDraggingSlider(true)}
+            onDragEnd={() => setIsDraggingSlider(false)}
+          />
         </div>
 
         <Button
