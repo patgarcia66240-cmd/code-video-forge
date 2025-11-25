@@ -39,10 +39,24 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
   const [mp4Resolution, setMp4Resolution] = useState<'original' | '1080p' | '720p'>('original');
   const [saveWebmBackup, setSaveWebmBackup] = useState(true);
   const [logs, setLogs] = useState<string[]>([]);
+  const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null);
   
   const recorderRef = useRef<RecordRTC | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const { toast } = useToast();
+
+  // Créer l'URL de prévisualisation quand recordedBlob change
+  useEffect(() => {
+    if (recordedBlob) {
+      const url = URL.createObjectURL(recordedBlob);
+      setVideoPreviewUrl(url);
+      return () => {
+        URL.revokeObjectURL(url);
+      };
+    } else {
+      setVideoPreviewUrl(null);
+    }
+  }, [recordedBlob]);
 
   useEffect(() => {
     if (currentIndex >= code.length) return;
@@ -62,6 +76,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
     setCurrentIndex(0);
     setIsPaused(false);
     setRecordedBlob(null);
+    setVideoPreviewUrl(null);
     setLogs([]);
   };
 
@@ -537,6 +552,30 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
           transition={{ duration: 0.1 }}
         />
       </div>
+
+      {/* Video Preview */}
+      {videoPreviewUrl && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-panel-bg border-b border-border p-4"
+        >
+          <div className="flex items-center gap-4">
+            <div className="text-sm text-muted-foreground font-medium">
+              Aperçu de la vidéo :
+            </div>
+            <video
+              src={videoPreviewUrl}
+              controls
+              className="h-32 rounded border border-border bg-black"
+            />
+            <div className="text-xs text-muted-foreground">
+              Format: {recordedBlob?.type.includes("mp4") ? "MP4" : "WebM"} •{" "}
+              Taille: {((recordedBlob?.size || 0) / 1024 / 1024).toFixed(2)} MB
+            </div>
+          </div>
+        </motion.div>
+      )}
 
       {/* Recording Guide */}
       {isRecording && <RecordingGuide />}
