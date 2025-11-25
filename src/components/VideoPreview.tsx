@@ -5,6 +5,13 @@ import { FaYoutube, FaTwitter, FaLinkedin } from "react-icons/fa";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface VideoPreviewProps {
   videoUrl: string;
@@ -16,6 +23,7 @@ interface VideoPreviewProps {
 const VideoPreview = ({ videoUrl, videoBlob, onDownload, onDelete }: VideoPreviewProps) => {
   const { toast } = useToast();
   const [isSharing, setIsSharing] = useState(false);
+  const [showYouTubeDialog, setShowYouTubeDialog] = useState(false);
 
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return "0 B";
@@ -99,12 +107,7 @@ Créé avec Code Typing Simulator`;
   };
 
   const handleShareToYouTube = () => {
-    toast({
-      title: "Partager sur YouTube",
-      description: "Téléchargez la vidéo, puis allez sur YouTube > Créer > Importer une vidéo",
-      duration: 5000,
-    });
-    window.open("https://www.youtube.com", "_blank");
+    setShowYouTubeDialog(true);
   };
 
   const handleShareToTwitter = () => {
@@ -127,12 +130,64 @@ Créé avec Code Typing Simulator`;
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="h-full bg-background overflow-auto"
-    >
-      <div className="container max-w-6xl mx-auto p-6 space-y-6">
+    <>
+      <Dialog open={showYouTubeDialog} onOpenChange={setShowYouTubeDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FaYoutube className="w-6 h-6 text-red-600" />
+              Partager sur YouTube
+            </DialogTitle>
+            <DialogDescription>
+              Suivez ces étapes pour publier votre vidéo sur YouTube
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 pt-4">
+            <div className="space-y-3">
+              <div className="flex gap-3">
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">
+                  1
+                </div>
+                <p className="text-sm">Téléchargez d'abord votre vidéo en cliquant sur le bouton "Télécharger"</p>
+              </div>
+              <div className="flex gap-3">
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">
+                  2
+                </div>
+                <p className="text-sm">Ouvrez YouTube et connectez-vous à votre compte</p>
+              </div>
+              <div className="flex gap-3">
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">
+                  3
+                </div>
+                <p className="text-sm">Cliquez sur "Créer" puis "Importer une vidéo"</p>
+              </div>
+              <div className="flex gap-3">
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">
+                  4
+                </div>
+                <p className="text-sm">Sélectionnez votre fichier vidéo téléchargé et suivez les instructions</p>
+              </div>
+            </div>
+            <Button
+              onClick={() => {
+                window.open("https://www.youtube.com", "_blank");
+                setShowYouTubeDialog(false);
+              }}
+              className="w-full"
+            >
+              Ouvrir YouTube
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="h-full bg-background overflow-auto"
+      >
+        <div className="container max-w-6xl mx-auto p-6 space-y-6">
         {/* Video Player */}
         <Card className="border-border">
           <CardContent className="p-6">
@@ -232,6 +287,7 @@ Créé avec Code Typing Simulator`;
         </Card>
       </div>
     </motion.div>
+    </>
   );
 };
 
