@@ -37,6 +37,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
   const [mp4Quality, setMp4Quality] = useState<'high' | 'medium' | 'fast'>('medium');
   const [mp4Preset, setMp4Preset] = useState<'ultrafast' | 'fast' | 'medium'>('ultrafast');
   const [mp4Resolution, setMp4Resolution] = useState<'original' | '1080p' | '720p'>('original');
+  const [saveWebmBackup, setSaveWebmBackup] = useState(true);
   const [logs, setLogs] = useState<string[]>([]);
   
   const recorderRef = useRef<RecordRTC | null>(null);
@@ -149,6 +150,18 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
             description: "Votre vidéo WebM est prête à être téléchargée",
           });
           return;
+        }
+
+        // Sauvegarder le WebM de secours si option activée
+        if (saveWebmBackup) {
+          addLog("Sauvegarde du WebM de secours avant conversion...");
+          const url = URL.createObjectURL(webmBlob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `code-typing-backup-${Date.now()}.webm`;
+          a.click();
+          URL.revokeObjectURL(url);
+          addLog("Backup WebM téléchargé automatiquement.");
         }
 
         // Sinon, convertir en MP4
@@ -303,17 +316,26 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
             </span>
           </div>
           {exportFormat === 'mp4' && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
+            <>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">Backup WebM:</span>
+                <Switch
+                  checked={saveWebmBackup}
+                  onCheckedChange={setSaveWebmBackup}
                   disabled={isRecording || isConverting}
-                  className="h-8 w-8 p-0"
-                >
-                  <Settings className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
+                />
+              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    disabled={isRecording || isConverting}
+                    className="h-8 w-8 p-0"
+                  >
+                    <Settings className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56 bg-popover z-50">
                 <DropdownMenuLabel>Paramètres MP4</DropdownMenuLabel>
                 <DropdownMenuSeparator />
@@ -388,7 +410,8 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
                   720p
                 </DropdownMenuItem>
               </DropdownMenuContent>
-            </DropdownMenu>
+              </DropdownMenu>
+            </>
           )}
         </div>
 
