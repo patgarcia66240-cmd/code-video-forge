@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import Editor from "@monaco-editor/react";
 import { Pause, Play, RotateCcw, Gauge, Video, Download, StopCircle, Settings, Keyboard } from "lucide-react";
+import { MdFullscreen, MdFullscreenExit } from "react-icons/md";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
@@ -721,7 +722,17 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
           className="border-border hover:bg-secondary"
           title={`Mode plein écran (${shortcuts.fullscreen})`}
         >
-          {isFullscreen ? "Quitter plein écran" : "Plein écran"}
+          {isFullscreen ? (
+            <>
+              <MdFullscreenExit className="w-4 h-4 mr-2" />
+              Quitter plein écran
+            </>
+          ) : (
+            <>
+              <MdFullscreen className="w-4 h-4 mr-2" />
+              Plein écran
+            </>
+          )}
         </Button>
 
         <Dialog open={isShortcutsDialogOpen} onOpenChange={setIsShortcutsDialogOpen}>
