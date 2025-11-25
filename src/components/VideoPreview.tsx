@@ -173,7 +173,7 @@ Créé avec Code Typing Simulator`;
 
         {/* Actions */}
         <div className="grid grid-cols-4 gap-3">
-          <Button onClick={onDownload} size="lg" className="col-span-2 h-14">
+          <Button onClick={onDownload} size="lg" className="h-14">
             <MdDownload className="w-5 h-5 mr-2" />
             Télécharger la vidéo
           </Button>
