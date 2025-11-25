@@ -205,26 +205,26 @@ Créé avec Code Typing Simulator`;
               <Button
                 onClick={handleShareToYouTube}
                 variant="outline"
-                className="h-32 flex flex-col gap-3 border-border hover:bg-secondary/50 items-center justify-center"
+                className="h-24 flex items-center justify-start gap-4 border-border hover:bg-secondary/50 px-6"
               >
                 <FaYoutube className="w-12 h-12 text-red-600" />
-                <span className="text-base font-medium">YouTube</span>
+                <span className="text-lg font-medium">YouTube</span>
               </Button>
               <Button
                 onClick={handleShareToTwitter}
                 variant="outline"
-                className="h-32 flex flex-col gap-3 border-border hover:bg-secondary/50 items-center justify-center"
+                className="h-24 flex items-center justify-start gap-4 border-border hover:bg-secondary/50 px-6"
               >
                 <FaTwitter className="w-12 h-12 text-blue-400" />
-                <span className="text-base font-medium">Twitter</span>
+                <span className="text-lg font-medium">Twitter</span>
               </Button>
               <Button
                 onClick={handleShareToLinkedIn}
                 variant="outline"
-                className="h-32 flex flex-col gap-3 border-border hover:bg-secondary/50 items-center justify-center"
+                className="h-24 flex items-center justify-start gap-4 border-border hover:bg-secondary/50 px-6"
               >
                 <FaLinkedin className="w-12 h-12 text-blue-700" />
-                <span className="text-base font-medium">LinkedIn</span>
+                <span className="text-lg font-medium">LinkedIn</span>
               </Button>
             </div>
           </CardContent>
