@@ -58,22 +58,46 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady }: TypingSimulatorP
   const [displayedCode, setDisplayedCode] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
-  const [speed, setSpeed] = useState(50);
+  const [speed, setSpeed] = useState(() => {
+    const saved = localStorage.getItem("typingSimulatorSpeed");
+    return saved ? JSON.parse(saved) : 50;
+  });
   const [isDraggingSlider, setIsDraggingSlider] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
   const [isConverting, setIsConverting] = useState(false);
   const [conversionProgress, setConversionProgress] = useState(0);
-  const [exportFormat, setExportFormat] = useState<"webm" | "mp4">("webm");
-  const [mp4Quality, setMp4Quality] = useState<"high" | "medium" | "fast">("medium");
-  const [mp4Preset, setMp4Preset] = useState<"ultrafast" | "fast" | "medium">("ultrafast");
-  const [mp4Resolution, setMp4Resolution] = useState<"original" | "1080p" | "720p">("original");
-  const [saveWebmBackup, setSaveWebmBackup] = useState(true);
+  const [exportFormat, setExportFormat] = useState<"webm" | "mp4">(() => {
+    const saved = localStorage.getItem("typingSimulatorExportFormat");
+    return (saved as "webm" | "mp4") || "webm";
+  });
+  const [mp4Quality, setMp4Quality] = useState<"high" | "medium" | "fast">(() => {
+    const saved = localStorage.getItem("typingSimulatorMp4Quality");
+    return (saved as "high" | "medium" | "fast") || "medium";
+  });
+  const [mp4Preset, setMp4Preset] = useState<"ultrafast" | "fast" | "medium">(() => {
+    const saved = localStorage.getItem("typingSimulatorMp4Preset");
+    return (saved as "ultrafast" | "fast" | "medium") || "ultrafast";
+  });
+  const [mp4Resolution, setMp4Resolution] = useState<"original" | "1080p" | "720p">(() => {
+    const saved = localStorage.getItem("typingSimulatorMp4Resolution");
+    return (saved as "original" | "1080p" | "720p") || "original";
+  });
+  const [saveWebmBackup, setSaveWebmBackup] = useState(() => {
+    const saved = localStorage.getItem("typingSimulatorSaveWebmBackup");
+    return saved ? JSON.parse(saved) : true;
+  });
   const [logs, setLogs] = useState<string[]>([]);
   const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [captureMode, setCaptureMode] = useState<"screen" | "editor">("editor");
-  const [aspectRatio, setAspectRatio] = useState<"16:9" | "9:16" | "1:1" | "4:3" | "21:9">("16:9");
+  const [captureMode, setCaptureMode] = useState<"screen" | "editor">(() => {
+    const saved = localStorage.getItem("typingSimulatorCaptureMode");
+    return (saved as "screen" | "editor") || "editor";
+  });
+  const [aspectRatio, setAspectRatio] = useState<"16:9" | "9:16" | "1:1" | "4:3" | "21:9">(() => {
+    const saved = localStorage.getItem("typingSimulatorAspectRatio");
+    return (saved as "16:9" | "9:16" | "1:1" | "4:3" | "21:9") || "16:9";
+  });
   const [shortcuts, setShortcuts] = useState<KeyboardShortcuts>(() => {
     const saved = localStorage.getItem("typingSimulatorShortcuts");
     return saved ? JSON.parse(saved) : defaultShortcuts;
@@ -82,9 +106,15 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady }: TypingSimulatorP
   const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
   const [editingShortcut, setEditingShortcut] = useState<keyof KeyboardShortcuts | null>(null);
   const [countdown, setCountdown] = useState<number | null>(null);
-  const [isLoopEnabled, setIsLoopEnabled] = useState(false);
+  const [isLoopEnabled, setIsLoopEnabled] = useState(() => {
+    const saved = localStorage.getItem("typingSimulatorIsLoopEnabled");
+    return saved ? JSON.parse(saved) : false;
+  });
   const [loopCount, setLoopCount] = useState(0);
-  const [autoStart, setAutoStart] = useState(false);
+  const [autoStart, setAutoStart] = useState(() => {
+    const saved = localStorage.getItem("typingSimulatorAutoStart");
+    return saved ? JSON.parse(saved) : false;
+  });
 
   const recorderRef = useRef<RecordRTC | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -94,6 +124,47 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady }: TypingSimulatorP
   useEffect(() => {
     localStorage.setItem("typingSimulatorShortcuts", JSON.stringify(shortcuts));
   }, [shortcuts]);
+
+  // Sauvegarder tous les paramètres dans localStorage
+  useEffect(() => {
+    localStorage.setItem("typingSimulatorSpeed", JSON.stringify(speed));
+  }, [speed]);
+
+  useEffect(() => {
+    localStorage.setItem("typingSimulatorExportFormat", exportFormat);
+  }, [exportFormat]);
+
+  useEffect(() => {
+    localStorage.setItem("typingSimulatorMp4Quality", mp4Quality);
+  }, [mp4Quality]);
+
+  useEffect(() => {
+    localStorage.setItem("typingSimulatorMp4Preset", mp4Preset);
+  }, [mp4Preset]);
+
+  useEffect(() => {
+    localStorage.setItem("typingSimulatorMp4Resolution", mp4Resolution);
+  }, [mp4Resolution]);
+
+  useEffect(() => {
+    localStorage.setItem("typingSimulatorSaveWebmBackup", JSON.stringify(saveWebmBackup));
+  }, [saveWebmBackup]);
+
+  useEffect(() => {
+    localStorage.setItem("typingSimulatorCaptureMode", captureMode);
+  }, [captureMode]);
+
+  useEffect(() => {
+    localStorage.setItem("typingSimulatorAspectRatio", aspectRatio);
+  }, [aspectRatio]);
+
+  useEffect(() => {
+    localStorage.setItem("typingSimulatorIsLoopEnabled", JSON.stringify(isLoopEnabled));
+  }, [isLoopEnabled]);
+
+  useEffect(() => {
+    localStorage.setItem("typingSimulatorAutoStart", JSON.stringify(autoStart));
+  }, [autoStart]);
 
   // Fournir la fonction d'ouverture des paramètres au parent
   useEffect(() => {
