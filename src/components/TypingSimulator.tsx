@@ -199,6 +199,16 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
     setIsDraggingSlider(false);
   };
 
+  // Convertir la position en timecode (MM:SS)
+  const getTimecode = (index: number) => {
+    const delay = Math.max(10, 100 - speed);
+    const totalMs = index * delay;
+    const totalSeconds = Math.floor(totalMs / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
+
   const addLog = (message: string) => {
     const timestamp = new Date().toLocaleTimeString();
     setLogs((prev) => [...prev.slice(-98), `[${timestamp}] ${message}`]);
@@ -692,20 +702,26 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
 
         <div className="h-8 w-px bg-border" />
 
-        <div className="flex items-center gap-3 flex-1 max-w-md">
-          <span className="text-xs text-muted-foreground whitespace-nowrap">Position</span>
-          <Slider
-            value={[currentIndex]}
-            onValueChange={handleSliderChange}
-            onValueCommit={handleSliderCommit}
-            min={0}
-            max={code.length}
-            step={1}
-            className="flex-1"
-          />
-          <span className="text-xs text-muted-foreground font-mono min-w-[80px]">
-            {currentIndex} / {code.length}
-          </span>
+        <div className="flex flex-col gap-2 flex-1 max-w-md">
+          <div className="flex items-center gap-3">
+            <Slider
+              value={[currentIndex]}
+              onValueChange={handleSliderChange}
+              onValueCommit={handleSliderCommit}
+              min={0}
+              max={code.length}
+              step={1}
+              className="flex-1"
+            />
+          </div>
+          <div className="flex justify-between items-center px-1">
+            <span className="text-xs text-muted-foreground font-mono">
+              {getTimecode(currentIndex)}
+            </span>
+            <span className="text-xs text-muted-foreground font-mono">
+              {getTimecode(code.length)}
+            </span>
+          </div>
         </div>
 
         <Button
