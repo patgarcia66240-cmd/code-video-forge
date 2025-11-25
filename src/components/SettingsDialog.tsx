@@ -110,7 +110,13 @@ const SettingsDialog = ({
               <div className="space-y-3">
                 <Label className="text-sm font-semibold">Vitesse d'animation</Label>
                 <div className="flex items-center gap-4">
-                  <span className="text-2xl">🐢</span>
+                  {speed < 30 ? (
+                    <span className="text-2xl transition-all duration-300">🐢</span>
+                  ) : speed < 70 ? (
+                    <MdDirectionsWalk className="w-6 h-6 text-muted-foreground transition-all duration-300" />
+                  ) : (
+                    <span className="text-2xl transition-all duration-300">🐰</span>
+                  )}
                   <Slider
                     value={[speed]}
                     onValueChange={(value) => setSpeed(value[0])}
@@ -119,8 +125,6 @@ const SettingsDialog = ({
                     step={10}
                     className="flex-1"
                   />
-                  <MdDirectionsWalk className="w-6 h-6 text-muted-foreground" />
-                  <span className="text-2xl">🐰</span>
                   <span className="text-sm text-muted-foreground min-w-[80px] text-right">
                     {speed === 0
                       ? "Très lent"
