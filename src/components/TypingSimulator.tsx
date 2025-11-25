@@ -38,6 +38,7 @@ interface TypingSimulatorProps {
   code: string;
   onComplete: () => void;
   onSettingsReady?: (callback: () => void) => void;
+  onVideoRecorded?: (blob: Blob) => void;
 }
 
 interface KeyboardShortcuts {
@@ -54,7 +55,7 @@ const defaultShortcuts: KeyboardShortcuts = {
   fullscreen: "f",
 };
 
-const TypingSimulator = ({ code, onComplete, onSettingsReady }: TypingSimulatorProps) => {
+const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }: TypingSimulatorProps) => {
   const [displayedCode, setDisplayedCode] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [autoStart, setAutoStart] = useState(() => {
@@ -416,6 +417,7 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady }: TypingSimulatorP
         // Si format WebM, télécharger directement
         if (exportFormat === "webm") {
           setRecordedBlob(webmBlob);
+          onVideoRecorded?.(webmBlob);
           addLog("Mode WebM : aucun traitement supplémentaire, prêt à télécharger.");
           toast({
             title: "Vidéo prête !",
@@ -466,6 +468,7 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady }: TypingSimulatorP
           );
 
           setRecordedBlob(mp4Blob);
+          onVideoRecorded?.(mp4Blob);
           setIsConverting(false);
           setConversionProgress(0);
           addLog("Conversion MP4 terminée avec succès.");
@@ -481,6 +484,7 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady }: TypingSimulatorP
           addLog("Erreur lors de la conversion MP4. Fallback en WebM.");
           // En cas d'erreur, garder le WebM
           setRecordedBlob(webmBlob);
+          onVideoRecorded?.(webmBlob);
 
           toast({
             title: "Conversion échouée",

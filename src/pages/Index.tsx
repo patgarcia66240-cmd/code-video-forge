@@ -1,10 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import VSCodeLayout from "@/components/VSCodeLayout";
 import CodeEditor from "@/components/CodeEditor";
 import TypingSimulator from "@/components/TypingSimulator";
+import VideoPreview from "@/components/VideoPreview";
 
 const Index = () => {
   const [isSimulating, setIsSimulating] = useState(false);
+  const [showVideoPreview, setShowVideoPreview] = useState(false);
+  const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
+  const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null);
   const [code, setCode] = useState(`# Bienvenue dans le simulateur de code
 # Ce simulateur reproduit l'écriture de code en temps réel
 
@@ -35,23 +39,66 @@ print(f"Résultat: {result}")
   const [onSettingsClick, setOnSettingsClick] = useState<(() => void) | undefined>(undefined);
   const [onCodeEditorSettingsClick, setOnCodeEditorSettingsClick] = useState<(() => void) | undefined>(undefined);
 
+  // Créer l'URL de prévisualisation quand recordedBlob change
+  useEffect(() => {
+    if (recordedBlob) {
+      const url = URL.createObjectURL(recordedBlob);
+      setVideoPreviewUrl(url);
+      return () => {
+        URL.revokeObjectURL(url);
+      };
+    } else {
+      setVideoPreviewUrl(null);
+    }
+  }, [recordedBlob]);
+
   // Utiliser la bonne fonction selon la vue active
   const activeSettingsClick = isSimulating ? onSettingsClick : onCodeEditorSettingsClick;
+
+  const handleDownloadVideo = () => {
+    if (recordedBlob && videoPreviewUrl) {
+      const a = document.createElement("a");
+      a.href = videoPreviewUrl;
+      const extension = recordedBlob.type.includes("mp4") ? "mp4" : "webm";
+      a.download = `typing-animation-${Date.now()}.${extension}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+  };
+
+  const handleDeleteVideo = () => {
+    setRecordedBlob(null);
+    setVideoPreviewUrl(null);
+    setShowVideoPreview(false);
+  };
 
   return (
     <VSCodeLayout 
       onSettingsClick={activeSettingsClick}
-      onExplorerClick={() => setIsSimulating(false)}
-      onSimulationClick={() => setIsSimulating(true)}
+      onExplorerClick={() => {
+        setIsSimulating(false);
+        setShowVideoPreview(false);
+      }}
+      onSimulationClick={() => {
+        setIsSimulating(true);
+        setShowVideoPreview(false);
+      }}
       onPreviewClick={() => {
-        // Scroll vers la section preview vidéo si elle existe
-        const videoPreview = document.querySelector('[data-video-preview]');
-        if (videoPreview) {
-          videoPreview.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (videoPreviewUrl && recordedBlob) {
+          setShowVideoPreview(true);
+          setIsSimulating(false);
         }
       }}
     >
-      {!isSimulating ? (
+      {showVideoPreview && videoPreviewUrl && recordedBlob ? (
+        <VideoPreview
+          videoUrl={videoPreviewUrl}
+          videoBlob={recordedBlob}
+          onDownload={handleDownloadVideo}
+          onDelete={handleDeleteVideo}
+        />
+      ) : !isSimulating ? (
         <CodeEditor 
           code={code} 
           setCode={setCode} 
@@ -63,6 +110,7 @@ print(f"Résultat: {result}")
           code={code} 
           onComplete={() => setIsSimulating(false)}
           onSettingsReady={setOnSettingsClick}
+          onVideoRecorded={(blob) => setRecordedBlob(blob)}
         />
       )}
     </VSCodeLayout>
