@@ -9,56 +9,49 @@ export const loadFFmpeg = async (): Promise<FFmpeg> => {
     return ffmpegInstance;
   }
 
-  if (isLoading) {
-    // Attendre que le chargement en cours se termine avec timeout
-    await new Promise((resolve, reject) => {
-      let elapsed = 0;
-      const checkInterval = setInterval(() => {
-        elapsed += 100;
-        if (ffmpegInstance) {
-          clearInterval(checkInterval);
-          resolve(ffmpegInstance);
-        }
-        if (elapsed > 30000) { // Timeout après 30s
-          clearInterval(checkInterval);
-          reject(new Error("FFmpeg loading timeout"));
-        }
-      }, 100);
-    });
-    return ffmpegInstance!;
+  // Utiliser une promesse partagée plutôt qu'un timeout manuel
+  // pour éviter les erreurs "FFmpeg loading timeout" lorsque
+  // plusieurs conversions démarrent en parallèle.
+  let existingLoadPromise = (loadFFmpeg as any)._loadingPromise as Promise<FFmpeg> | undefined;
+  if (existingLoadPromise) {
+    return existingLoadPromise;
   }
 
-  isLoading = true;
-  const ffmpeg = new FFmpeg();
+  const loadPromise = (async () => {
+    const ffmpeg = new FFmpeg();
 
-  // Ajouter des logs pour déboguer
-  ffmpeg.on("log", ({ message }) => {
-    console.log("[FFmpeg]", message);
-  });
-
-  ffmpeg.on("progress", ({ progress }) => {
-    console.log("[FFmpeg Progress]", Math.round(progress * 100) + "%");
-  });
-
-  try {
-    console.log("[FFmpeg] Chargement démarré...");
-    const baseURL = "https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd";
-    
-    await ffmpeg.load({
-      coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
-      wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, "application/wasm"),
-      workerURL: await toBlobURL(`${baseURL}/ffmpeg-core.worker.js`, "text/javascript"),
+    // Logs pour débogage
+    ffmpeg.on("log", ({ message }) => {
+      console.log("[FFmpeg]", message);
     });
- 
-     console.log("[FFmpeg] Chargement terminé");
-    ffmpegInstance = ffmpeg;
-    isLoading = false;
-    return ffmpeg;
-  } catch (error) {
-    console.error("[FFmpeg] Erreur de chargement:", error);
-    isLoading = false;
-    throw error;
-  }
+
+    ffmpeg.on("progress", ({ progress }) => {
+      console.log("[FFmpeg Progress]", Math.round(progress * 100) + "%");
+    });
+
+    try {
+      console.log("[FFmpeg] Chargement démarré...");
+      const baseURL = "https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd";
+
+      await ffmpeg.load({
+        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
+        wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, "application/wasm"),
+        workerURL: await toBlobURL(`${baseURL}/ffmpeg-core.worker.js`, "text/javascript"),
+      });
+
+      console.log("[FFmpeg] Chargement terminé");
+      ffmpegInstance = ffmpeg;
+      (loadFFmpeg as any)._loadingPromise = undefined;
+      return ffmpeg;
+    } catch (error) {
+      console.error("[FFmpeg] Erreur de chargement:", error);
+      (loadFFmpeg as any)._loadingPromise = undefined;
+      throw error;
+    }
+  })();
+
+  (loadFFmpeg as any)._loadingPromise = loadPromise;
+  return loadPromise;
 };
 
 export interface ConversionOptions {
