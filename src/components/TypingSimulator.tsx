@@ -943,7 +943,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
                   <video
                     src={videoPreviewUrl}
                     controls
-                    className="w-1/2 max-h-[60vh] rounded border border-border bg-black"
+                    className="w-full max-h-[60vh] rounded border border-border bg-black"
                   />
                   <Button
                     onClick={() => {
