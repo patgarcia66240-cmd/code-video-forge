@@ -6,9 +6,10 @@ interface VSCodeLayoutProps {
   children: ReactNode;
   onSettingsClick?: () => void;
   onExplorerClick?: () => void;
+  onSimulationClick?: () => void;
 }
 
-const VSCodeLayout = ({ children, onSettingsClick, onExplorerClick }: VSCodeLayoutProps) => {
+const VSCodeLayout = ({ children, onSettingsClick, onExplorerClick, onSimulationClick }: VSCodeLayoutProps) => {
   return (
     <div className="h-screen w-screen flex flex-col bg-background overflow-hidden">
       {/* Title Bar */}
@@ -18,7 +19,11 @@ const VSCodeLayout = ({ children, onSettingsClick, onExplorerClick }: VSCodeLayo
       </div>
 
       <div className="flex flex-1 overflow-hidden">
-        <ActivityBar onSettingsClick={onSettingsClick} onExplorerClick={onExplorerClick} />
+        <ActivityBar 
+          onSettingsClick={onSettingsClick} 
+          onExplorerClick={onExplorerClick}
+          onSimulationClick={onSimulationClick}
+        />
 
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">

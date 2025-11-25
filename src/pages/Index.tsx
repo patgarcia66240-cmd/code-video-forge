@@ -42,6 +42,7 @@ print(f"Résultat: {result}")
     <VSCodeLayout 
       onSettingsClick={activeSettingsClick}
       onExplorerClick={() => setIsSimulating(false)}
+      onSimulationClick={() => setIsSimulating(true)}
     >
       {!isSimulating ? (
         <CodeEditor 
