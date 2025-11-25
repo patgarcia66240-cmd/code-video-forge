@@ -449,7 +449,9 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
 
       {/* Controls */}
       {!isFullscreen && (
-      <div className="h-16 bg-panel-bg border-b border-border flex items-center px-4 gap-4 flex-wrap">
+      <div className="bg-panel-bg border-b border-border">
+        {/* Ligne 1: Contrôles principaux */}
+        <div className="h-16 flex items-center px-4 gap-4 flex-wrap border-b border-border/50">
         <div className="flex items-center gap-2">
           <Button
             onClick={() => setIsPaused(!isPaused)}
@@ -703,20 +705,6 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
 
         <div className="h-8 w-px bg-border" />
 
-        <div className="flex-1 max-w-2xl px-4">
-          <TimelineControl
-            currentIndex={currentIndex}
-            totalLength={code.length}
-            speed={speed}
-            onPositionChange={(index) => {
-              setCurrentIndex(index);
-              setDisplayedCode(code.slice(0, index));
-            }}
-            onDragStart={() => setIsDraggingSlider(true)}
-            onDragEnd={() => setIsDraggingSlider(false)}
-          />
-        </div>
-
         <Button
           onClick={onComplete}
           variant="outline"
@@ -813,6 +801,25 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
             </div>
           </DialogContent>
         </Dialog>
+      </div>
+
+      {/* Ligne 2: Timeline Control */}
+      <div className="px-4 py-3 flex items-center justify-center">
+        <div className="w-full max-w-4xl">
+          <TimelineControl
+            currentIndex={currentIndex}
+            totalLength={code.length}
+            speed={speed}
+            onPositionChange={(index) => {
+              setCurrentIndex(index);
+              setDisplayedCode(code.slice(0, index));
+              if (!isPaused) setIsPaused(true);
+            }}
+            onDragStart={() => setIsDraggingSlider(true)}
+            onDragEnd={() => setIsDraggingSlider(false)}
+          />
+        </div>
+      </div>
       </div>
       )}
 
