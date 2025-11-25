@@ -86,6 +86,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
     return saved ? JSON.parse(saved) : defaultShortcuts;
   });
   const [isShortcutsDialogOpen, setIsShortcutsDialogOpen] = useState(false);
+  const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
   const [editingShortcut, setEditingShortcut] = useState<keyof KeyboardShortcuts | null>(null);
   const [countdown, setCountdown] = useState<number | null>(null);
 
@@ -534,134 +535,27 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
                 </span>
               </div>
               {exportFormat === "mp4" && (
-                <>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground">Backup WebM:</span>
-                    <Switch
-                      checked={saveWebmBackup}
-                      onCheckedChange={setSaveWebmBackup}
-                      disabled={isRecording || isConverting}
-                    />
-                  </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm" disabled={isRecording || isConverting} className="h-8 w-8 p-0">
-                        <MdSettings className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56 bg-popover z-50">
-                      <DropdownMenuLabel>Paramètres MP4</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-
-                      <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
-                        Qualité
-                      </DropdownMenuLabel>
-                      <DropdownMenuItem
-                        onClick={() => setMp4Quality("high")}
-                        className={mp4Quality === "high" ? "bg-accent" : ""}
-                      >
-                        Haute (CRF 18) - Meilleure qualité
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => setMp4Quality("medium")}
-                        className={mp4Quality === "medium" ? "bg-accent" : ""}
-                      >
-                        Moyenne (CRF 23) - Équilibrée
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => setMp4Quality("fast")}
-                        className={mp4Quality === "fast" ? "bg-accent" : ""}
-                      >
-                        Rapide (CRF 28) - Plus petit
-                      </DropdownMenuItem>
-
-                      <DropdownMenuSeparator />
-
-                      <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
-                        Vitesse de conversion
-                      </DropdownMenuLabel>
-                      <DropdownMenuItem
-                        onClick={() => setMp4Preset("ultrafast")}
-                        className={mp4Preset === "ultrafast" ? "bg-accent" : ""}
-                      >
-                        Ultra rapide
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => setMp4Preset("fast")}
-                        className={mp4Preset === "fast" ? "bg-accent" : ""}
-                      >
-                        Rapide
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => setMp4Preset("medium")}
-                        className={mp4Preset === "medium" ? "bg-accent" : ""}
-                      >
-                        Moyenne
-                      </DropdownMenuItem>
-
-                      <DropdownMenuSeparator />
-
-                      <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
-                        Résolution
-                      </DropdownMenuLabel>
-                      <DropdownMenuItem
-                        onClick={() => setMp4Resolution("original")}
-                        className={mp4Resolution === "original" ? "bg-accent" : ""}
-                      >
-                        Originale
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => setMp4Resolution("1080p")}
-                        className={mp4Resolution === "1080p" ? "bg-accent" : ""}
-                      >
-                        1080p
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => setMp4Resolution("720p")}
-                        className={mp4Resolution === "720p" ? "bg-accent" : ""}
-                      >
-                        720p
-                      </DropdownMenuItem>
-
-                      <DropdownMenuSeparator />
-
-                      <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
-                        Format vidéo
-                      </DropdownMenuLabel>
-                      <DropdownMenuItem
-                        onClick={() => setAspectRatio("16:9")}
-                        className={aspectRatio === "16:9" ? "bg-accent" : ""}
-                      >
-                        16:9 (Horizontal standard)
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => setAspectRatio("9:16")}
-                        className={aspectRatio === "9:16" ? "bg-accent" : ""}
-                      >
-                        9:16 (Vertical / Stories)
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => setAspectRatio("1:1")}
-                        className={aspectRatio === "1:1" ? "bg-accent" : ""}
-                      >
-                        1:1 (Carré)
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => setAspectRatio("4:3")}
-                        className={aspectRatio === "4:3" ? "bg-accent" : ""}
-                      >
-                        4:3 (Classique)
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => setAspectRatio("21:9")}
-                        className={aspectRatio === "21:9" ? "bg-accent" : ""}
-                      >
-                        21:9 (Ultra-wide)
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">Backup WebM:</span>
+                  <Switch
+                    checked={saveWebmBackup}
+                    onCheckedChange={setSaveWebmBackup}
+                    disabled={isRecording || isConverting}
+                  />
+                </div>
               )}
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                disabled={isRecording || isConverting} 
+                className="h-8 w-8 p-0"
+                onClick={() => setIsSettingsDialogOpen(true)}
+              >
+                <MdSettings className="h-4 w-4" />
+              </Button>
+            </div>
+
+            <div className="h-8 w-px bg-border" />
             </div>
 
             <div className="h-8 w-px bg-border" />
@@ -767,6 +661,118 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
               )}
             </Button>
 
+            {/* Settings Dialog */}
+            <Dialog open={isSettingsDialogOpen} onOpenChange={setIsSettingsDialogOpen}>
+              <DialogContent className="sm:max-w-[600px]">
+                <DialogHeader>
+                  <DialogTitle>Paramètres vidéo</DialogTitle>
+                  <DialogDescription>
+                    Configurez la qualité, la résolution et le format de vos vidéos exportées
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-6 py-4">
+                  {/* Format vidéo */}
+                  <div className="space-y-3">
+                    <Label className="text-sm font-semibold">Format d'image</Label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {[
+                        { value: "16:9", label: "16:9", desc: "Horizontal" },
+                        { value: "9:16", label: "9:16", desc: "Vertical" },
+                        { value: "1:1", label: "1:1", desc: "Carré" },
+                        { value: "4:3", label: "4:3", desc: "Classique" },
+                        { value: "21:9", label: "21:9", desc: "Ultra-wide" },
+                      ].map((ratio) => (
+                        <Button
+                          key={ratio.value}
+                          variant={aspectRatio === ratio.value ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setAspectRatio(ratio.value as any)}
+                          disabled={isRecording || isConverting}
+                          className="flex flex-col h-auto py-2"
+                        >
+                          <span className="font-mono text-sm">{ratio.label}</span>
+                          <span className="text-xs opacity-70">{ratio.desc}</span>
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {exportFormat === "mp4" && (
+                    <>
+                      {/* Qualité */}
+                      <div className="space-y-3">
+                        <Label className="text-sm font-semibold">Qualité vidéo</Label>
+                        <div className="grid grid-cols-3 gap-2">
+                          {[
+                            { value: "high", label: "Haute", desc: "CRF 18" },
+                            { value: "medium", label: "Moyenne", desc: "CRF 23" },
+                            { value: "fast", label: "Rapide", desc: "CRF 28" },
+                          ].map((quality) => (
+                            <Button
+                              key={quality.value}
+                              variant={mp4Quality === quality.value ? "default" : "outline"}
+                              size="sm"
+                              onClick={() => setMp4Quality(quality.value as any)}
+                              disabled={isRecording || isConverting}
+                              className="flex flex-col h-auto py-2"
+                            >
+                              <span className="text-sm">{quality.label}</span>
+                              <span className="text-xs opacity-70">{quality.desc}</span>
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Vitesse de conversion */}
+                      <div className="space-y-3">
+                        <Label className="text-sm font-semibold">Vitesse de conversion</Label>
+                        <div className="grid grid-cols-3 gap-2">
+                          {[
+                            { value: "ultrafast", label: "Ultra rapide" },
+                            { value: "fast", label: "Rapide" },
+                            { value: "medium", label: "Moyenne" },
+                          ].map((preset) => (
+                            <Button
+                              key={preset.value}
+                              variant={mp4Preset === preset.value ? "default" : "outline"}
+                              size="sm"
+                              onClick={() => setMp4Preset(preset.value as any)}
+                              disabled={isRecording || isConverting}
+                            >
+                              {preset.label}
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Résolution */}
+                      <div className="space-y-3">
+                        <Label className="text-sm font-semibold">Résolution</Label>
+                        <div className="grid grid-cols-3 gap-2">
+                          {[
+                            { value: "original", label: "Originale" },
+                            { value: "1080p", label: "1080p" },
+                            { value: "720p", label: "720p" },
+                          ].map((resolution) => (
+                            <Button
+                              key={resolution.value}
+                              variant={mp4Resolution === resolution.value ? "default" : "outline"}
+                              size="sm"
+                              onClick={() => setMp4Resolution(resolution.value as any)}
+                              disabled={isRecording || isConverting}
+                            >
+                              {resolution.label}
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            {/* Shortcuts Dialog */}
             <Dialog open={isShortcutsDialogOpen} onOpenChange={setIsShortcutsDialogOpen}>
               <DialogTrigger asChild>
                 <Button
@@ -859,7 +865,6 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
                 </div>
               </DialogContent>
             </Dialog>
-          </div>
 
           {/* Ligne 2: Timeline Control */}
           <div className="px-4 py-3 flex items-start ">
