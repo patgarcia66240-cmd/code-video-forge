@@ -65,6 +65,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
   const [logs, setLogs] = useState<string[]>([]);
   const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [captureMode, setCaptureMode] = useState<'screen' | 'editor'>('editor');
   const [shortcuts, setShortcuts] = useState<KeyboardShortcuts>(() => {
     const saved = localStorage.getItem('typingSimulatorShortcuts');
     return saved ? JSON.parse(saved) : defaultShortcuts;
@@ -180,8 +181,15 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
 
   const startRecording = async () => {
     try {
+      // Si mode éditeur, activer le plein écran d'abord
+      if (captureMode === 'editor' && !isFullscreen) {
+        setIsFullscreen(true);
+        addLog("Mode plein écran activé pour capture éditeur");
+        // Attendre un peu que le rendu soit fait
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+
       addLog("Demande de partage d'écran...");
-      // Capture l'écran de l'éditeur
       const stream = await navigator.mediaDevices.getDisplayMedia({
         video: {
           displaySurface: "browser",
@@ -208,7 +216,9 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
 
       toast({
         title: "Enregistrement démarré",
-        description: "La vidéo est en cours d'enregistrement",
+        description: captureMode === 'editor' 
+          ? "Partagez l'onglet entier pour capturer l'éditeur seul" 
+          : "La vidéo est en cours d'enregistrement",
       });
 
       // Arrêter automatiquement quand l'animation est terminée
@@ -411,6 +421,25 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
             <RotateCcw className="w-4 h-4 mr-2" />
             Réinitialiser
           </Button>
+        </div>
+
+        <div className="h-8 w-px bg-border" />
+
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-muted-foreground">Mode capture:</span>
+          <div className="flex items-center gap-2">
+            <span className={`text-xs ${captureMode === 'screen' ? 'text-foreground' : 'text-muted-foreground'}`}>
+              Écran
+            </span>
+            <Switch
+              checked={captureMode === 'editor'}
+              onCheckedChange={(checked) => setCaptureMode(checked ? 'editor' : 'screen')}
+              disabled={isRecording || isConverting}
+            />
+            <span className={`text-xs ${captureMode === 'editor' ? 'text-foreground' : 'text-muted-foreground'}`}>
+              Éditeur seul
+            </span>
+          </div>
         </div>
 
         <div className="h-8 w-px bg-border" />
