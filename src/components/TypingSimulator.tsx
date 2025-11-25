@@ -19,6 +19,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [speed, setSpeed] = useState(50);
+  const [isDraggingSlider, setIsDraggingSlider] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
   const [isConverting, setIsConverting] = useState(false);
@@ -30,7 +31,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
 
   useEffect(() => {
     if (currentIndex >= code.length) return;
-    if (isPaused) return;
+    if (isPaused || isDraggingSlider) return;
 
     const delay = Math.max(10, 100 - speed);
     const timer = setTimeout(() => {
@@ -39,13 +40,24 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
     }, delay);
 
     return () => clearTimeout(timer);
-  }, [currentIndex, code, isPaused, speed]);
+  }, [currentIndex, code, isPaused, speed, isDraggingSlider]);
 
   const handleReset = () => {
     setDisplayedCode("");
     setCurrentIndex(0);
     setIsPaused(false);
     setRecordedBlob(null);
+  };
+
+  const handleSliderChange = (value: number[]) => {
+    const newIndex = value[0];
+    setCurrentIndex(newIndex);
+    setDisplayedCode(code.slice(0, newIndex));
+    setIsDraggingSlider(true);
+  };
+
+  const handleSliderCommit = () => {
+    setIsDraggingSlider(false);
   };
 
   const startRecording = async () => {
@@ -277,6 +289,24 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
           />
           <span className="text-xs text-muted-foreground min-w-[60px]">
             {speed === 0 ? "Lent" : speed === 100 ? "Rapide" : "Moyen"}
+          </span>
+        </div>
+
+        <div className="h-8 w-px bg-border" />
+
+        <div className="flex items-center gap-3 flex-1 max-w-md">
+          <span className="text-xs text-muted-foreground whitespace-nowrap">Position</span>
+          <Slider
+            value={[currentIndex]}
+            onValueChange={handleSliderChange}
+            onValueCommit={handleSliderCommit}
+            min={0}
+            max={code.length}
+            step={1}
+            className="flex-1"
+          />
+          <span className="text-xs text-muted-foreground font-mono min-w-[80px]">
+            {currentIndex} / {code.length}
           </span>
         </div>
 
