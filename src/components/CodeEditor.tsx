@@ -1,5 +1,5 @@
 import Editor from "@monaco-editor/react";
-import { Play, Download, Info } from "lucide-react";
+import { MdPlayArrow, MdDownload, MdInfo } from "react-icons/md";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
@@ -37,7 +37,7 @@ const CodeEditor = ({ code, setCode, onStartSimulation }: CodeEditorProps) => {
             className="bg-vscode-button hover:bg-vscode-button-hover text-white"
             size="sm"
           >
-            <Play className="w-4 h-4 mr-2" />
+            <MdPlayArrow className="w-4 h-4 mr-2" />
             Lancer la simulation
           </Button>
           <Button 
@@ -46,14 +46,14 @@ const CodeEditor = ({ code, setCode, onStartSimulation }: CodeEditorProps) => {
             size="sm"
             className="border-border hover:bg-secondary"
           >
-            <Download className="w-4 h-4 mr-2" />
+            <MdDownload className="w-4 h-4 mr-2" />
             Télécharger
           </Button>
         </div>
         
         <Card className="bg-editor/50 border-primary/20 p-3">
           <div className="flex items-start gap-2">
-            <Info className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+            <MdInfo className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
             <div className="text-xs text-muted-foreground">
               <p className="font-medium text-foreground mb-1">Enregistrement vidéo disponible</p>
               <p>Lancez la simulation puis cliquez sur <strong>Enregistrer</strong> pour capturer l'animation en MP4</p>

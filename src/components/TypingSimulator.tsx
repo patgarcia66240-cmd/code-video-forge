@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import Editor from "@monaco-editor/react";
-import { Pause, Play, RotateCcw, Gauge, Video, Download, StopCircle, Settings, Keyboard } from "lucide-react";
-import { MdFullscreen, MdFullscreenExit } from "react-icons/md";
+import { MdPause, MdPlayArrow, MdRefresh, MdSpeed, MdVideocam, MdDownload, MdStopCircle, MdSettings, MdKeyboard, MdFullscreen, MdFullscreenExit } from "react-icons/md";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
@@ -463,19 +462,19 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
               >
                 {isPaused ? (
                   <>
-                    <Play className="w-4 h-4 mr-2" />
+                    <MdPlayArrow className="w-4 h-4 mr-2" />
                     Reprendre
                   </>
                 ) : (
                   <>
-                    <Pause className="w-4 h-4 mr-2" />
+                    <MdPause className="w-4 h-4 mr-2" />
                     Pause
                   </>
                 )}
               </Button>
 
               <Button onClick={handleReset} variant="outline" size="sm" className="border-border hover:bg-secondary">
-                <RotateCcw className="w-4 h-4 mr-2" />
+                <MdRefresh className="w-4 h-4 mr-2" />
                 Réinitialiser
               </Button>
             </div>
@@ -533,7 +532,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="sm" disabled={isRecording || isConverting} className="h-8 w-8 p-0">
-                        <Settings className="h-4 w-4" />
+                        <MdSettings className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-56 bg-popover z-50">
@@ -625,7 +624,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
                   size="sm"
                   className="border-destructive text-destructive hover:bg-destructive hover:text-white"
                 >
-                  <Video className="w-4 h-4 mr-2" />
+                  <MdVideocam className="w-4 h-4 mr-2" />
                   Enregistrer {exportFormat.toUpperCase()}
                 </Button>
               ) : isRecording ? (
@@ -635,7 +634,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
                   size="sm"
                   className="border-destructive text-destructive hover:bg-destructive hover:text-white animate-pulse"
                 >
-                  <StopCircle className="w-4 h-4 mr-2" />
+                  <MdStopCircle className="w-4 h-4 mr-2" />
                   Arrêter
                 </Button>
               ) : (
@@ -661,7 +660,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
                     size="sm"
                     className="border-destructive text-destructive hover:bg-destructive hover:text-white"
                   >
-                    <StopCircle className="w-4 h-4 mr-2" />
+                    <MdStopCircle className="w-4 h-4 mr-2" />
                     Annuler
                   </Button>
                 </div>
@@ -673,14 +672,14 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
                   className="bg-primary hover:bg-primary/90 text-primary-foreground"
                   size="sm"
                 >
-                  <Download className="w-4 h-4 mr-2" />
+                  <MdDownload className="w-4 h-4 mr-2" />
                   Télécharger {recordedBlob.type.includes("mp4") ? "MP4" : "WebM"}
                 </Button>
               )}
             </div>
 
             <div className="flex items-center gap-3 ml-4 flex-1 max-w-xs">
-              <Gauge className="w-4 h-4 text-muted-foreground" />
+              <MdSpeed className="w-4 h-4 text-muted-foreground" />
               <Slider
                 value={[speed]}
                 onValueChange={(value) => setSpeed(value[0])}
@@ -728,7 +727,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
                   className="border-border hover:bg-secondary"
                   title="Configurer les raccourcis clavier"
                 >
-                  <Keyboard className="w-4 h-4" />
+                  <MdKeyboard className="w-4 h-4" />
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[500px]">
@@ -879,7 +878,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
                 }}
                 className="w-fit"
               >
-                <Download className="w-4 h-4 mr-2" />
+                <MdDownload className="w-4 h-4 mr-2" />
                 Télécharger la vidéo
               </Button>
             </div>
