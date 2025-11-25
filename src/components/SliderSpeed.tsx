@@ -23,7 +23,7 @@ const SliderSpeed = ({ speed, setSpeed }: SliderSpeedProps) => {
         min={0}
         max={100}
         step={10}
-        className="flex-1"
+        className="flex-1 min-w-[200px]"
       />
       <span className="text-sm text-muted-foreground min-w-[80px] text-right">
         {speed === 0
