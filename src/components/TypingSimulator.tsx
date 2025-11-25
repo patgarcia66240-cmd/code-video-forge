@@ -272,14 +272,6 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
       recorderRef.current = recorder;
       setIsRecording(true);
 
-      toast({
-        title: "Enregistrement démarré",
-        description:
-          captureMode === "editor"
-            ? "Partagez l'onglet entier pour capturer l'éditeur seul"
-            : "La vidéo est en cours d'enregistrement",
-      });
-
       // Arrêter automatiquement quand l'animation est terminée
       stream.getVideoTracks()[0].addEventListener("ended", () => {
         addLog("Partage d'écran arrêté par l'utilisateur");
@@ -489,10 +481,10 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
 
             <div className="h-8 w-px bg-border" />
 
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              disabled={isRecording || isConverting} 
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={isRecording || isConverting}
               className="h-8 w-8 p-0"
               onClick={() => setIsSettingsDialogOpen(true)}
               title="Paramètres"
@@ -564,10 +556,10 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
               )}
             </div>
 
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              disabled={isRecording || isConverting} 
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={isRecording || isConverting}
               className="h-8 w-8 p-0"
               onClick={() => setIsSettingsDialogOpen(true)}
               title="Paramètres"
@@ -640,11 +632,9 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
         <DialogContent className="sm:max-w-[650px] max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Paramètres</DialogTitle>
-            <DialogDescription>
-              Configurez les paramètres de l'application et de l'export vidéo
-            </DialogDescription>
+            <DialogDescription>Configurez les paramètres de l'application et de l'export vidéo</DialogDescription>
           </DialogHeader>
-          
+
           <Tabs defaultValue="general" className="w-full">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="general">Général</TabsTrigger>
@@ -658,7 +648,9 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
                 <div className="space-y-3">
                   <Label className="text-sm font-semibold">Mode de capture</Label>
                   <div className="flex items-center gap-4 p-4 bg-secondary/30 rounded-lg">
-                    <span className={`text-sm ${captureMode === "screen" ? "font-semibold text-foreground" : "text-muted-foreground"}`}>
+                    <span
+                      className={`text-sm ${captureMode === "screen" ? "font-semibold text-foreground" : "text-muted-foreground"}`}
+                    >
                       Écran complet
                     </span>
                     <Switch
@@ -666,13 +658,15 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
                       onCheckedChange={(checked) => setCaptureMode(checked ? "editor" : "screen")}
                       disabled={isRecording || isConverting}
                     />
-                    <span className={`text-sm ${captureMode === "editor" ? "font-semibold text-foreground" : "text-muted-foreground"}`}>
+                    <span
+                      className={`text-sm ${captureMode === "editor" ? "font-semibold text-foreground" : "text-muted-foreground"}`}
+                    >
                       Éditeur seul
                     </span>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {captureMode === "editor" 
-                      ? "Mode plein écran automatique pour capturer uniquement l'éditeur" 
+                    {captureMode === "editor"
+                      ? "Mode plein écran automatique pour capturer uniquement l'éditeur"
                       : "Capture complète de l'écran partagé"}
                   </p>
                 </div>
@@ -690,15 +684,23 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
                       className="flex-1"
                     />
                     <span className="text-sm text-muted-foreground min-w-[80px] text-right">
-                      {speed === 0 ? "Très lent" : speed < 30 ? "Lent" : speed < 70 ? "Moyen" : speed < 100 ? "Rapide" : "Très rapide"}
+                      {speed === 0
+                        ? "Très lent"
+                        : speed < 30
+                          ? "Lent"
+                          : speed < 70
+                            ? "Moyen"
+                            : speed < 100
+                              ? "Rapide"
+                              : "Très rapide"}
                     </span>
                   </div>
                 </div>
 
                 <div className="space-y-3">
                   <Label className="text-sm font-semibold">Raccourcis clavier</Label>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="w-full justify-between"
                     onClick={() => {
                       setIsSettingsDialogOpen(false);
@@ -721,7 +723,9 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
               <div className="space-y-3">
                 <Label className="text-sm font-semibold">Format d'export</Label>
                 <div className="flex items-center gap-4 p-4 bg-secondary/30 rounded-lg">
-                  <span className={`text-sm font-mono ${exportFormat === "webm" ? "font-semibold text-foreground" : "text-muted-foreground"}`}>
+                  <span
+                    className={`text-sm font-mono ${exportFormat === "webm" ? "font-semibold text-foreground" : "text-muted-foreground"}`}
+                  >
                     WebM
                   </span>
                   <Switch
@@ -729,7 +733,9 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
                     onCheckedChange={(checked) => setExportFormat(checked ? "mp4" : "webm")}
                     disabled={isRecording || isConverting}
                   />
-                  <span className={`text-sm font-mono ${exportFormat === "mp4" ? "font-semibold text-foreground" : "text-muted-foreground"}`}>
+                  <span
+                    className={`text-sm font-mono ${exportFormat === "mp4" ? "font-semibold text-foreground" : "text-muted-foreground"}`}
+                  >
                     MP4
                   </span>
                 </div>
@@ -848,9 +854,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
             <TabsContent value="audio" className="space-y-6 py-4">
               <div className="space-y-4">
                 <div className="p-6 bg-secondary/30 rounded-lg text-center">
-                  <p className="text-sm text-muted-foreground">
-                    L'enregistrement audio n'est pas encore disponible.
-                  </p>
+                  <p className="text-sm text-muted-foreground">L'enregistrement audio n'est pas encore disponible.</p>
                   <p className="text-xs text-muted-foreground mt-2">
                     Cette fonctionnalité sera ajoutée dans une prochaine version.
                   </p>
@@ -985,33 +989,33 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
         {/* Editor Panel */}
         <ResizablePanel defaultSize={videoPreviewUrl && !isFullscreen ? 65 : 100} minSize={30}>
           <div className="h-full overflow-hidden relative flex items-center justify-center bg-editor">
-            <div 
+            <div
               className="w-full h-full max-w-full max-h-full"
-              style={{ 
+              style={{
                 aspectRatio: aspectRatio,
-                maxWidth: '100%',
-                maxHeight: '100%'
+                maxWidth: "100%",
+                maxHeight: "100%",
               }}
             >
               <Editor
-              height="100%"
-              defaultLanguage="python"
-              value={displayedCode}
-              theme="vs-dark"
-              options={{
-                fontSize: 14,
-                fontFamily: "Fira Code, Consolas, Monaco, monospace",
-                minimap: { enabled: false },
-                lineNumbers: "on",
-                renderLineHighlight: "all",
-                scrollBeyondLastLine: false,
-                automaticLayout: true,
-                tabSize: 4,
-                wordWrap: "on",
-                readOnly: true,
-                cursorStyle: "block",
-                cursorBlinking: "solid",
-              }}
+                height="100%"
+                defaultLanguage="python"
+                value={displayedCode}
+                theme="vs-dark"
+                options={{
+                  fontSize: 14,
+                  fontFamily: "Fira Code, Consolas, Monaco, monospace",
+                  minimap: { enabled: false },
+                  lineNumbers: "on",
+                  renderLineHighlight: "all",
+                  scrollBeyondLastLine: false,
+                  automaticLayout: true,
+                  tabSize: 4,
+                  wordWrap: "on",
+                  readOnly: true,
+                  cursorStyle: "block",
+                  cursorBlinking: "solid",
+                }}
               />
             </div>
 
