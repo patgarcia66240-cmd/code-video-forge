@@ -1,10 +1,18 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import Editor from "@monaco-editor/react";
-import { Pause, Play, RotateCcw, Gauge, Video, Download, StopCircle } from "lucide-react";
+import { Pause, Play, RotateCcw, Gauge, Video, Download, StopCircle, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import RecordRTC from "recordrtc";
 import RecordingGuide from "./RecordingGuide";
@@ -26,6 +34,9 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
   const [isConverting, setIsConverting] = useState(false);
   const [conversionProgress, setConversionProgress] = useState(0);
   const [exportFormat, setExportFormat] = useState<'webm' | 'mp4'>('webm');
+  const [mp4Quality, setMp4Quality] = useState<'high' | 'medium' | 'fast'>('medium');
+  const [mp4Preset, setMp4Preset] = useState<'ultrafast' | 'fast' | 'medium'>('ultrafast');
+  const [mp4Resolution, setMp4Resolution] = useState<'original' | '1080p' | '720p'>('original');
   
   const recorderRef = useRef<RecordRTC | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -136,9 +147,21 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
           setIsConverting(true);
           setConversionProgress(0);
           
-          const mp4Blob = await convertWebMToMP4(webmBlob, (progress) => {
-            setConversionProgress(progress);
-          });
+          // Paramètres de conversion basés sur les réglages
+          const crfValue = mp4Quality === 'high' ? 18 : mp4Quality === 'medium' ? 23 : 28;
+          const scaleFilter = mp4Resolution === '1080p' ? 'scale=-2:1080' : mp4Resolution === '720p' ? 'scale=-2:720' : null;
+          
+          const mp4Blob = await convertWebMToMP4(
+            webmBlob, 
+            {
+              preset: mp4Preset,
+              crf: crfValue,
+              scale: scaleFilter,
+            },
+            (progress) => {
+              setConversionProgress(progress);
+            }
+          );
           
           setRecordedBlob(mp4Blob);
           setIsConverting(false);
@@ -245,6 +268,94 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
               MP4
             </span>
           </div>
+          {exportFormat === 'mp4' && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled={isRecording || isConverting}
+                  className="h-8 w-8 p-0"
+                >
+                  <Settings className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 bg-popover z-50">
+                <DropdownMenuLabel>Paramètres MP4</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                
+                <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
+                  Qualité
+                </DropdownMenuLabel>
+                <DropdownMenuItem
+                  onClick={() => setMp4Quality('high')}
+                  className={mp4Quality === 'high' ? 'bg-accent' : ''}
+                >
+                  Haute (CRF 18) - Meilleure qualité
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setMp4Quality('medium')}
+                  className={mp4Quality === 'medium' ? 'bg-accent' : ''}
+                >
+                  Moyenne (CRF 23) - Équilibrée
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setMp4Quality('fast')}
+                  className={mp4Quality === 'fast' ? 'bg-accent' : ''}
+                >
+                  Rapide (CRF 28) - Plus petit
+                </DropdownMenuItem>
+                
+                <DropdownMenuSeparator />
+                
+                <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
+                  Vitesse de conversion
+                </DropdownMenuLabel>
+                <DropdownMenuItem
+                  onClick={() => setMp4Preset('ultrafast')}
+                  className={mp4Preset === 'ultrafast' ? 'bg-accent' : ''}
+                >
+                  Ultra rapide
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setMp4Preset('fast')}
+                  className={mp4Preset === 'fast' ? 'bg-accent' : ''}
+                >
+                  Rapide
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setMp4Preset('medium')}
+                  className={mp4Preset === 'medium' ? 'bg-accent' : ''}
+                >
+                  Moyenne
+                </DropdownMenuItem>
+                
+                <DropdownMenuSeparator />
+                
+                <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
+                  Résolution
+                </DropdownMenuLabel>
+                <DropdownMenuItem
+                  onClick={() => setMp4Resolution('original')}
+                  className={mp4Resolution === 'original' ? 'bg-accent' : ''}
+                >
+                  Originale
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setMp4Resolution('1080p')}
+                  className={mp4Resolution === '1080p' ? 'bg-accent' : ''}
+                >
+                  1080p
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setMp4Resolution('720p')}
+                  className={mp4Resolution === '720p' ? 'bg-accent' : ''}
+                >
+                  720p
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
 
         <div className="h-8 w-px bg-border" />
