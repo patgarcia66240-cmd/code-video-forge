@@ -540,7 +540,7 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady }: TypingSimulatorP
                   className="border-destructive text-destructive hover:bg-destructive hover:text-white"
                 >
                   <MdVideocam className="w-4 h-4 mr-2" />
-                  Enregistrer }
+                  Enregistrer
                 </Button>
               ) : isRecording ? (
                 <Button
