@@ -60,10 +60,20 @@ export const loadFFmpeg = async (): Promise<FFmpeg> => {
   }
 };
 
-export const convertWebMToMP4 = async (webmBlob: Blob): Promise<Blob> => {
+export const convertWebMToMP4 = async (
+  webmBlob: Blob,
+  onProgress?: (progress: number) => void
+): Promise<Blob> => {
   console.log("[Convert] Démarrage conversion, taille:", webmBlob.size);
   
   const ffmpeg = await loadFFmpeg();
+
+  // Écouter les événements de progression
+  if (onProgress) {
+    ffmpeg.on("progress", ({ progress }) => {
+      onProgress(Math.round(progress * 100));
+    });
+  }
 
   console.log("[Convert] Écriture du fichier d'entrée...");
   // Écrire le fichier d'entrée

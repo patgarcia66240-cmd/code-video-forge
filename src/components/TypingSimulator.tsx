@@ -22,6 +22,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
   const [isRecording, setIsRecording] = useState(false);
   const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
   const [isConverting, setIsConverting] = useState(false);
+  const [conversionProgress, setConversionProgress] = useState(0);
   
   const recorderRef = useRef<RecordRTC | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -108,9 +109,15 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
 
         try {
           setIsConverting(true);
-          const mp4Blob = await convertWebMToMP4(webmBlob);
+          setConversionProgress(0);
+          
+          const mp4Blob = await convertWebMToMP4(webmBlob, (progress) => {
+            setConversionProgress(progress);
+          });
+          
           setRecordedBlob(mp4Blob);
           setIsConverting(false);
+          setConversionProgress(0);
 
           toast({
             title: "Vidéo prête !",
@@ -119,6 +126,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
         } catch (error) {
           console.error("Erreur lors de la conversion:", error);
           setIsConverting(false);
+          setConversionProgress(0);
           // En cas d'erreur, garder le WebM
           setRecordedBlob(webmBlob);
           
@@ -219,15 +227,30 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
               Arrêter
             </Button>
           ) : (
-            <Button
-              disabled
-              variant="outline"
-              size="sm"
-              className="border-border opacity-50"
-            >
-              <div className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-              Conversion...
-            </Button>
+            <div className="flex items-center gap-3">
+              <Button
+                disabled
+                variant="outline"
+                size="sm"
+                className="border-border opacity-50"
+              >
+                <div className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                Conversion MP4...
+              </Button>
+              <div className="flex items-center gap-2 min-w-[120px]">
+                <div className="flex-1 h-2 bg-secondary rounded-full overflow-hidden">
+                  <motion.div
+                    className="h-full bg-primary"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${conversionProgress}%` }}
+                    transition={{ duration: 0.3 }}
+                  />
+                </div>
+                <span className="text-xs text-muted-foreground font-mono min-w-[35px]">
+                  {conversionProgress}%
+                </span>
+              </div>
+            </div>
           )}
 
           {recordedBlob && !isConverting && (
