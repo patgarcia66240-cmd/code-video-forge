@@ -77,7 +77,7 @@ const TimelineControl = ({
   const skipAmount = Math.max(1, Math.floor(totalLength * 0.05)); // 5% du total
 
   return (
-    <div className="flex flex-col gap-3 w-full mt-6">
+    <div className="flex flex-col gap-3 w-fit mt-6">
       {/* Timecode et progression */}
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-3">
