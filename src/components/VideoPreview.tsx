@@ -205,15 +205,15 @@ Créé avec Code Typing Simulator`;
               <Button
                 onClick={handleShareToYouTube}
                 variant="outline"
-                className="h-24 flex flex-col gap-3 border-border hover:bg-secondary/50"
+                className="h-24 flex flex-row gap-3 border-border hover:bg-secondary/50"
               >
-                <FaYoutube className="w-9 h-9 text-red-600" />
+                <FaYoutube className="w-8 h-8 text-red-600" />
                 <span className="text-sm font-medium">YouTube</span>
               </Button>
               <Button
                 onClick={handleShareToTwitter}
                 variant="outline"
-                className="h-24 flex flex-col gap-3 border-border hover:bg-secondary/50"
+                className="h-24 flex flex-row gap-3 border-border hover:bg-secondary/50"
               >
                 <FaTwitter className="w-8 h-8 text-blue-400" />
                 <span className="text-sm font-medium">Twitter</span>
@@ -221,7 +221,7 @@ Créé avec Code Typing Simulator`;
               <Button
                 onClick={handleShareToLinkedIn}
                 variant="outline"
-                className="h-24 flex flex-col gap-3 border-border hover:bg-secondary/50"
+                className="h-24 flex flex-row gap-3 border-border hover:bg-secondary/50"
               >
                 <FaLinkedin className="w-8 h-8 text-blue-700" />
                 <span className="text-sm font-medium">LinkedIn</span>
