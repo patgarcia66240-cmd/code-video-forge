@@ -18,11 +18,11 @@ const VideoPreview = ({ videoUrl, videoBlob, onDownload, onDelete }: VideoPrevie
   const [isSharing, setIsSharing] = useState(false);
 
   const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 B';
+    if (bytes === 0) return "0 B";
     const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const sizes = ["B", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
   const formatDuration = (blob: Blob) => {
@@ -35,7 +35,7 @@ const VideoPreview = ({ videoUrl, videoBlob, onDownload, onDelete }: VideoPrevie
 
   const handleShare = async () => {
     setIsSharing(true);
-    
+
     try {
       // Créer un fichier à partir du blob pour le partage
       const fileName = `typing-animation-${Date.now()}.${videoFormat.toLowerCase()}`;
@@ -44,11 +44,11 @@ const VideoPreview = ({ videoUrl, videoBlob, onDownload, onDelete }: VideoPrevie
       // Vérifier si l'API Web Share est disponible
       if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({
-          title: 'Animation de code',
-          text: 'Regardez cette animation de code que j\'ai créée !',
+          title: "Animation de code",
+          text: "Regardez cette animation de code que j'ai créée !",
           files: [file],
         });
-        
+
         toast({
           title: "Partagé !",
           description: "La vidéo a été partagée avec succès",
@@ -57,14 +57,14 @@ const VideoPreview = ({ videoUrl, videoBlob, onDownload, onDelete }: VideoPrevie
         // Fallback : copier les informations dans le presse-papier
         const shareText = `Animation de code - Format: ${videoFormat}, Taille: ${videoSize}`;
         await navigator.clipboard.writeText(shareText);
-        
+
         toast({
           title: "Informations copiées",
           description: "Les détails de la vidéo ont été copiés. Pour partager la vidéo, téléchargez-la d'abord.",
         });
       }
     } catch (error) {
-      console.error('Erreur lors du partage:', error);
+      console.error("Erreur lors du partage:", error);
       toast({
         title: "Erreur",
         description: "Impossible de partager. Téléchargez la vidéo pour la partager.",
@@ -103,12 +103,14 @@ Créé avec Code Typing Simulator`;
       title: "YouTube",
       description: "Téléchargez d'abord la vidéo, puis uploadez-la sur YouTube Studio",
     });
-    window.open('https://studio.youtube.com/channel/upload', '_blank');
+    window.open("https://studio.youtube.com/channel/upload", "_blank");
   };
 
   const handleShareToTwitter = () => {
-    const text = encodeURIComponent('Regardez cette animation de code que j\'ai créée avec Code Typing Simulator ! 🎥💻 #coding #animation');
-    window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
+    const text = encodeURIComponent(
+      "Regardez cette animation de code que j'ai créée avec Code Typing Simulator ! 🎥💻 #coding #animation",
+    );
+    window.open(`https://twitter.com/intent/tweet?text=${text}`, "_blank");
     toast({
       title: "Twitter",
       description: "Téléchargez la vidéo et ajoutez-la à votre tweet",
@@ -116,7 +118,7 @@ Créé avec Code Typing Simulator`;
   };
 
   const handleShareToLinkedIn = () => {
-    window.open('https://www.linkedin.com/feed/?shareActive=true', '_blank');
+    window.open("https://www.linkedin.com/feed/?shareActive=true", "_blank");
     toast({
       title: "LinkedIn",
       description: "Téléchargez la vidéo et ajoutez-la à votre post LinkedIn",
@@ -134,11 +136,7 @@ Créé avec Code Typing Simulator`;
         <Card className="border-border">
           <CardContent className="p-6">
             <div className="aspect-video w-full rounded-lg overflow-hidden bg-black border border-border">
-              <video
-                src={videoUrl}
-                controls
-                className="w-full h-full"
-              />
+              <video src={videoUrl} controls className="w-full h-full" />
             </div>
           </CardContent>
         </Card>
@@ -155,11 +153,11 @@ Créé avec Code Typing Simulator`;
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <div className="space-y-1">
                 <div className="text-sm text-muted-foreground">Format</div>
-                <div className="text-2xl font-bold font-mono">{videoFormat}</div>
+                <div className="text-xl font-bold font-mono">{videoFormat}</div>
               </div>
               <div className="space-y-1">
                 <div className="text-sm text-muted-foreground">Taille du fichier</div>
-                <div className="text-2xl font-bold">{videoSize}</div>
+                <div className="text-xl font-bold">{videoSize}</div>
               </div>
               <div className="space-y-1">
                 <div className="text-sm text-muted-foreground">Type MIME</div>
@@ -167,7 +165,7 @@ Créé avec Code Typing Simulator`;
               </div>
               <div className="space-y-1">
                 <div className="text-sm text-muted-foreground">Statut</div>
-                <div className="text-2xl font-bold text-green-500">✓ Prêt</div>
+                <div className="text-xl font-bold text-green-500">✓ Prêt</div>
               </div>
             </div>
           </CardContent>
@@ -175,30 +173,15 @@ Créé avec Code Typing Simulator`;
 
         {/* Actions */}
         <div className="grid grid-cols-4 gap-3">
-          <Button
-            onClick={onDownload}
-            size="lg"
-            className="col-span-2 h-14"
-          >
+          <Button onClick={onDownload} size="lg" className="col-span-2 h-14">
             <MdDownload className="w-5 h-5 mr-2" />
             Télécharger la vidéo
           </Button>
-          <Button
-            onClick={handleShare}
-            variant="secondary"
-            size="lg"
-            disabled={isSharing}
-            className="h-14"
-          >
+          <Button onClick={handleShare} variant="secondary" size="lg" disabled={isSharing} className="h-14">
             <MdShare className="w-5 h-5 mr-2" />
             Partager
           </Button>
-          <Button
-            onClick={handleCopyInfo}
-            variant="secondary"
-            size="lg"
-            className="h-14"
-          >
+          <Button onClick={handleCopyInfo} variant="secondary" size="lg" className="h-14">
             <MdContentCopy className="w-5 h-5 mr-2" />
             Copier
           </Button>
@@ -243,12 +226,7 @@ Créé avec Code Typing Simulator`;
         </Card>
 
         {/* Delete Button */}
-        <Button
-          onClick={onDelete}
-          variant="destructive"
-          size="lg"
-          className="w-full h-14"
-        >
+        <Button onClick={onDelete} variant="destructive" size="lg" className="w-full h-14">
           <MdDelete className="w-5 h-5 mr-2" />
           Supprimer la vidéo
         </Button>
