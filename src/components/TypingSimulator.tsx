@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import Editor from "@monaco-editor/react";
-import { Pause, Play, RotateCcw, Gauge, Video, Download, StopCircle, Settings } from "lucide-react";
+import { Pause, Play, RotateCcw, Gauge, Video, Download, StopCircle, Settings, Keyboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
@@ -13,6 +13,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import RecordRTC from "recordrtc";
 import RecordingGuide from "./RecordingGuide";
@@ -22,6 +32,20 @@ interface TypingSimulatorProps {
   code: string;
   onComplete: () => void;
 }
+
+interface KeyboardShortcuts {
+  record: string;
+  pause: string;
+  reset: string;
+  fullscreen: string;
+}
+
+const defaultShortcuts: KeyboardShortcuts = {
+  record: 'F9',
+  pause: 'Space',
+  reset: 'r',
+  fullscreen: 'f',
+};
 
 const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
   const [displayedCode, setDisplayedCode] = useState("");
@@ -41,10 +65,21 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
   const [logs, setLogs] = useState<string[]>([]);
   const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [shortcuts, setShortcuts] = useState<KeyboardShortcuts>(() => {
+    const saved = localStorage.getItem('typingSimulatorShortcuts');
+    return saved ? JSON.parse(saved) : defaultShortcuts;
+  });
+  const [isShortcutsDialogOpen, setIsShortcutsDialogOpen] = useState(false);
+  const [editingShortcut, setEditingShortcut] = useState<keyof KeyboardShortcuts | null>(null);
   
   const recorderRef = useRef<RecordRTC | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const { toast } = useToast();
+
+  // Sauvegarder les raccourcis dans localStorage
+  useEffect(() => {
+    localStorage.setItem('typingSimulatorShortcuts', JSON.stringify(shortcuts));
+  }, [shortcuts]);
 
   // Créer l'URL de prévisualisation quand recordedBlob change
   useEffect(() => {
@@ -59,10 +94,16 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
     }
   }, [recordedBlob]);
 
-  // Raccourci clavier F9 pour démarrer/arrêter l'enregistrement
+  // Raccourcis clavier configurables
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
-      if (e.key === 'F9') {
+      // Ignorer si on est en train d'éditer un raccourci
+      if (editingShortcut) return;
+      
+      const key = e.key === ' ' ? 'Space' : e.key;
+      
+      // Enregistrement
+      if (key === shortcuts.record) {
         e.preventDefault();
         if (isRecording) {
           stopRecording();
@@ -70,6 +111,25 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
           startRecording();
         }
       }
+      
+      // Pause/Reprendre
+      if (key === shortcuts.pause && !isRecording && !isConverting) {
+        e.preventDefault();
+        setIsPaused(!isPaused);
+      }
+      
+      // Reset
+      if (key === shortcuts.reset && !isRecording && !isConverting) {
+        e.preventDefault();
+        handleReset();
+      }
+      
+      // Plein écran
+      if (key === shortcuts.fullscreen && !isRecording) {
+        e.preventDefault();
+        setIsFullscreen(!isFullscreen);
+      }
+      
       // Echap pour quitter le mode plein écran
       if (e.key === 'Escape' && isFullscreen) {
         setIsFullscreen(false);
@@ -78,7 +138,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [isRecording, isConverting, isFullscreen]);
+  }, [isRecording, isConverting, isFullscreen, isPaused, shortcuts, editingShortcut]);
 
   useEffect(() => {
     if (currentIndex >= code.length) return;
@@ -290,6 +350,21 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
   };
 
   const progress = (currentIndex / code.length) * 100;
+
+  const handleShortcutCapture = (action: keyof KeyboardShortcuts, e: React.KeyboardEvent) => {
+    e.preventDefault();
+    const key = e.key === ' ' ? 'Space' : e.key;
+    setShortcuts(prev => ({ ...prev, [action]: key }));
+    setEditingShortcut(null);
+  };
+
+  const resetShortcutsToDefault = () => {
+    setShortcuts(defaultShortcuts);
+    toast({
+      title: "Raccourcis réinitialisés",
+      description: "Les raccourcis par défaut ont été restaurés",
+    });
+  };
 
   return (
     <div className="flex-1 flex flex-col bg-editor relative">
@@ -572,10 +647,88 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
           variant="outline"
           size="sm"
           className="border-border hover:bg-secondary"
-          title="Mode plein écran (F9 pour enregistrer)"
+          title={`Mode plein écran (${shortcuts.fullscreen})`}
         >
           {isFullscreen ? "Quitter plein écran" : "Plein écran"}
         </Button>
+
+        <Dialog open={isShortcutsDialogOpen} onOpenChange={setIsShortcutsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-border hover:bg-secondary"
+              title="Configurer les raccourcis clavier"
+            >
+              <Keyboard className="w-4 h-4" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Raccourcis clavier</DialogTitle>
+              <DialogDescription>
+                Cliquez sur un champ et appuyez sur la touche souhaitée pour configurer un raccourci.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="record">Démarrer/Arrêter l'enregistrement</Label>
+                <Input
+                  id="record"
+                  value={shortcuts.record}
+                  readOnly
+                  className="font-mono cursor-pointer"
+                  onFocus={() => setEditingShortcut('record')}
+                  onKeyDown={(e) => editingShortcut === 'record' && handleShortcutCapture('record', e)}
+                  placeholder="Appuyez sur une touche..."
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="pause">Pause/Reprendre l'animation</Label>
+                <Input
+                  id="pause"
+                  value={shortcuts.pause}
+                  readOnly
+                  className="font-mono cursor-pointer"
+                  onFocus={() => setEditingShortcut('pause')}
+                  onKeyDown={(e) => editingShortcut === 'pause' && handleShortcutCapture('pause', e)}
+                  placeholder="Appuyez sur une touche..."
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="reset">Réinitialiser l'animation</Label>
+                <Input
+                  id="reset"
+                  value={shortcuts.reset}
+                  readOnly
+                  className="font-mono cursor-pointer"
+                  onFocus={() => setEditingShortcut('reset')}
+                  onKeyDown={(e) => editingShortcut === 'reset' && handleShortcutCapture('reset', e)}
+                  placeholder="Appuyez sur une touche..."
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="fullscreen">Activer/Désactiver plein écran</Label>
+                <Input
+                  id="fullscreen"
+                  value={shortcuts.fullscreen}
+                  readOnly
+                  className="font-mono cursor-pointer"
+                  onFocus={() => setEditingShortcut('fullscreen')}
+                  onKeyDown={(e) => editingShortcut === 'fullscreen' && handleShortcutCapture('fullscreen', e)}
+                  placeholder="Appuyez sur une touche..."
+                />
+              </div>
+              <Button
+                variant="outline"
+                onClick={resetShortcutsToDefault}
+                className="w-full"
+              >
+                Réinitialiser par défaut
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
       )}
 
@@ -626,7 +779,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
           className="absolute top-4 right-4 z-50 bg-destructive/90 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-lg"
         >
           <div className="w-3 h-3 bg-white rounded-full animate-pulse" />
-          <span className="text-sm font-medium">Enregistrement en cours (F9 pour arrêter)</span>
+          <span className="text-sm font-medium">Enregistrement en cours ({shortcuts.record} pour arrêter)</span>
         </motion.div>
       )}
 
