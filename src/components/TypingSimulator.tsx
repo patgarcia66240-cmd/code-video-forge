@@ -84,6 +84,7 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady }: TypingSimulatorP
   const [countdown, setCountdown] = useState<number | null>(null);
   const [isLoopEnabled, setIsLoopEnabled] = useState(false);
   const [loopCount, setLoopCount] = useState(0);
+  const [autoStart, setAutoStart] = useState(false);
 
   const recorderRef = useRef<RecordRTC | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -100,6 +101,13 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady }: TypingSimulatorP
       onSettingsReady(() => () => setIsSettingsDialogOpen(true));
     }
   }, [onSettingsReady]);
+
+  // Démarrage automatique de l'animation
+  useEffect(() => {
+    if (autoStart && currentIndex === 0) {
+      setIsPaused(false);
+    }
+  }, [autoStart]);
 
   // Créer l'URL de prévisualisation quand recordedBlob change
   useEffect(() => {
@@ -651,6 +659,8 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady }: TypingSimulatorP
         setSpeed={setSpeed}
         isLoopEnabled={isLoopEnabled}
         setIsLoopEnabled={setIsLoopEnabled}
+        autoStart={autoStart}
+        setAutoStart={setAutoStart}
         isRecording={isRecording}
         isConverting={isConverting}
         exportFormat={exportFormat}
