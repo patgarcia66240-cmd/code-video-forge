@@ -702,7 +702,15 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
 
         <div className="h-8 w-px bg-border" />
 
-        <div className="flex flex-col gap-2 flex-1 max-w-md">
+        <div className="flex flex-col gap-1 flex-1 max-w-md">
+          <div className="flex justify-between items-center px-1 mb-1">
+            <span className="text-xs text-foreground font-mono font-semibold">
+              {getTimecode(currentIndex)}
+            </span>
+            <span className="text-xs text-foreground/70 font-mono">
+              {getTimecode(code.length)}
+            </span>
+          </div>
           <div className="flex items-center gap-3">
             <Slider
               value={[currentIndex]}
@@ -713,14 +721,6 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
               step={1}
               className="flex-1"
             />
-          </div>
-          <div className="flex justify-between items-center px-1">
-            <span className="text-xs text-muted-foreground font-mono">
-              {getTimecode(currentIndex)}
-            </span>
-            <span className="text-xs text-muted-foreground font-mono">
-              {getTimecode(code.length)}
-            </span>
           </div>
         </div>
 
