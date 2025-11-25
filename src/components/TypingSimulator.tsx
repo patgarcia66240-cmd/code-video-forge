@@ -961,7 +961,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
                         });
                       }
                     }}
-                    className="w-auto px-4 py-2"
+                    className="w-auto px-4 py-2 rounded-md"
                   >
                     <MdDownload className="w-4 h-4 mr-2" />
                     Télécharger la vidéo
