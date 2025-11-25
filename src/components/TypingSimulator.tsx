@@ -4,6 +4,7 @@ import Editor from "@monaco-editor/react";
 import { Pause, Play, RotateCcw, Gauge, Video, Download, StopCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import RecordRTC from "recordrtc";
 import RecordingGuide from "./RecordingGuide";
@@ -24,6 +25,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
   const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
   const [isConverting, setIsConverting] = useState(false);
   const [conversionProgress, setConversionProgress] = useState(0);
+  const [exportFormat, setExportFormat] = useState<'webm' | 'mp4'>('webm');
   
   const recorderRef = useRef<RecordRTC | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -114,6 +116,17 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
         // Arrêter tous les tracks du stream
         streamRef.current!.getTracks().forEach(track => track.stop());
 
+        // Si format WebM, télécharger directement
+        if (exportFormat === 'webm') {
+          setRecordedBlob(webmBlob);
+          toast({
+            title: "Vidéo prête !",
+            description: "Votre vidéo WebM est prête à être téléchargée",
+          });
+          return;
+        }
+
+        // Sinon, convertir en MP4
         toast({
           title: "Conversion en MP4",
           description: "Conversion de la vidéo en cours...",
@@ -217,8 +230,26 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
 
         <div className="h-8 w-px bg-border" />
 
-        <div className="flex items-center gap-2">
-          {!isRecording && !isConverting ? (
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-muted-foreground">Format:</span>
+          <div className="flex items-center gap-2">
+            <span className={`text-xs font-mono ${exportFormat === 'webm' ? 'text-foreground' : 'text-muted-foreground'}`}>
+              WebM
+            </span>
+            <Switch
+              checked={exportFormat === 'mp4'}
+              onCheckedChange={(checked) => setExportFormat(checked ? 'mp4' : 'webm')}
+              disabled={isRecording || isConverting}
+            />
+            <span className={`text-xs font-mono ${exportFormat === 'mp4' ? 'text-foreground' : 'text-muted-foreground'}`}>
+              MP4
+            </span>
+          </div>
+        </div>
+
+        <div className="h-8 w-px bg-border" />
+
+        <div className="flex items-center gap-2">{!isRecording && !isConverting ? (
             <Button
               onClick={startRecording}
               variant="outline"
@@ -226,7 +257,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
               className="border-destructive text-destructive hover:bg-destructive hover:text-white"
             >
               <Video className="w-4 h-4 mr-2" />
-              Enregistrer MP4
+              Enregistrer {exportFormat.toUpperCase()}
             </Button>
           ) : isRecording ? (
             <Button
@@ -272,7 +303,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
               size="sm"
             >
               <Download className="w-4 h-4 mr-2" />
-              Télécharger MP4
+              Télécharger {recordedBlob.type.includes("mp4") ? "MP4" : "WebM"}
             </Button>
           )}
         </div>
