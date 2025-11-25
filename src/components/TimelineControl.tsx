@@ -28,7 +28,7 @@ const TimelineControl = ({
     const totalSeconds = Math.floor(totalMs / 1000);
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
-    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
   };
 
   const progress = totalLength > 0 ? (currentIndex / totalLength) * 100 : 0;
@@ -60,12 +60,12 @@ const TimelineControl = ({
       onDragEnd?.();
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
 
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
     };
   }, [isDragging, totalLength]);
 
@@ -81,22 +81,16 @@ const TimelineControl = ({
       {/* Timecode et progression */}
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-3">
-          <span className="text-sm font-mono font-bold text-foreground">
-            {getTimecode(currentIndex)}
-          </span>
-          <span className="text-xs text-muted-foreground font-mono">
-            {Math.round(progress)}%
-          </span>
+          <span className="text-sm font-mono font-bold text-foreground">{getTimecode(currentIndex)}</span>
+          <span className="text-xs text-muted-foreground font-mono">{Math.round(progress)}%</span>
         </div>
-        <span className="text-sm font-mono text-muted-foreground">
-          {getTimecode(totalLength)}
-        </span>
+        <span className="text-sm font-mono text-muted-foreground">{getTimecode(totalLength)}</span>
       </div>
 
       {/* Barre de timeline interactive */}
       <div
         ref={trackRef}
-        className="relative h-8 bg-secondary/50 rounded-lg cursor-pointer border border-border hover:border-primary/50 transition-colors"
+        className="relative h-6 bg-secondary/50 rounded-lg cursor-pointer border border-border hover:border-primary/50 transition-colors"
         onMouseDown={handleMouseDown}
       >
         {/* Barre de progression */}
@@ -104,14 +98,11 @@ const TimelineControl = ({
           className="absolute top-0 left-0 h-full bg-gradient-to-r from-primary/60 to-primary rounded-l-lg transition-all duration-100"
           style={{ width: `${progress}%` }}
         />
-        
+
         {/* Marqueurs de temps */}
         <div className="absolute inset-0 flex justify-between px-1 pointer-events-none">
           {[0, 25, 50, 75, 100].map((marker) => (
-            <div
-              key={marker}
-              className="relative h-full flex items-center"
-            >
+            <div key={marker} className="relative h-full flex items-center">
               <div className="w-px h-3 bg-border" />
             </div>
           ))}
@@ -129,12 +120,7 @@ const TimelineControl = ({
       {/* Boutons de navigation rapide */}
       <div className="flex justify-between items-center gap-2">
         <div className="flex gap-1">
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => onPositionChange(0)}
-            className="h-7 px-2"
-          >
+          <Button size="sm" variant="outline" onClick={() => onPositionChange(0)} className="h-7 px-2">
             <MdSkipPrevious className="w-3 h-3" />
           </Button>
           <Button
@@ -170,12 +156,7 @@ const TimelineControl = ({
             <span className="text-xs mr-1">5%</span>
             <MdChevronRight className="w-3 h-3" />
           </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => onPositionChange(totalLength)}
-            className="h-7 px-2"
-          >
+          <Button size="sm" variant="outline" onClick={() => onPositionChange(totalLength)} className="h-7 px-2">
             <MdSkipNext className="w-3 h-3" />
           </Button>
         </div>
