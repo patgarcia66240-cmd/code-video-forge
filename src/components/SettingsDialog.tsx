@@ -1,4 +1,4 @@
-import { MdKeyboard, MdSpeed } from "react-icons/md";
+import { MdKeyboard, MdSpeed, MdSlowMotionVideo, MdFastForward } from "react-icons/md";
 import {
   Dialog,
   DialogContent,
@@ -110,7 +110,7 @@ const SettingsDialog = ({
               <div className="space-y-3">
                 <Label className="text-sm font-semibold">Vitesse d'animation</Label>
                 <div className="flex items-center gap-4">
-                  <MdSpeed className="w-5 h-5 text-muted-foreground" />
+                  <MdSlowMotionVideo className="w-5 h-5 text-muted-foreground" />
                   <Slider
                     value={[speed]}
                     onValueChange={(value) => setSpeed(value[0])}
@@ -119,6 +119,8 @@ const SettingsDialog = ({
                     step={10}
                     className="flex-1"
                   />
+                  <MdSpeed className="w-5 h-5 text-muted-foreground" />
+                  <MdFastForward className="w-5 h-5 text-muted-foreground" />
                   <span className="text-sm text-muted-foreground min-w-[80px] text-right">
                     {speed === 0
                       ? "Très lent"
