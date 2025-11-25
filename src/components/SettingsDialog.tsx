@@ -120,7 +120,7 @@ const SettingsDialog = ({
                     className="flex-1"
                   />
                   <MdDirectionsWalk className="w-6 h-6 text-muted-foreground" />
-                  <MdFlashOn className="w-6 h-6 text-muted-foreground" />
+                  <span className="text-2xl">🐰</span>
                   <span className="text-sm text-muted-foreground min-w-[80px] text-right">
                     {speed === 0
                       ? "Très lent"
