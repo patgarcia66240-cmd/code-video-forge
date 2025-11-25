@@ -206,9 +206,11 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
 
   const startRecording = async () => {
     try {
-      // Réinitialiser l'animation au début
-      handleReset();
-      addLog("Animation réinitialisée avant l'enregistrement");
+      // Réinitialiser l'animation et mettre en pause
+      setDisplayedCode("");
+      setCurrentIndex(0);
+      setIsPaused(true);
+      addLog("Éditeur réinitialisé et mis en pause");
       
       // Si mode éditeur, activer le plein écran d'abord
       if (captureMode === 'editor' && !isFullscreen) {
