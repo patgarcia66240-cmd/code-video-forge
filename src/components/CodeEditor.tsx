@@ -2,14 +2,32 @@ import Editor from "@monaco-editor/react";
 import { MdPlayArrow, MdDownload, MdInfo } from "react-icons/md";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useEffect, useState } from "react";
 
 interface CodeEditorProps {
   code: string;
   setCode: (code: string) => void;
   onStartSimulation: () => void;
+  onSettingsReady?: (callback: () => void) => void;
 }
 
-const CodeEditor = ({ code, setCode, onStartSimulation }: CodeEditorProps) => {
+const CodeEditor = ({ code, setCode, onStartSimulation, onSettingsReady }: CodeEditorProps) => {
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  // Fournir la fonction d'ouverture des paramètres au parent
+  useEffect(() => {
+    if (onSettingsReady) {
+      onSettingsReady(() => () => setIsSettingsOpen(true));
+    }
+  }, [onSettingsReady]);
+
   const handleDownload = () => {
     const blob = new Blob([code], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
@@ -83,6 +101,19 @@ const CodeEditor = ({ code, setCode, onStartSimulation }: CodeEditorProps) => {
           }}
         />
       </div>
+
+      {/* Settings Dialog */}
+      <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Paramètres</DialogTitle>
+            <DialogDescription>
+              Les paramètres de simulation sont disponibles une fois que vous avez lancé la simulation.
+              Cliquez sur "Lancer la simulation" pour accéder aux options de vitesse, format vidéo, et raccourcis clavier.
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

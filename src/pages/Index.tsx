@@ -33,11 +33,20 @@ print(f"Résultat: {result}")
 `);
 
   const [onSettingsClick, setOnSettingsClick] = useState<(() => void) | undefined>(undefined);
+  const [onCodeEditorSettingsClick, setOnCodeEditorSettingsClick] = useState<(() => void) | undefined>(undefined);
+
+  // Utiliser la bonne fonction selon la vue active
+  const activeSettingsClick = isSimulating ? onSettingsClick : onCodeEditorSettingsClick;
 
   return (
-    <VSCodeLayout onSettingsClick={onSettingsClick}>
+    <VSCodeLayout onSettingsClick={activeSettingsClick}>
       {!isSimulating ? (
-        <CodeEditor code={code} setCode={setCode} onStartSimulation={() => setIsSimulating(true)} />
+        <CodeEditor 
+          code={code} 
+          setCode={setCode} 
+          onStartSimulation={() => setIsSimulating(true)}
+          onSettingsReady={setOnCodeEditorSettingsClick}
+        />
       ) : (
         <TypingSimulator 
           code={code} 
