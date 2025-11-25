@@ -933,6 +933,7 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady }: TypingSimulatorP
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 className="h-full bg-panel-bg border-l border-border flex flex-col"
+                data-video-preview
               >
                 <div className="p-4 border-b border-border">
                   <div className="text-sm text-muted-foreground font-medium mb-2">Aperçu de la vidéo</div>

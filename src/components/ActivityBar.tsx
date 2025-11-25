@@ -1,4 +1,4 @@
-import { MdInsertDriveFile, MdPlayArrow, MdAccountTree, MdSettings } from "react-icons/md";
+import { MdInsertDriveFile, MdPlayArrow, MdOndemandVideo, MdSettings } from "react-icons/md";
 import {
   Tooltip,
   TooltipContent,
@@ -10,9 +10,10 @@ interface ActivityBarProps {
   onSettingsClick?: () => void;
   onExplorerClick?: () => void;
   onSimulationClick?: () => void;
+  onPreviewClick?: () => void;
 }
 
-const ActivityBar = ({ onSettingsClick, onExplorerClick, onSimulationClick }: ActivityBarProps) => {
+const ActivityBar = ({ onSettingsClick, onExplorerClick, onSimulationClick, onPreviewClick }: ActivityBarProps) => {
   return (
     <TooltipProvider delayDuration={300}>
       <div className="w-12 bg-vscode-activitybar flex flex-col items-center py-4 gap-4 border-r border-border">
@@ -46,12 +47,15 @@ const ActivityBar = ({ onSettingsClick, onExplorerClick, onSimulationClick }: Ac
 
         <Tooltip>
           <TooltipTrigger asChild>
-            <button className="p-2 hover:bg-secondary rounded transition-colors">
-              <MdAccountTree className="w-5 h-5 text-muted-foreground" />
+            <button 
+              className="p-2 hover:bg-secondary rounded transition-colors"
+              onClick={onPreviewClick}
+            >
+              <MdOndemandVideo className="w-5 h-5 text-muted-foreground" />
             </button>
           </TooltipTrigger>
           <TooltipContent side="right">
-            <p>Contrôle de code source</p>
+            <p>Aperçu vidéo</p>
           </TooltipContent>
         </Tooltip>
 

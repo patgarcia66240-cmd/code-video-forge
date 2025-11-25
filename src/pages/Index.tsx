@@ -43,6 +43,13 @@ print(f"Résultat: {result}")
       onSettingsClick={activeSettingsClick}
       onExplorerClick={() => setIsSimulating(false)}
       onSimulationClick={() => setIsSimulating(true)}
+      onPreviewClick={() => {
+        // Scroll vers la section preview vidéo si elle existe
+        const videoPreview = document.querySelector('[data-video-preview]');
+        if (videoPreview) {
+          videoPreview.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }}
     >
       {!isSimulating ? (
         <CodeEditor 
