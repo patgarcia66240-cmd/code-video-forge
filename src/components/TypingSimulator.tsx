@@ -594,7 +594,7 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady }: TypingSimulatorP
 
             <div className="h-8 w-px bg-border" />
 
-            <div className="flex items-center gap-3 ml-4 flex-1 max-w-xs">
+            <div className="flex items-center gap-3 ml-4 flex-1 max-w-md">
               <SliderSpeed speed={speed} setSpeed={setSpeed} />
             </div>
 
