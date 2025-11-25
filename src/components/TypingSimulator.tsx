@@ -80,6 +80,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
   const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [captureMode, setCaptureMode] = useState<"screen" | "editor">("editor");
+  const [aspectRatio, setAspectRatio] = useState<"16:9" | "9:16" | "1:1" | "4:3" | "21:9">("16:9");
   const [shortcuts, setShortcuts] = useState<KeyboardShortcuts>(() => {
     const saved = localStorage.getItem("typingSimulatorShortcuts");
     return saved ? JSON.parse(saved) : defaultShortcuts;
@@ -621,6 +622,42 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
                       >
                         720p
                       </DropdownMenuItem>
+
+                      <DropdownMenuSeparator />
+
+                      <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
+                        Format vidéo
+                      </DropdownMenuLabel>
+                      <DropdownMenuItem
+                        onClick={() => setAspectRatio("16:9")}
+                        className={aspectRatio === "16:9" ? "bg-accent" : ""}
+                      >
+                        16:9 (Horizontal standard)
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => setAspectRatio("9:16")}
+                        className={aspectRatio === "9:16" ? "bg-accent" : ""}
+                      >
+                        9:16 (Vertical / Stories)
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => setAspectRatio("1:1")}
+                        className={aspectRatio === "1:1" ? "bg-accent" : ""}
+                      >
+                        1:1 (Carré)
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => setAspectRatio("4:3")}
+                        className={aspectRatio === "4:3" ? "bg-accent" : ""}
+                      >
+                        4:3 (Classique)
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => setAspectRatio("21:9")}
+                        className={aspectRatio === "21:9" ? "bg-accent" : ""}
+                      >
+                        21:9 (Ultra-wide)
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </>
@@ -883,8 +920,16 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
       <ResizablePanelGroup direction="horizontal" className="flex-1">
         {/* Editor Panel */}
         <ResizablePanel defaultSize={videoPreviewUrl && !isFullscreen ? 65 : 100} minSize={30}>
-          <div className="h-full overflow-hidden relative">
-            <Editor
+          <div className="h-full overflow-hidden relative flex items-center justify-center bg-editor">
+            <div 
+              className="w-full h-full max-w-full max-h-full"
+              style={{ 
+                aspectRatio: aspectRatio,
+                maxWidth: '100%',
+                maxHeight: '100%'
+              }}
+            >
+              <Editor
               height="100%"
               defaultLanguage="python"
               value={displayedCode}
@@ -903,7 +948,8 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
                 cursorStyle: "block",
                 cursorBlinking: "solid",
               }}
-            />
+              />
+            </div>
 
             {/* Cursor effect */}
             {currentIndex < code.length && !isPaused && (
