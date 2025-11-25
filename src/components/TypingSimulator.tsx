@@ -42,7 +42,7 @@ interface KeyboardShortcuts {
 
 const defaultShortcuts: KeyboardShortcuts = {
   record: 'F9',
-  pause: 'Space',
+  pause: ' ',
   reset: 'r',
   fullscreen: 'f',
 };
@@ -102,7 +102,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
       // Ignorer si on est en train d'éditer un raccourci
       if (editingShortcut) return;
       
-      const key = e.key === ' ' ? 'Space' : e.key;
+      const key = e.key === ' ' ? ' ' : e.key;
       
       // Enregistrement
       if (key === shortcuts.record) {
@@ -114,7 +114,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
         }
       }
       
-      // Pause/Reprendre (autorisé même pendant l'enregistrement)
+      // Pause/Reprendre avec Espace
       if (key === shortcuts.pause && !isConverting) {
         e.preventDefault();
         setIsPaused(!isPaused);
@@ -123,7 +123,25 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
         }
       }
       
-      // Reset (autorisé même pendant l'enregistrement pour recommencer)
+      // Flèche droite : avancer d'un caractère
+      if (e.key === 'ArrowRight' && !isConverting) {
+        e.preventDefault();
+        const newIndex = Math.min(currentIndex + 1, code.length);
+        setCurrentIndex(newIndex);
+        setDisplayedCode(code.slice(0, newIndex));
+        if (!isPaused) setIsPaused(true); // Pause automatique quand on navigue
+      }
+      
+      // Flèche gauche : reculer d'un caractère
+      if (e.key === 'ArrowLeft' && !isConverting) {
+        e.preventDefault();
+        const newIndex = Math.max(currentIndex - 1, 0);
+        setCurrentIndex(newIndex);
+        setDisplayedCode(code.slice(0, newIndex));
+        if (!isPaused) setIsPaused(true); // Pause automatique quand on navigue
+      }
+      
+      // Reset
       if (key === shortcuts.reset && !isConverting) {
         e.preventDefault();
         handleReset();
@@ -146,7 +164,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [isRecording, isConverting, isFullscreen, isPaused, shortcuts, editingShortcut]);
+  }, [isRecording, isConverting, isFullscreen, isPaused, shortcuts, editingShortcut, currentIndex, code]);
 
   useEffect(() => {
     if (currentIndex >= code.length) return;
@@ -389,7 +407,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
 
   const handleShortcutCapture = (action: keyof KeyboardShortcuts, e: React.KeyboardEvent) => {
     e.preventDefault();
-    const key = e.key === ' ' ? 'Space' : e.key;
+    const key = e.key === ' ' ? ' ' : e.key;
     setShortcuts(prev => ({ ...prev, [action]: key }));
     setEditingShortcut(null);
   };
@@ -742,7 +760,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
                 <Label htmlFor="pause">Pause/Reprendre l'animation</Label>
                 <Input
                   id="pause"
-                  value={shortcuts.pause}
+                  value={shortcuts.pause === ' ' ? 'Espace' : shortcuts.pause}
                   readOnly
                   className="font-mono cursor-pointer"
                   onFocus={() => setEditingShortcut('pause')}
