@@ -8,15 +8,19 @@ import {
 
 interface ActivityBarProps {
   onSettingsClick?: () => void;
+  onExplorerClick?: () => void;
 }
 
-const ActivityBar = ({ onSettingsClick }: ActivityBarProps) => {
+const ActivityBar = ({ onSettingsClick, onExplorerClick }: ActivityBarProps) => {
   return (
     <TooltipProvider delayDuration={300}>
       <div className="w-12 bg-vscode-activitybar flex flex-col items-center py-4 gap-4 border-r border-border">
         <Tooltip>
           <TooltipTrigger asChild>
-            <button className="p-2 hover:bg-secondary rounded transition-colors">
+            <button 
+              className="p-2 hover:bg-secondary rounded transition-colors"
+              onClick={onExplorerClick}
+            >
               <MdInsertDriveFile className="w-5 h-5 text-primary" />
             </button>
           </TooltipTrigger>

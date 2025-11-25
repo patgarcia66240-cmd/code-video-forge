@@ -39,7 +39,10 @@ print(f"Résultat: {result}")
   const activeSettingsClick = isSimulating ? onSettingsClick : onCodeEditorSettingsClick;
 
   return (
-    <VSCodeLayout onSettingsClick={activeSettingsClick}>
+    <VSCodeLayout 
+      onSettingsClick={activeSettingsClick}
+      onExplorerClick={() => setIsSimulating(false)}
+    >
       {!isSimulating ? (
         <CodeEditor 
           code={code} 
