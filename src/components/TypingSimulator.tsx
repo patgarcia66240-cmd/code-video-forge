@@ -939,7 +939,7 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
                     {((recordedBlob?.size || 0) / 1024 / 1024).toFixed(2)} MB
                   </div>
                 </div>
-                <div className="flex-1 flex flex-col items-center justify-center p-4 gap-4">
+                <div className="flex-1 flex flex-col items-center  p-4 gap-4">
                   <video
                     src={videoPreviewUrl}
                     controls
