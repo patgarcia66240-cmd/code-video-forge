@@ -176,7 +176,13 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
   }, [isRecording, isConverting, isFullscreen, isPaused, shortcuts, editingShortcut, currentIndex, code]);
 
   useEffect(() => {
-    if (currentIndex >= code.length) return;
+    if (currentIndex >= code.length) {
+      // Arrêter automatiquement à la fin
+      if (!isPaused) {
+        setIsPaused(true);
+      }
+      return;
+    }
     if (isPaused || isDraggingSlider) return;
 
     const delay = Math.max(10, 100 - speed);
@@ -456,14 +462,26 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
           <div className="h-16 flex items-center px-4 gap-4 flex-wrap border-b border-border/50">
             <div className="flex items-center gap-2">
               <Button
-                onClick={() => setIsPaused(!isPaused)}
+                onClick={() => {
+                  if (currentIndex >= code.length) {
+                    // Redémarrer depuis le début
+                    handleReset();
+                  } else {
+                    setIsPaused(!isPaused);
+                  }
+                }}
                 className="bg-vscode-button hover:bg-vscode-button-hover text-white"
                 size="sm"
               >
-                {isPaused ? (
+                {currentIndex >= code.length ? (
+                  <>
+                    <MdRefresh className="w-4 h-4 mr-2" />
+                    Reprendre
+                  </>
+                ) : isPaused ? (
                   <>
                     <MdPlayArrow className="w-4 h-4 mr-2" />
-                    Reprendre
+                    Lecture
                   </>
                 ) : (
                   <>
