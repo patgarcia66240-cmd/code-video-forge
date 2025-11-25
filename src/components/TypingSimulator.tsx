@@ -248,6 +248,12 @@ const TypingSimulator = ({ code, onComplete }: TypingSimulatorProps) => {
         streamRef.current!.getTracks().forEach(track => track.stop());
         addLog(`Fichier WebM obtenu (${webmBlob.size} octets)`);
 
+        // Désactiver le mode plein écran si on était en mode éditeur
+        if (captureMode === 'editor' && isFullscreen) {
+          setIsFullscreen(false);
+          addLog("Mode plein écran désactivé");
+        }
+
         // Si format WebM, télécharger directement
         if (exportFormat === 'webm') {
           setRecordedBlob(webmBlob);
