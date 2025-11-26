@@ -8,9 +8,10 @@ interface VSCodeLayoutProps {
   onExplorerClick?: () => void;
   onSimulationClick?: () => void;
   onPreviewClick?: () => void;
+  activeView?: 'explorer' | 'simulation' | 'preview';
 }
 
-const VSCodeLayout = ({ children, onSettingsClick, onExplorerClick, onSimulationClick, onPreviewClick }: VSCodeLayoutProps) => {
+const VSCodeLayout = ({ children, onSettingsClick, onExplorerClick, onSimulationClick, onPreviewClick, activeView = 'explorer' }: VSCodeLayoutProps) => {
   return (
     <div className="h-screen w-screen flex flex-col bg-background overflow-hidden">
       {/* Title Bar */}
@@ -25,6 +26,7 @@ const VSCodeLayout = ({ children, onSettingsClick, onExplorerClick, onSimulation
           onExplorerClick={onExplorerClick}
           onSimulationClick={onSimulationClick}
           onPreviewClick={onPreviewClick}
+          activeView={activeView}
         />
 
         {/* Main Content */}
