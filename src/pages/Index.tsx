@@ -58,6 +58,9 @@ print(f"Résultat: {result}")
   // Utiliser la bonne fonction selon la vue active
   const activeSettingsClick = isSimulating ? onSettingsClick : onCodeEditorSettingsClick;
 
+  // Déterminer la vue active
+  const activeView = showVideoPreview ? 'preview' : isSimulating ? 'simulation' : 'explorer';
+
   const handleDownloadVideo = () => {
     if (recordedBlob && videoPreviewUrl) {
       const a = document.createElement("a");
@@ -78,6 +81,7 @@ print(f"Résultat: {result}")
 
   return (
     <VSCodeLayout 
+      activeView={activeView}
       onSettingsClick={activeSettingsClick}
       onExplorerClick={() => {
         setIsSimulating(false);
