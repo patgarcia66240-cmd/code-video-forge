@@ -9,7 +9,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { MdUpload } from "react-icons/md";
 
 interface CodeEditorProps {
   code: string;
@@ -27,6 +28,25 @@ const CodeEditor = ({ code, setCode, onStartSimulation, onSettingsReady }: CodeE
       onSettingsReady(() => () => setIsSettingsOpen(true));
     }
   }, [onSettingsReady]);
+
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const text = String(reader.result || "");
+      setCode(text);
+    };
+    reader.readAsText(file);
+    // reset input so the same file can be selected again if needed
+    e.currentTarget.value = "";
+  };
 
   const handleDownload = () => {
     const blob = new Blob([code], { type: "text/plain" });
@@ -67,6 +87,23 @@ const CodeEditor = ({ code, setCode, onStartSimulation, onSettingsReady }: CodeE
             <MdDownload className="w-4 h-4 mr-2" />
             Télécharger
           </Button>
+          <Button
+            onClick={handleImportClick}
+            variant="outline"
+            size="sm"
+            className="border-border hover:bg-secondary"
+          >
+            <MdUpload className="w-4 h-4 mr-2" />
+            Importer
+          </Button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".py,.txt"
+            onChange={handleFileChange}
+            className="hidden"
+            aria-hidden
+          />
         </div>
         
         <Card className="bg-editor/50 border-primary/20 p-3">

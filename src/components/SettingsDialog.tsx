@@ -37,6 +37,12 @@ interface SettingsDialogProps {
   setMp4Preset: (preset: "ultrafast" | "fast" | "medium") => void;
   mp4Resolution: "original" | "1080p" | "720p";
   setMp4Resolution: (resolution: "original" | "1080p" | "720p") => void;
+  scrollEffect?: "none" | "instant" | "smooth" | "center";
+  setScrollEffect?: (effect: "none" | "instant" | "smooth" | "center") => void;
+  displayEffect?: "typewriter" | "word" | "line" | "block" | "instant";
+  setDisplayEffect?: (effect: "typewriter" | "word" | "line" | "block" | "instant") => void;
+  cursorType?: "none" | "bar" | "block" | "underline" | "outline";
+  setCursorType?: (type: "none" | "bar" | "block" | "underline" | "outline") => void;
   onShortcutsClick: () => void;
 }
 
@@ -66,6 +72,12 @@ const SettingsDialog = ({
   mp4Resolution,
   setMp4Resolution,
   onShortcutsClick,
+  scrollEffect,
+  setScrollEffect,
+  displayEffect,
+  setDisplayEffect,
+  cursorType,
+  setCursorType,
 }: SettingsDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -146,6 +158,84 @@ const SettingsDialog = ({
                     disabled={isRecording || isConverting}
                   />
                 </div>
+              </div>
+
+              <div className="space-y-3">
+                <Label className="text-sm font-semibold">Effet de scroll</Label>
+                <div className="grid grid-cols-4 gap-2">
+                  {[
+                    { value: "none", label: "Aucun" },
+                    { value: "instant", label: "Instantané" },
+                    { value: "smooth", label: "Doux" },
+                    { value: "center", label: "Centré" },
+                  ].map((opt) => (
+                    <Button
+                      key={opt.value}
+                      variant={scrollEffect === opt.value ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setScrollEffect?.(opt.value as any)}
+                      disabled={isRecording || isConverting}
+                      className="h-auto py-2"
+                    >
+                      <span className="text-sm">{opt.label}</span>
+                    </Button>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Choisissez la façon dont l'éditeur doit se centrer sur le texte pendant la lecture.
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <Label className="text-sm font-semibold">Effet d'apparition</Label>
+                <div className="grid grid-cols-5 gap-2">
+                  {[
+                    { value: "typewriter", label: "Typewriter" },
+                    { value: "word", label: "Mot" },
+                    { value: "line", label: "Ligne" },
+                    { value: "block", label: "Bloc" },
+                    { value: "instant", label: "Instant" },
+                  ].map((opt) => (
+                    <Button
+                      key={opt.value}
+                      variant={displayEffect === opt.value ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setDisplayEffect?.(opt.value as any)}
+                      disabled={isRecording || isConverting}
+                      className="h-auto py-2"
+                    >
+                      <span className="text-sm">{opt.label}</span>
+                    </Button>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Choisissez comment le texte est révélé pendant la lecture (caractère/mot/ligne/bloc/instantané).
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <Label className="text-sm font-semibold">Type de curseur</Label>
+                <div className="grid grid-cols-5 gap-2">
+                  {[
+                    { value: "none", label: "Sans" },
+                    { value: "bar", label: "Barre" },
+                    { value: "block", label: "Bloc" },
+                    { value: "underline", label: "Souligné" },
+                    { value: "outline", label: "Contour" },
+                  ].map((opt) => (
+                    <Button
+                      key={opt.value}
+                      variant={cursorType === opt.value ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setCursorType?.(opt.value as any)}
+                      disabled={isRecording || isConverting}
+                      className="h-auto py-2"
+                    >
+                      <span className="text-sm">{opt.label}</span>
+                    </Button>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground">Style visuel du curseur utilisé par le simulateur.</p>
               </div>
 
               <div className="space-y-3">

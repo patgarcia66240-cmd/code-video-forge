@@ -65,3 +65,53 @@ All colors MUST be HSL.
     font-family: 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace;
   }
 }
+
+/* Cursor decoration for Monaco used in TypingSimulator */
+@keyframes sim-cursor-blink {
+  0% { opacity: 1; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* Base cursor styling using beforeContent pseudo-element */
+.sim-cursor-before {
+  animation: sim-cursor-blink 1s steps(1) infinite;
+  content: "";
+  display: inline-block;
+  vertical-align: text-bottom;
+  position: relative;
+}
+
+/* cursor variants - bar (thin vertical line) */
+.sim-cursor-before--bar {
+  width: 2px;
+  height: 1.2em;
+  background-color: hsl(var(--primary));
+  margin-right: 2px;
+}
+
+/* cursor variants - block (filled rectangle) */
+.sim-cursor-before--block {
+  width: 0.8em;
+  height: 1.2em;
+  background-color: hsl(var(--primary) / 0.3);
+  border: 1px solid hsl(var(--primary));
+  margin-right: 1px;
+}
+
+/* cursor variants - underline (line at bottom) */
+.sim-cursor-before--underline {
+  width: 0.8em;
+  height: 1.2em;
+  background: linear-gradient(to bottom, transparent 80%, hsl(var(--primary)) 80%, hsl(var(--primary)) 100%);
+  margin-right: 1px;
+}
+
+/* cursor variants - outline (empty rectangle) */
+.sim-cursor-before--outline {
+  width: 0.8em;
+  height: 1.2em;
+  border: 1px solid hsl(var(--primary));
+  background-color: transparent;
+  margin-right: 1px;
+}

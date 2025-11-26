@@ -111,6 +111,18 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }:
     return saved ? JSON.parse(saved) : defaultShortcuts;
   });
   const [isShortcutsDialogOpen, setIsShortcutsDialogOpen] = useState(false);
+  const [scrollEffect, setScrollEffect] = useState<"none" | "instant" | "smooth" | "center">(() => {
+    const saved = localStorage.getItem("typingSimulatorScrollEffect");
+    return (saved as "none" | "instant" | "smooth" | "center") || "smooth";
+  });
+  const [displayEffect, setDisplayEffect] = useState<"typewriter" | "word" | "line" | "block" | "instant">(() => {
+    const saved = localStorage.getItem("typingSimulatorDisplayEffect");
+    return (saved as "typewriter" | "word" | "line" | "block" | "instant") || "typewriter";
+  });
+  const [cursorType, setCursorType] = useState<"none" | "bar" | "block" | "underline" | "outline">(() => {
+    const saved = localStorage.getItem("typingSimulatorCursorType");
+    return (saved as "none" | "bar" | "block" | "underline" | "outline") || "bar";
+  });
   const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
   const [editingShortcut, setEditingShortcut] = useState<keyof KeyboardShortcuts | null>(null);
   const [countdown, setCountdown] = useState<number | null>(null);
@@ -122,12 +134,27 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }:
 
   const recorderRef = useRef<RecordRTC | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const editorRef = useRef<any | null>(null);
+  const monacoRef = useRef<any | null>(null);
+  const decorationsRef = useRef<string[] | null>(null);
   const { toast } = useToast();
 
   // Sauvegarder les raccourcis dans localStorage
   useEffect(() => {
     localStorage.setItem("typingSimulatorShortcuts", JSON.stringify(shortcuts));
   }, [shortcuts]);
+
+  useEffect(() => {
+    localStorage.setItem("typingSimulatorScrollEffect", scrollEffect);
+  }, [scrollEffect]);
+
+  useEffect(() => {
+    localStorage.setItem("typingSimulatorDisplayEffect", displayEffect);
+  }, [displayEffect]);
+
+  useEffect(() => {
+    localStorage.setItem("typingSimulatorCursorType", cursorType);
+  }, [cursorType]);
 
   // Sauvegarder tous les paramètres dans localStorage
   useEffect(() => {
@@ -176,6 +203,95 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }:
       onSettingsReady(() => () => setIsSettingsDialogOpen(true));
     }
   }, [onSettingsReady]);
+
+  // Appliquer l'effet de scroll lorsque l'index change
+  useEffect(() => {
+    if (!editorRef.current || !monacoRef.current) return;
+    if (scrollEffect === "none") return;
+
+    try {
+      const lines = displayedCode.slice(0, currentIndex).split("\n");
+      const lineNumber = Math.max(1, lines.length);
+
+      if (scrollEffect === "center") {
+        editorRef.current.revealLineInCenter(lineNumber);
+        return;
+      }
+
+      // Try to use scroll type when available for smooth/instant
+      const scrollType = monacoRef.current?.editor?.ScrollType;
+      if (scrollEffect === "smooth" && scrollType) {
+        editorRef.current.revealPosition({ lineNumber, column: 1 }, scrollType.Smooth);
+      } else if (scrollEffect === "instant" && scrollType) {
+        editorRef.current.revealPosition({ lineNumber, column: 1 }, scrollType.Immediate);
+      } else {
+        // Fallback
+        editorRef.current.revealLineInCenter(lineNumber);
+      }
+    } catch (err) {
+      // ignore errors but keep app stable
+    }
+  }, [currentIndex, displayedCode, scrollEffect]);
+
+  // Mettre à jour la décoration du curseur dans Monaco (position exacte)
+  useEffect(() => {
+    if (!editorRef.current || !monacoRef.current) return;
+
+    try {
+      const monaco = monacoRef.current;
+      
+      // Si pas de curseur, effacer les décorationsRef
+      if (cursorType === "none") {
+        if (decorationsRef.current && decorationsRef.current.length > 0) {
+          editorRef.current.deltaDecorations(decorationsRef.current, []);
+          decorationsRef.current = null;
+        }
+        return;
+      }
+
+      // calculer ligne/colonne à partir de l'index actuel
+      const upToIndex = code.slice(0, Math.max(0, currentIndex));
+      const lines = upToIndex.split("\n");
+      const lineNumber = Math.max(1, lines.length);
+      const column = (lines[lines.length - 1]?.length || 0) + 1;
+
+      const range = new monaco.Range(lineNumber, column, lineNumber, column);
+
+      const newDecorations = [
+        {
+          range,
+          options: {
+            glyphMarginClassName: `sim-cursor sim-cursor--${cursorType}`,
+            glyphMarginHoverMessage: null,
+            stickiness: monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges,
+            isWholeLine: false,
+            marginClassName: `sim-cursor-margin sim-cursor-margin--${cursorType}`,
+            beforeContentClassName: `sim-cursor-before sim-cursor-before--${cursorType}`,
+          },
+        },
+      ];
+
+      // Toujours effacer les anciennes decorations et en ajouter les nouvelles
+      if (decorationsRef.current && decorationsRef.current.length > 0) {
+        editorRef.current.deltaDecorations(decorationsRef.current, newDecorations);
+      } else {
+        decorationsRef.current = editorRef.current.deltaDecorations([], newDecorations);
+      }
+    } catch (err) {
+      // ignore errors to keep app stable
+    }
+
+    return () => {
+      try {
+        if (editorRef.current && decorationsRef.current && decorationsRef.current.length) {
+          editorRef.current.deltaDecorations(decorationsRef.current, []);
+          decorationsRef.current = null;
+        }
+      } catch (e) {
+        // ignore
+      }
+    };
+  }, [currentIndex, code, cursorType]);
 
   // Démarrage automatique de l'animation
   useEffect(() => {
@@ -287,9 +403,40 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }:
     if (isPaused || isDraggingSlider) return;
 
     const delay = Math.max(10, 100 - speed);
+
+    // compute next index according to displayEffect
+    if (displayEffect === "instant") {
+      setDisplayedCode(code);
+      setCurrentIndex(code.length);
+      return;
+    }
+
+    const computeNextIndex = (ci: number) => {
+      if (ci >= code.length) return code.length;
+      if (displayEffect === "typewriter") return Math.min(code.length, ci + 1);
+      if (displayEffect === "word") {
+        const rest = code.slice(ci);
+        const m = rest.search(/\s/);
+        if (m === -1) return code.length;
+        return Math.min(code.length, ci + m + 1);
+      }
+      if (displayEffect === "line") {
+        const idx = code.indexOf("\n", ci);
+        return idx === -1 ? code.length : idx + 1;
+      }
+      if (displayEffect === "block") {
+        const blockSize = 120; // approx characters per block
+        return Math.min(code.length, ci + blockSize);
+      }
+      return Math.min(code.length, ci + 1);
+    };
+
     const timer = setTimeout(() => {
-      setDisplayedCode(code.slice(0, currentIndex + 1));
-      setCurrentIndex(currentIndex + 1);
+      const next = computeNextIndex(currentIndex);
+      // ensure progress
+      const finalNext = next === currentIndex ? Math.min(code.length, currentIndex + 1) : next;
+      setDisplayedCode(code.slice(0, finalNext));
+      setCurrentIndex(finalNext);
     }, delay);
 
     return () => clearTimeout(timer);
@@ -753,6 +900,10 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }:
         setMp4Preset={setMp4Preset}
         mp4Resolution={mp4Resolution}
         setMp4Resolution={setMp4Resolution}
+        displayEffect={displayEffect}
+        setDisplayEffect={setDisplayEffect}
+        cursorType={cursorType}
+        setCursorType={setCursorType}
         onShortcutsClick={() => {
           setIsSettingsDialogOpen(false);
           setIsShortcutsDialogOpen(true);
@@ -896,6 +1047,10 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }:
                 defaultLanguage="python"
                 value={displayedCode}
                 theme="vs-dark"
+                onMount={(editor, monaco) => {
+                  editorRef.current = editor;
+                  monacoRef.current = monaco;
+                }}
                 options={{
                   fontSize: 14,
                   fontFamily: "Fira Code, Consolas, Monaco, monospace",
