@@ -31,8 +31,10 @@ export const loadFFmpeg = async (): Promise<FFmpeg> => {
 
     try {
       console.log("[FFmpeg] Chargement démarré...");
-      const baseURL = "https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd";
+      // Utiliser unpkg qui contient les artefacts attendus pour cette version
+      const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.10/dist/umd";
 
+      console.log(`[FFmpeg] Tentative de chargement depuis ${baseURL}`);
       await ffmpeg.load({
         coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
         wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, "application/wasm"),

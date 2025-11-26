@@ -1068,18 +1068,7 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }:
               />
             </div>
 
-            {/* Cursor effect */}
-            {currentIndex < code.length && !isPaused && (
-              <motion.div
-                className="absolute w-2 h-5 bg-primary"
-                animate={{ opacity: [1, 0, 1] }}
-                transition={{ duration: 0.8, repeat: Infinity }}
-                style={{
-                  left: `${(currentIndex % 80) * 8}px`,
-                  top: `${Math.floor(currentIndex / 80) * 20}px`,
-                }}
-              />
-            )}
+            {/* Cursor effect - removed, using Monaco decorations instead */}
           </div>
         </ResizablePanel>
 
