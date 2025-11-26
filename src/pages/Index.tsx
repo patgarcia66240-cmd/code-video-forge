@@ -7,6 +7,7 @@ import VideoPreview from "@/components/VideoPreview";
 const Index = () => {
   const [isSimulating, setIsSimulating] = useState(false);
   const [showVideoPreview, setShowVideoPreview] = useState(false);
+  const [activeView, setActiveView] = useState<'explorer' | 'simulation' | 'preview'>('explorer');
   const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
   const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null);
   const [code, setCode] = useState(`# Bienvenue dans le simulateur de code
@@ -82,17 +83,21 @@ print(f"Résultat: {result}")
       onExplorerClick={() => {
         setIsSimulating(false);
         setShowVideoPreview(false);
+        setActiveView('explorer');
       }}
       onSimulationClick={() => {
         setIsSimulating(true);
         setShowVideoPreview(false);
+        setActiveView('simulation');
       }}
       onPreviewClick={() => {
         if (videoPreviewUrl && recordedBlob) {
           setShowVideoPreview(true);
           setIsSimulating(false);
+          setActiveView('preview');
         }
       }}
+      activeView={activeView}
     >
       {showVideoPreview && videoPreviewUrl && recordedBlob ? (
         <VideoPreview
