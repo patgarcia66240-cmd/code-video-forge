@@ -11,10 +11,9 @@ interface ActivityBarProps {
   onExplorerClick?: () => void;
   onSimulationClick?: () => void;
   onPreviewClick?: () => void;
-  activeView?: 'explorer' | 'simulation' | 'preview';
 }
 
-const ActivityBar = ({ onSettingsClick, onExplorerClick, onSimulationClick, onPreviewClick, activeView = 'explorer' }: ActivityBarProps) => {
+const ActivityBar = ({ onSettingsClick, onExplorerClick, onSimulationClick, onPreviewClick }: ActivityBarProps) => {
   return (
     <TooltipProvider delayDuration={300}>
       <div className="w-12 bg-vscode-activitybar flex flex-col items-center py-4 gap-4 border-r border-border">
@@ -24,7 +23,7 @@ const ActivityBar = ({ onSettingsClick, onExplorerClick, onSimulationClick, onPr
               className="p-2 hover:bg-secondary rounded transition-colors"
               onClick={onExplorerClick}
             >
-              <MdInsertDriveFile className={`w-5 h-5 ${activeView === 'explorer' ? 'text-primary' : 'text-muted-foreground'}`} />
+              <MdInsertDriveFile className="w-5 h-5 text-primary" />
             </button>
           </TooltipTrigger>
           <TooltipContent side="right">
@@ -38,7 +37,7 @@ const ActivityBar = ({ onSettingsClick, onExplorerClick, onSimulationClick, onPr
               className="p-2 hover:bg-secondary rounded transition-colors"
               onClick={onSimulationClick}
             >
-              <MdPlayArrow className={`w-5 h-5 ${activeView === 'simulation' ? 'text-primary' : 'text-muted-foreground'}`} />
+              <MdPlayArrow className="w-5 h-5 text-muted-foreground" />
             </button>
           </TooltipTrigger>
           <TooltipContent side="right">
@@ -52,7 +51,7 @@ const ActivityBar = ({ onSettingsClick, onExplorerClick, onSimulationClick, onPr
               className="p-2 hover:bg-secondary rounded transition-colors"
               onClick={onPreviewClick}
             >
-              <MdOndemandVideo className={`w-5 h-5 ${activeView === 'preview' ? 'text-primary' : 'text-muted-foreground'}`} />
+              <MdOndemandVideo className="w-5 h-5 text-muted-foreground" />
             </button>
           </TooltipTrigger>
           <TooltipContent side="right">
