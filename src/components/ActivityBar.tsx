@@ -48,7 +48,7 @@ const ActivityBar = ({ activeView, onSettingsClick, onExplorerClick, onSimulatio
 
         <Tooltip>
           <TooltipTrigger asChild>
-            <button 
+            <button
               className="p-2 hover:bg-secondary rounded transition-colors"
               onClick={onPreviewClick}
             >
@@ -57,6 +57,48 @@ const ActivityBar = ({ activeView, onSettingsClick, onExplorerClick, onSimulatio
           </TooltipTrigger>
           <TooltipContent side="right">
             <p>Aperçu vidéo</p>
+          </TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              className="p-2 hover:bg-secondary rounded transition-colors"
+              onClick={onGalleryClick}
+            >
+              <FileVideo className={`w-5 h-5 ${activeView === 'gallery' ? 'text-primary' : 'text-muted-foreground'}`} />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="right">
+            <p>Liste des vidéos</p>
+          </TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              className="p-2 hover:bg-secondary rounded transition-colors"
+              onClick={onGalleryClick}
+            >
+              <FileVideo className={`w-5 h-5 ${activeView === 'gallery' ? 'text-primary' : 'text-muted-foreground'}`} />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="right">
+            <p>Liste des vidéos</p>
+          </TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              className="p-2 hover:bg-secondary rounded transition-colors"
+              onClick={onPreviewClick}
+            >
+              <MdOndemandVideo className={`w-5 h-5 ${activeView === 'preview' ? 'text-primary' : 'text-muted-foreground'}`} />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="right">
+            <p>Liste des vidéos</p>
           </TooltipContent>
         </Tooltip>
 

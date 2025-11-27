@@ -4,11 +4,12 @@ import ActivityBar from "./ActivityBar";
 
 interface VSCodeLayoutProps {
   children: ReactNode;
-  activeView?: 'explorer' | 'simulation' | 'preview';
+  activeView?: 'explorer' | 'simulation' | 'preview' | 'gallery';
   onSettingsClick?: () => void;
   onExplorerClick?: () => void;
   onSimulationClick?: () => void;
   onPreviewClick?: () => void;
+  onGalleryClick?: () => void;
 }
 
 const VSCodeLayout = ({ children, activeView, onSettingsClick, onExplorerClick, onSimulationClick, onPreviewClick }: VSCodeLayoutProps) => {

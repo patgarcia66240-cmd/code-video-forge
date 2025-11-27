@@ -1,9 +1,16 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import VSCodeLayout from "@/components/VSCodeLayout";
 import CodeEditor from "@/components/CodeEditor";
 import TypingSimulator from "@/components/TypingSimulator";
 import VideoPreview from "@/components/VideoPreview";
 import { useForgeStore } from "@/store/useForgeStore";
+import {
+  FileVideo,
+  List,
+  Plus,
+  Play
+} from "lucide-react";
 
 const Index = () => {
   // Utiliser le store global au lieu des useState locaux
@@ -45,6 +52,10 @@ const Index = () => {
 
   const handleDeleteVideo = () => {
     resetToEditor();
+  };
+
+  const handleNavigateToGallery = () => {
+    navigate('/gallery');
   };
 
   return (
