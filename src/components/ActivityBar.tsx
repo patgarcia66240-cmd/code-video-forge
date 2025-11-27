@@ -1,4 +1,4 @@
-import { MdInsertDriveFile, MdPlayArrow, MdOndemandVideo, MdSettings } from "react-icons/md";
+import { MdInsertDriveFile, MdPlayArrow, MdOndemandVideo, MdSettings, MdViewList } from "react-icons/md";
 import {
   Tooltip,
   TooltipContent,
@@ -7,20 +7,21 @@ import {
 } from "@/components/ui/tooltip";
 
 interface ActivityBarProps {
-  activeView?: 'explorer' | 'simulation' | 'preview';
+  activeView?: 'explorer' | 'simulation' | 'preview' | 'gallery';
   onSettingsClick?: () => void;
   onExplorerClick?: () => void;
   onSimulationClick?: () => void;
   onPreviewClick?: () => void;
+  onGalleryClick?: () => void;
 }
 
-const ActivityBar = ({ activeView, onSettingsClick, onExplorerClick, onSimulationClick, onPreviewClick }: ActivityBarProps) => {
+const ActivityBar = ({ activeView, onSettingsClick, onExplorerClick, onSimulationClick, onPreviewClick, onGalleryClick }: ActivityBarProps) => {
   return (
     <TooltipProvider delayDuration={300}>
       <div className="w-12 bg-vscode-activitybar flex flex-col items-center py-4 gap-4 border-r border-border">
         <Tooltip>
           <TooltipTrigger asChild>
-            <button 
+            <button
               className="p-2 hover:bg-secondary rounded transition-colors"
               onClick={onExplorerClick}
             >
@@ -28,13 +29,13 @@ const ActivityBar = ({ activeView, onSettingsClick, onExplorerClick, onSimulatio
             </button>
           </TooltipTrigger>
           <TooltipContent side="right">
-            <p>Explorateur</p>
+            <p>Editeur</p>
           </TooltipContent>
         </Tooltip>
 
         <Tooltip>
           <TooltipTrigger asChild>
-            <button 
+            <button
               className="p-2 hover:bg-secondary rounded transition-colors"
               onClick={onSimulationClick}
             >
@@ -66,7 +67,7 @@ const ActivityBar = ({ activeView, onSettingsClick, onExplorerClick, onSimulatio
               className="p-2 hover:bg-secondary rounded transition-colors"
               onClick={onGalleryClick}
             >
-              <FileVideo className={`w-5 h-5 ${activeView === 'gallery' ? 'text-primary' : 'text-muted-foreground'}`} />
+              <MdViewList className={`w-5 h-5 ${activeView === 'gallery' ? 'text-primary' : 'text-muted-foreground'}`} />
             </button>
           </TooltipTrigger>
           <TooltipContent side="right">
@@ -77,34 +78,6 @@ const ActivityBar = ({ activeView, onSettingsClick, onExplorerClick, onSimulatio
         <Tooltip>
           <TooltipTrigger asChild>
             <button
-              className="p-2 hover:bg-secondary rounded transition-colors"
-              onClick={onGalleryClick}
-            >
-              <FileVideo className={`w-5 h-5 ${activeView === 'gallery' ? 'text-primary' : 'text-muted-foreground'}`} />
-            </button>
-          </TooltipTrigger>
-          <TooltipContent side="right">
-            <p>Liste des vidéos</p>
-          </TooltipContent>
-        </Tooltip>
-
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button
-              className="p-2 hover:bg-secondary rounded transition-colors"
-              onClick={onPreviewClick}
-            >
-              <MdOndemandVideo className={`w-5 h-5 ${activeView === 'preview' ? 'text-primary' : 'text-muted-foreground'}`} />
-            </button>
-          </TooltipTrigger>
-          <TooltipContent side="right">
-            <p>Liste des vidéos</p>
-          </TooltipContent>
-        </Tooltip>
-
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button 
               className="p-2 hover:bg-secondary rounded transition-colors mt-auto"
               onClick={onSettingsClick}
             >

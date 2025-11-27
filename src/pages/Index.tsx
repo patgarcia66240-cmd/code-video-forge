@@ -54,6 +54,8 @@ const Index = () => {
     resetToEditor();
   };
 
+  const navigate = useNavigate();
+
   const handleNavigateToGallery = () => {
     navigate('/gallery');
   };
@@ -69,6 +71,7 @@ const Index = () => {
           showPreview();
         }
       }}
+      onGalleryClick={handleNavigateToGallery}
     >
       {showVideoPreview && videoPreviewUrl && recordedBlob ? (
         <VideoPreview

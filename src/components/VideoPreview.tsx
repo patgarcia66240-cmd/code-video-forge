@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { MdDownload, MdDelete, MdInfo, MdShare, MdContentCopy } from "react-icons/md";
+import { MdDownload, MdDelete, MdInfo, MdShare, MdContentCopy, MdSave } from "react-icons/md";
 import { FaYoutube, FaTwitter, FaLinkedin } from "react-icons/fa";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import VideoInfoPanel from "./VideoInfoPanel";
+import { useVideoStorage } from "@/hooks/useVideoStorage";
 
 
 interface VideoPreviewProps {
@@ -24,8 +25,10 @@ interface VideoPreviewProps {
 
 const VideoPreview = ({ videoUrl, videoBlob, onDownload, onDelete }: VideoPreviewProps) => {
   const { toast } = useToast();
+  const { saveVideo } = useVideoStorage();
   const [isSharing, setIsSharing] = useState(false);
   const [showYouTubeDialog, setShowYouTubeDialog] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [videoMetadata, setVideoMetadata] = useState({
     name: `Animation de code - ${new Date().toLocaleDateString('fr-FR')}`,
     format: videoBlob.type.includes("mp4") ? "MP4" : "WebM",
@@ -168,6 +171,31 @@ const VideoPreview = ({ videoUrl, videoBlob, onDownload, onDelete }: VideoPrevie
     }
   };
 
+  const handleSaveVideo = async () => {
+    setIsSaving(true);
+    try {
+      await saveVideo({
+        name: videoMetadata.name,
+        blob: videoBlob,
+        duration: videoMetadata.duration,
+        format: videoFormat as 'MP4' | 'WebM'
+      });
+      toast({
+        title: "Vidéo sauvegardée !",
+        description: "La vidéo a été ajoutée à votre galerie",
+      });
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de sauvegarder la vidéo",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const handleCopyInfo = async () => {
     const info = `Animation de code typographique
 Format: ${videoFormat}
@@ -305,9 +333,9 @@ Créé avec Code Typing Simulator`;
               <MdShare className="w-5 h-5 mr-2" />
               Partager
             </Button>
-            <Button onClick={handleCopyInfo} variant="secondary" size="lg" className="h-14">
-              <MdContentCopy className="w-5 h-5 mr-2" />
-              Copier
+            <Button onClick={handleSaveVideo} variant="secondary" size="lg" disabled={isSaving} className="h-14">
+              <MdSave className="w-5 h-5 mr-2" />
+              Sauvegarder
             </Button>
             {/* Delete Button */}
             <Button onClick={onDelete} variant="destructive" size="lg" className="w-full h-14">

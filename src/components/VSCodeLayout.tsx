@@ -12,7 +12,7 @@ interface VSCodeLayoutProps {
   onGalleryClick?: () => void;
 }
 
-const VSCodeLayout = ({ children, activeView, onSettingsClick, onExplorerClick, onSimulationClick, onPreviewClick }: VSCodeLayoutProps) => {
+const VSCodeLayout = ({ children, activeView, onSettingsClick, onExplorerClick, onSimulationClick, onPreviewClick, onGalleryClick }: VSCodeLayoutProps) => {
   return (
     <div className="h-screen w-screen flex flex-col bg-background overflow-hidden">
       {/* Title Bar */}
@@ -22,12 +22,13 @@ const VSCodeLayout = ({ children, activeView, onSettingsClick, onExplorerClick, 
       </div>
 
       <div className="flex flex-1 overflow-hidden">
-        <ActivityBar 
+        <ActivityBar
           activeView={activeView}
-          onSettingsClick={onSettingsClick} 
+          onSettingsClick={onSettingsClick}
           onExplorerClick={onExplorerClick}
           onSimulationClick={onSimulationClick}
           onPreviewClick={onPreviewClick}
+          onGalleryClick={onGalleryClick}
         />
 
         {/* Main Content */}
