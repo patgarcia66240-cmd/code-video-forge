@@ -4,7 +4,7 @@ import { MdDownload, MdDelete, MdInfo, MdShare, MdContentCopy } from "react-icon
 import { FaYoutube, FaTwitter, FaLinkedin } from "react-icons/fa";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -12,6 +12,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import VideoInfoPanel from "./VideoInfoPanel";
+
 
 interface VideoPreviewProps {
   videoUrl: string;
@@ -24,6 +26,89 @@ const VideoPreview = ({ videoUrl, videoBlob, onDownload, onDelete }: VideoPrevie
   const { toast } = useToast();
   const [isSharing, setIsSharing] = useState(false);
   const [showYouTubeDialog, setShowYouTubeDialog] = useState(false);
+  const [videoMetadata, setVideoMetadata] = useState({
+    name: `Animation de code - ${new Date().toLocaleDateString('fr-FR')}`,
+    format: videoBlob.type.includes("mp4") ? "MP4" : "WebM",
+    size: videoBlob.size,
+    duration: 0,
+    mimeType: videoBlob.type,
+    width: 1920,
+    height: 1080,
+    status: 'ready' as const,
+    createdAt: new Date(),
+  });
+  const metadataVideoRef = useRef<HTMLVideoElement>(null);
+
+  // Fonction pour extraire la durée d'un blob vidéo avec gestion du bug Chrome
+  const getDurationFromBlob = (blob: Blob): Promise<number> => {
+    return new Promise((resolve, reject) => {
+      const video = document.createElement("video");
+      video.preload = "metadata";
+
+      video.onloadedmetadata = () => {
+        // Chrome bug fix : forcer le seek pour WebM qui ont duration = Infinity
+        if (video.duration === Infinity) {
+          video.currentTime = 1e101;
+          video.ontimeupdate = () => {
+            video.ontimeupdate = null;
+            resolve(video.duration);
+          };
+        } else {
+          resolve(video.duration);
+        }
+      };
+
+      video.onerror = () => reject("Impossible de lire la durée de la vidéo");
+
+      video.src = URL.createObjectURL(blob);
+    });
+  };
+
+  // Charger les métadonnées réelles de la vidéo
+  useEffect(() => {
+    const loadVideoMetadata = async () => {
+      if (!videoBlob) return;
+
+      try {
+        // Extraire la durée avec la fonction robuste
+        const duration = await getDurationFromBlob(videoBlob);
+
+        setVideoMetadata(prev => ({
+          ...prev,
+          duration: duration,
+        }));
+
+        // Utiliser l'élément vidéo pour les dimensions
+        if (videoUrl && metadataVideoRef.current) {
+          const video = metadataVideoRef.current;
+
+          const handleLoadedMetadata = () => {
+            setVideoMetadata(prev => ({
+              ...prev,
+              width: video.videoWidth,
+              height: video.videoHeight,
+            }));
+          };
+
+          video.addEventListener('loadedmetadata', handleLoadedMetadata);
+          video.src = videoUrl;
+
+          return () => {
+            video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+          };
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement des métadonnées vidéo:', error);
+        // Fallback basique en cas d'erreur
+        setVideoMetadata(prev => ({
+          ...prev,
+          duration: 0,
+        }));
+      }
+    };
+
+    loadVideoMetadata();
+  }, [videoUrl, videoBlob]);
 
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return "0 B";
@@ -182,111 +267,94 @@ Créé avec Code Typing Simulator`;
         </DialogContent>
       </Dialog>
 
+      {/* Vidéo cachée pour charger les métadonnées */}
+      <video ref={metadataVideoRef} className="hidden" />
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="h-full bg-background overflow-auto"
       >
         <div className="container max-w-6xl mx-auto p-6 space-y-6">
-        {/* Video Player */}
-        <Card className="border-border">
-          <CardContent className="p-6">
-            <div className="aspect-video w-full rounded-lg overflow-hidden bg-black border border-border">
-              <video src={videoUrl} controls className="w-full h-full" />
-            </div>
-          </CardContent>
-        </Card>
+          {/* Video Player */}
+          <Card className="border-border">
+            <CardContent className="p-6">
+              <div className="aspect-video w-full rounded-lg overflow-hidden bg-black border border-border">
+                <video src={videoUrl} controls className="w-full h-full" />
+              </div>
+            </CardContent>
+          </Card>
 
-        {/* Video Info */}
-        <Card className="border-border">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <MdInfo className="w-5 h-5" />
-              Informations de la vidéo
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              <div className="space-y-1">
-                <div className="text-sm text-muted-foreground">Format</div>
-                <div className="text-md font-semibold font-mono">{videoFormat}</div>
-              </div>
-              <div className="space-y-1">
-                <div className="text-sm text-muted-foreground">Taille du fichier</div>
-                <div className="text-md font-semibold">{videoSize}</div>
-              </div>
-              <div className="space-y-1">
-                <div className="text-sm text-muted-foreground">Type MIME</div>
-                <div className="text-sm font-mono text-muted-foreground mt-2">{videoBlob.type}</div>
-              </div>
-              <div className="space-y-1">
-                <div className="text-sm text-muted-foreground">Statut</div>
-                <div className="text-md font-semibold text-green-500">✓ Prêt</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+          {/* Video Info Panel */}
+          <VideoInfoPanel
+            metadata={videoMetadata}
+            videoUrl={videoUrl}
+            compact={true}
+            showActions={false}
+            onDownload={onDownload}
+            onDelete={onDelete}
+          />
 
-        {/* Actions */}
-        <div className="grid grid-cols-4 gap-3">
-          <Button onClick={onDownload} size="lg" className="h-14">
-            <MdDownload className="w-5 h-5 mr-2" />
-            Télécharger la vidéo
-          </Button>
-          <Button onClick={handleShare} variant="secondary" size="lg" disabled={isSharing} className="h-14">
-            <MdShare className="w-5 h-5 mr-2" />
-            Partager
-          </Button>
-          <Button onClick={handleCopyInfo} variant="secondary" size="lg" className="h-14">
-            <MdContentCopy className="w-5 h-5 mr-2" />
-            Copier
-          </Button>
-          {/* Delete Button */}
-          <Button onClick={onDelete} variant="destructive" size="lg" className="w-full h-14">
-            <MdDelete className="w-5 h-5 mr-2" />
-            Supprimer la vidéo
-          </Button>
+          {/* Actions */}
+          <div className="grid grid-cols-4 gap-3">
+            <Button onClick={onDownload} size="lg" className="h-14">
+              <MdDownload className="w-5 h-5 mr-2" />
+              Télécharger la vidéo
+            </Button>
+            <Button onClick={handleShare} variant="secondary" size="lg" disabled={isSharing} className="h-14">
+              <MdShare className="w-5 h-5 mr-2" />
+              Partager
+            </Button>
+            <Button onClick={handleCopyInfo} variant="secondary" size="lg" className="h-14">
+              <MdContentCopy className="w-5 h-5 mr-2" />
+              Copier
+            </Button>
+            {/* Delete Button */}
+            <Button onClick={onDelete} variant="destructive" size="lg" className="w-full h-14">
+              <MdDelete className="w-5 h-5 mr-2" />
+              Supprimer la vidéo
+            </Button>
+          </div>
+
+          {/* Social Media Share */}
+          <Card className="border-border">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg">Partager sur les réseaux sociaux</CardTitle>
+              <CardDescription>
+                Téléchargez d'abord la vidéo, puis utilisez ces raccourcis pour la partager
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-3 gap-4">
+                <Button
+                  onClick={handleShareToYouTube}
+                  variant="outline"
+                  className="h-24 flex items-center justify-start gap-4 border-border hover:bg-secondary/50 px-6"
+                >
+                  <FaYoutube className="w-12 h-12 text-red-600" />
+                  <span className="text-lg font-medium">YouTube</span>
+                </Button>
+                <Button
+                  onClick={handleShareToTwitter}
+                  variant="outline"
+                  className="h-24 flex items-center justify-start gap-4 border-border hover:bg-secondary/50 px-6"
+                >
+                  <FaTwitter className="w-12 h-12 text-blue-400" />
+                  <span className="text-lg font-medium">Twitter</span>
+                </Button>
+                <Button
+                  onClick={handleShareToLinkedIn}
+                  variant="outline"
+                  className="h-24 flex items-center justify-start gap-4 border-border hover:bg-secondary/50 px-6"
+                >
+                  <FaLinkedin className="w-12 h-12 text-blue-700" />
+                  <span className="text-lg font-medium">LinkedIn</span>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
-
-        {/* Social Media Share */}
-        <Card className="border-border">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-lg">Partager sur les réseaux sociaux</CardTitle>
-            <CardDescription>
-              Téléchargez d'abord la vidéo, puis utilisez ces raccourcis pour la partager
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-3 gap-4">
-              <Button
-                onClick={handleShareToYouTube}
-                variant="outline"
-                className="h-24 flex items-center justify-start gap-4 border-border hover:bg-secondary/50 px-6"
-              >
-                <FaYoutube className="w-12 h-12 text-red-600" />
-                <span className="text-lg font-medium">YouTube</span>
-              </Button>
-              <Button
-                onClick={handleShareToTwitter}
-                variant="outline"
-                className="h-24 flex items-center justify-start gap-4 border-border hover:bg-secondary/50 px-6"
-              >
-                <FaTwitter className="w-12 h-12 text-blue-400" />
-                <span className="text-lg font-medium">Twitter</span>
-              </Button>
-              <Button
-                onClick={handleShareToLinkedIn}
-                variant="outline"
-                className="h-24 flex items-center justify-start gap-4 border-border hover:bg-secondary/50 px-6"
-              >
-                <FaLinkedin className="w-12 h-12 text-blue-700" />
-                <span className="text-lg font-medium">LinkedIn</span>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </motion.div>
+      </motion.div>
     </>
   );
 };

@@ -1,73 +1,86 @@
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
 
-let ffmpegInstance: FFmpeg | null = null;
-let isLoading = false;
+// Interface pour les messages du worker
+interface WorkerMessage {
+  type: 'convert' | 'cancel';
+  webmBlob?: Blob;
+  options?: ConversionOptions;
+  id?: string;
+}
 
-export const loadFFmpeg = async (): Promise<FFmpeg> => {
-  if (ffmpegInstance) {
-    return ffmpegInstance;
+interface WorkerResponse {
+  type: 'progress' | 'success' | 'error' | 'cancelled';
+  progress?: number;
+  blob?: Blob;
+  error?: string;
+  id?: string;
+}
+
+// Instance du worker FFmpeg
+let ffmpegWorker: Worker | null = null;
+let isWorkerLoading = false;
+
+// Fonction pour obtenir/initialiser le worker
+const getFFmpegWorker = (): Worker => {
+  if (ffmpegWorker) {
+    return ffmpegWorker;
   }
 
-  // Utiliser une promesse partagée plutôt qu'un timeout manuel
-  // pour éviter les erreurs "FFmpeg loading timeout" lorsque
-  // plusieurs conversions démarrent en parallèle.
-  let existingLoadPromise = (loadFFmpeg as any)._loadingPromise as Promise<FFmpeg> | undefined;
-  if (existingLoadPromise) {
-    return existingLoadPromise;
-  }
-
-  const loadPromise = (async () => {
-    const ffmpeg = new FFmpeg();
-
-    // Logs pour débogage
-    ffmpeg.on("log", ({ message }) => {
-      console.log("[FFmpeg]", message);
-    });
-
-    ffmpeg.on("progress", ({ progress }) => {
-      console.log("[FFmpeg Progress]", Math.round(progress * 100) + "%");
-    });
-
-    try {
-      console.log("[FFmpeg] Chargement démarré...");
-      // Utiliser unpkg qui contient les artefacts attendus pour cette version
-      const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.10/dist/umd";
-
-      console.log(`[FFmpeg] Tentative de chargement depuis ${baseURL}`);
-      await ffmpeg.load({
-        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
-        wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, "application/wasm"),
-        workerURL: await toBlobURL(`${baseURL}/ffmpeg-core.worker.js`, "text/javascript"),
-      });
-
-      console.log("[FFmpeg] Chargement terminé");
-      ffmpegInstance = ffmpeg;
-      (loadFFmpeg as any)._loadingPromise = undefined;
-      return ffmpeg;
-    } catch (error) {
-      console.error("[FFmpeg] Erreur de chargement:", error);
-      (loadFFmpeg as any)._loadingPromise = undefined;
-      throw error;
+  if (isWorkerLoading) {
+    // Attendre que le worker soit prêt
+    while (isWorkerLoading) {
+      // Busy wait - en pratique, cela devrait être géré différemment
+      // mais pour la simplicité, on garde cette approche
     }
-  })();
+    if (ffmpegWorker) return ffmpegWorker;
+  }
 
-  (loadFFmpeg as any)._loadingPromise = loadPromise;
-  return loadPromise;
+  isWorkerLoading = true;
+
+  try {
+    console.log("[FFmpeg] Initialisation du worker...");
+    ffmpegWorker = new Worker(new URL('../workers/ffmpeg.worker.ts', import.meta.url), {
+      type: 'module'
+    });
+    console.log("[FFmpeg] Worker initialisé");
+    return ffmpegWorker;
+  } catch (error) {
+    console.error("[FFmpeg] Erreur lors de l'initialisation du worker:", error);
+    throw error;
+  } finally {
+    isWorkerLoading = false;
+  }
+};
+
+// Fonction de compatibilité pour l'ancien code (maintenant obsolète)
+export const loadFFmpeg = async (): Promise<FFmpeg> => {
+  throw new Error("FFmpeg est maintenant exécuté dans un Web Worker. Utilisez convertWebMToMP4 directement.");
 };
 
 export const cancelConversion = async (): Promise<void> => {
-  if (ffmpegInstance) {
-    console.log("[FFmpeg] Annulation de la conversion en cours...");
-    try {
-      await ffmpegInstance.terminate();
-      ffmpegInstance = null;
-      (loadFFmpeg as any)._loadingPromise = undefined;
-      console.log("[FFmpeg] Instance terminée avec succès");
-    } catch (error) {
-      console.error("[FFmpeg] Erreur lors de l'annulation:", error);
-    }
-  }
+  const worker = getFFmpegWorker();
+
+  return new Promise((resolve) => {
+    const cancelId = `cancel-${Date.now()}`;
+
+    const handleCancelResponse = (e: MessageEvent<WorkerResponse>) => {
+      if (e.data.type === 'cancelled' && e.data.id === cancelId) {
+        worker.removeEventListener('message', handleCancelResponse);
+        console.log("[FFmpeg] Annulation envoyée au worker");
+        resolve();
+      }
+    };
+
+    worker.addEventListener('message', handleCancelResponse);
+
+    const cancelMessage: WorkerMessage = {
+      type: 'cancel',
+      id: cancelId
+    };
+
+    worker.postMessage(cancelMessage);
+  });
 };
 
 export interface ConversionOptions {
@@ -82,65 +95,62 @@ export const convertWebMToMP4 = async (
   onProgress?: (progress: number) => void
 ): Promise<Blob> => {
   const { preset = 'ultrafast', crf = 28, scale = null } = options;
-  console.log("[Convert] Démarrage conversion, taille:", webmBlob.size);
-  
-  const ffmpeg = await loadFFmpeg();
+  console.log("[Convert] Démarrage conversion via worker, taille:", webmBlob.size);
 
-  // Écouter les événements de progression
-  if (onProgress) {
-    ffmpeg.on("progress", ({ progress }) => {
-      onProgress(Math.round(progress * 100));
-    });
-  }
+  const worker = getFFmpegWorker();
+  const conversionId = `conversion-${Date.now()}`;
 
-  console.log("[Convert] Écriture du fichier d'entrée...");
-  // Écrire le fichier d'entrée
-  await ffmpeg.writeFile("input.webm", await fetchFile(webmBlob));
+  return new Promise((resolve, reject) => {
+    const handleWorkerMessage = (e: MessageEvent<WorkerResponse>) => {
+      const { type, progress, blob, error, id } = e.data;
 
-  console.log("[Convert] Conversion en MP4...");
-  console.log(`[Convert] Paramètres: preset=${preset}, crf=${crf}, scale=${scale || 'original'}`);
-  
-  // Construire les arguments FFmpeg
-  const ffmpegArgs = [
-    "-i", "input.webm",
-    "-c:v", "libx264",
-    "-preset", preset,
-    "-crf", crf.toString(),
-    "-pix_fmt", "yuv420p",
-    "-movflags", "+faststart",
-  ];
-  
-  // Ajouter le filtre de résolution si demandé
-  if (scale) {
-    ffmpegArgs.push("-vf", scale);
-  }
-  
-  ffmpegArgs.push("output.mp4");
-  
-  // Convertir en MP4 avec les paramètres configurés
-  await ffmpeg.exec(ffmpegArgs);
+      // Vérifier que le message correspond à notre conversion
+      if (id !== conversionId) return;
 
-  console.log("[Convert] Lecture du fichier de sortie...");
-  // Lire le fichier de sortie
-  const data = await ffmpeg.readFile("output.mp4");
-  
-  console.log("[Convert] Nettoyage...");
-  // Nettoyer les fichiers temporaires
-  await ffmpeg.deleteFile("input.webm");
-  await ffmpeg.deleteFile("output.mp4");
+      switch (type) {
+        case 'progress':
+          if (onProgress && progress !== undefined) {
+            console.log(`[Worker Progress] ${progress}%`);
+            onProgress(progress);
+          }
+          break;
 
-  console.log("[Convert] Création du Blob MP4...");
-  // Créer un ArrayBuffer standard à partir du FileData
-  if (data instanceof Uint8Array) {
-    // Créer un nouveau ArrayBuffer et copier les données
-    const buffer = new ArrayBuffer(data.length);
-    const view = new Uint8Array(buffer);
-    view.set(data);
-    console.log("[Convert] Conversion terminée, taille MP4:", buffer.byteLength);
-    return new Blob([buffer], { type: "video/mp4" });
-  } else {
-    // Si c'est une string, la convertir
-    const encoder = new TextEncoder();
-    return new Blob([encoder.encode(data as string)], { type: "video/mp4" });
-  }
+        case 'success':
+          if (blob) {
+            worker.removeEventListener('message', handleWorkerMessage);
+            console.log("[Convert] Conversion terminée via worker, taille MP4:", blob.size);
+            resolve(blob);
+          } else {
+            worker.removeEventListener('message', handleWorkerMessage);
+            reject(new Error("Aucun blob reçu du worker"));
+          }
+          break;
+
+        case 'error':
+          worker.removeEventListener('message', handleWorkerMessage);
+          console.error("[Convert] Erreur du worker:", error);
+          reject(new Error(error || "Erreur lors de la conversion"));
+          break;
+
+        case 'cancelled':
+          worker.removeEventListener('message', handleWorkerMessage);
+          console.log("[Convert] Conversion annulée");
+          reject(new Error("Conversion annulée"));
+          break;
+      }
+    };
+
+    worker.addEventListener('message', handleWorkerMessage);
+
+    // Envoyer le message de conversion au worker
+    const convertMessage: WorkerMessage = {
+      type: 'convert',
+      webmBlob,
+      options: { preset, crf, scale },
+      id: conversionId
+    };
+
+    console.log("[Convert] Envoi de la conversion au worker...");
+    worker.postMessage(convertMessage);
+  });
 };
