@@ -1,343 +1,183 @@
-# Code Video Forge
+# Supabase CLI
 
-🎥 **Simulateur de code animé pour créer des vidéos professionnelles d'édition de code**
+[![Coverage Status](https://coveralls.io/repos/github/supabase/cli/badge.svg?branch=main)](https://coveralls.io/github/supabase/cli?branch=main) [![Bitbucket Pipelines](https://img.shields.io/bitbucket/pipelines/supabase-cli/setup-cli/master?style=flat-square&label=Bitbucket%20Canary)](https://bitbucket.org/supabase-cli/setup-cli/pipelines) [![Gitlab Pipeline Status](https://img.shields.io/gitlab/pipeline-status/sweatybridge%2Fsetup-cli?label=Gitlab%20Canary)
+](https://gitlab.com/sweatybridge/setup-cli/-/pipelines)
 
----
+[Supabase](https://supabase.io) is an open source Firebase alternative. We're building the features of Firebase using enterprise-grade open source tools.
 
-## 📖 Présentation
+This repository contains all the functionality for Supabase CLI.
 
-Code Video Forge est une application web révolutionnaire qui transforme votre code en vidéos d'animation professionnelles. Parfait pour les développeurs, enseignants, créateurs de contenu et passionnés qui veulent présenter leur code de manière visuelle et engageante.
+- [x] Running Supabase locally
+- [x] Managing database migrations
+- [x] Creating and deploying Supabase Functions
+- [x] Generating types directly from your database schema
+- [x] Making authenticated HTTP requests to [Management API](https://supabase.com/docs/reference/api/introduction)
 
-### ✨ Fonctionnalités Principales
+## Getting started
 
-#### 📝 **Simulateur de Frappe Avancé**
-- **Effets de frappe multiples** : machine à écrire, mot, ligne, bloc, instantané
-- **Personnalisation complète** : vitesse de frappe (CPM), boucles, curseurs animés
-- **Effets de défilement** : instantané, doux, centré, aucun
-- **Plusieurs curseurs** : barre, bloc, souligné, contour, aucun
+### Install the CLI
 
-#### 🎬 **Système d'Enregistrement Vidéo**
-- **Modes de capture** : écran complet ou éditeur uniquement
-- **Formats multiples** : WebM et MP4 avec qualité configurable
-- **Résolutions prédéfinies** : 16:9, 9:16 (vertical), 1:1, 4:3, 21:9
-- **Qualité MP4** : Ultra-rapide, rapide, moyenne avec résolutions jusqu'à 1080p
-
-#### 📊 **Contrôles Vidéo Professionnels**
-- **Lecteur personnalisé** : play/pause, navigation temporelle, volume
-- **Vitesse de lecture** : 0.5x, 1x, 1.5x, 2x
-- **Contrôles avancés** : saut avant/arrière, plein écran
-- **Barre de progression** interactive avec temps réel
-
-#### 📈 **Système de Status Centralisé**
-- **Gestion d'état complète** avec enums TypeScript
-- **Indicateurs visuels** en temps réel
-- **Phases d'application** : Éditeur, Simulation, Aperçu, Paramètres
-- **Monitoring détaillé** : progression, erreurs, succès
-
-#### 🎨 **Interface Moderne et Intuitive**
-- **Design VS Code** familière pour les développeurs
-- **Thème sombre/clair** avec haute contraste
-- **Responsive design** pour tous les écrans
-- **Animations fluides** avec Framer Motion
-
----
-
-## 🚀 Démarrage Rapide
-
-### Prérequis
-
-- **Node.js** 18.0 ou supérieur
-- **npm** ou **yarn**
-- **Navigateur moderne** compatible avec les MediaRecorder API
-
-### Installation
+Available via [NPM](https://www.npmjs.com) as dev dependency. To install:
 
 ```bash
-# Cloner le dépôt
-git clone <URL_DU_DEPOT>
-cd code-video-forge
-
-# Installer les dépendances
-npm install
-
-# Démarrer le serveur de développement
-npm run dev
+npm i supabase --save-dev
 ```
 
-L'application sera disponible sur `http://localhost:5173`
-
-### Scripts Disponibles
+To install the beta release channel:
 
 ```bash
-npm run dev      # Serveur de développement avec hot-reload
-npm run build     # Build de production
-npm run preview   # Aperçu de la build de production
-npm run lint      # Linting du code
+npm i supabase@beta --save-dev
 ```
 
----
-
-## 💻 Utilisation
-
-### 1. **Phase Éditeur** 📝
-
-Dans cette phase, vous pouvez :
-
-- **Saisir votre code** dans l'éditeur Monaco (comme VS Code)
-- **Configurer les paramètres** de frappe dans le panneau de droite
-- **Ajuster la vitesse** en caractères par minute (CPM)
-- **Choisir l'effet d'affichage** préféré
-- **Personnaliser le curseur** et les effets de défilement
-
-### 2. **Phase Simulation** ⚡
-
-Cliquez sur "Démarrer la simulation" pour voir votre code s'animer :
-
-- **Animation en temps réel** selon les paramètres configurés
-- **Contrôles de lecture** : play/pause, réinitialisation
-- **Barre de progression** pour naviguer dans l'animation
-- **Mode boucle** pour répéter l'animation
-
-### 3. **Phase Enregistrement** 🎥
-
-Une fois la simulation terminée, enregistrez votre vidéo :
-
-- **Choisir le mode** de capture (écran ou éditeur)
-- **Sélectionner le format** (WebM ou MP4)
-- **Configurer la qualité** et résolution
-- **Démarrer l'enregistrement** automatique
-
-### 4. **Phase Aperçu** 👁️
-
-Visualisez et gérez votre vidéo finale :
-
-- **Lecteur vidéo** avec contrôles complets
-- **Informations détaillées** : format, durée, taille, résolution
-- **Actions disponibles** : téléchargement, partage, suppression
-- **Export vers réseaux sociaux** : YouTube, Twitter, LinkedIn
-
----
-
-## 🛠️ Architecture Technique
-
-### Structure du Projet
+When installing with yarn 4, you need to disable experimental fetch with the following nodejs config.
 
 ```
-src/
-├── components/          # Composants React réutilisables
-│   ├── StatusIndicator.tsx     # Indicateurs de status
-│   ├── VideoInfoPanel.tsx      # Panneau d'informations vidéo
-│   ├── VideoPreview.tsx         # Lecteur vidéo avancé
-│   └── ui/                     # Composants UI shadcn
-├── core/                # Logique métier
-│   ├── typing/         # Moteur de frappe
-│   ├── recording/      # Enregistrement vidéo
-│   └── converter/      # Conversion vidéo
-├── hooks/              # Hooks personnalisés
-│   ├── useAppStatus.ts          # Gestion du status
-│   ├── useTypingEngine.ts       # Simulation de frappe
-│   ├── useScreenRecorder.ts     # Enregistrement
-│   └── useVideoConverter.ts    # Conversion vidéo
-├── store/              # État global Zustand
-│   ├── useAppStatusStore.ts     # Status centralisé
-│   └── useForgeStore.ts        # État principal
-├── types/              # Types TypeScript
-│   └── appStatus.ts            # Enums et interfaces
-└── workers/            # Web Workers
-    └── ffmpeg.worker.ts        # Traitement vidéo
+NODE_OPTIONS=--no-experimental-fetch yarn add supabase
 ```
 
-### Technologies Utilisées
+> **Note**
+For Bun versions below v1.0.17, you must add `supabase` as a [trusted dependency](https://bun.sh/guides/install/trusted) before running `bun add -D supabase`.
 
-- **React 18** - Framework UI avec hooks modernes
-- **TypeScript** - Typage statique pour la robustesse
-- **Vite** - Build tool ultra-rapide
-- **Zustand** - Gestion d'état légère et efficace
-- **Monaco Editor** - Éditeur de code de VS Code
-- **Tailwind CSS** - Styling utilitaire moderne
-- **shadcn/ui** - Composants UI de haute qualité
-- **Framer Motion** - Animations fluides
-- **FFmpeg.wasm** - Traitement vidéo côté client
+<details>
+  <summary><b>macOS</b></summary>
 
-### Patterns Architecturaux
+  Available via [Homebrew](https://brew.sh). To install:
 
-#### 🎯 **Modularité**
-- Séparation claire des responsabilités
-- Composants réutilisables et testables
-- Services métier découplés
+  ```sh
+  brew install supabase/tap/supabase
+  ```
 
-#### 🔄 **Réactivité**
-- Hooks personnalisés pour la logique complexe
-- État centralisé avec Zustand
-- Mise à jour optimisée du DOM
+  To install the beta release channel:
+  
+  ```sh
+  brew install supabase/tap/supabase-beta
+  brew link --overwrite supabase-beta
+  ```
+  
+  To upgrade:
 
-#### 🛡️ **Type Safety**
-- Enums pour tous les états possibles
-- Interfaces TypeScript complètes
-- Validation des données
+  ```sh
+  brew upgrade supabase
+  ```
+</details>
 
-#### ⚡ **Performance**
-- Web Workers pour les opérations lourdes
-- Lazy loading des composants
-- Optimisation du re-rendering
+<details>
+  <summary><b>Windows</b></summary>
 
----
+  Available via [Scoop](https://scoop.sh). To install:
 
-## 📋 Guides et Documentation
+  ```powershell
+  scoop bucket add supabase https://github.com/supabase/scoop-bucket.git
+  scoop install supabase
+  ```
 
-### Guide Complet : Créer votre première vidéo
+  To upgrade:
 
-1. **Préparation**
-   ```bash
-   npm install
-   npm run dev
-   ```
+  ```powershell
+  scoop update supabase
+  ```
+</details>
 
-2. **Saisie du Code**
-   - Écrivez votre code dans l'éditeur
-   - Ajoutez des commentaires si nécessaire
+<details>
+  <summary><b>Linux</b></summary>
 
-3. **Configuration de l'Animation**
-   - Vitesse : 50 CPM (recommandé)
-   - Effet : Machine à écrire
-   - Curseur : Barre
-   - Défilement : Doux
+  Available via [Homebrew](https://brew.sh) and Linux packages.
 
-4. **Test de l'Animation**
-   - Cliquez sur "Démarrer la simulation"
-   - Ajustez les paramètres si nécessaire
+  #### via Homebrew
 
-5. **Enregistrement**
-   - Choisissez le mode éditeur
-   - Format : MP4, Qualité : Moyenne
-   - Résolution : 1920x1080
+  To install:
 
-6. **Finalisation**
-   - Attendez la fin de l'enregistrement
-   - Téléchargez votre vidéo
-   - Partagez sur vos réseaux préférés
+  ```sh
+  brew install supabase/tap/supabase
+  ```
 
-### Configuration Avancée
+  To upgrade:
 
-#### Personnalisation des Effets
+  ```sh
+  brew upgrade supabase
+  ```
 
-```typescript
-// Configurer un effet personnalisé
-const config = {
-  speed: 75,          // Caractères par minute
-  effect: "typewriter", // Effet de frappe
-  cursor: "block",      // Type de curseur
-  scroll: "smooth",     // Effet de défilement
-  loop: false          // Mode boucle
-};
-```
+  #### via Linux packages
 
-#### Export Video
+  Linux packages are provided in [Releases](https://github.com/supabase/cli/releases). To install, download the `.apk`/`.deb`/`.rpm`/`.pkg.tar.zst` file depending on your package manager and run the respective commands.
 
-```typescript
-// Configuration d'export
-const exportConfig = {
-  format: "mp4",           // WebM ou MP4
-  quality: "medium",        // high, medium, fast
-  resolution: "1080p",     // original, 1080p, 720p
-  aspectRatio: "16:9",      // Format d'écran
-  captureMode: "editor"      // screen ou editor
-};
-```
+  ```sh
+  sudo apk add --allow-untrusted <...>.apk
+  ```
 
----
+  ```sh
+  sudo dpkg -i <...>.deb
+  ```
 
-## 🐛 Dépannage
+  ```sh
+  sudo rpm -i <...>.rpm
+  ```
 
-### Problèmes Communs
+  ```sh
+  sudo pacman -U <...>.pkg.tar.zst
+  ```
+</details>
 
-#### ❌ **Enregistrement ne démarre pas**
-- Vérifiez les permissions du navigateur
-- Assurez-vous d'être en HTTPS
-- Essayez un autre navigateur
+<details>
+  <summary><b>Other Platforms</b></summary>
 
-#### ⏱️ **Animation trop rapide/lente**
-- Ajustez la vitesse en CPM
-- Modifiez l'effet d'affichage
-- Vérifiez la longueur du code
+  You can also install the CLI via [go modules](https://go.dev/ref/mod#go-install) without the help of package managers.
 
-#### 📱 **Problèmes mobiles**
-- Utilisez la vue paysage
-- Réduisez la résolution d'enregistrement
-- Vérifiez la connectivité
+  ```sh
+  go install github.com/supabase/cli@latest
+  ```
 
-#### 🎬 **Qualité vidéo faible**
-- Augmentez la qualité d'export
-- Utilisez le MP4 au lieu du WebM
-- Enregistrez en résolution supérieure
+  Add a symlink to the binary in `$PATH` for easier access:
 
-### Support Technique
+  ```sh
+  ln -s "$(go env GOPATH)/bin/cli" /usr/bin/supabase
+  ```
 
-- **Documentation complète** : Consultez les guides dans `/docs`
-- **Issues GitHub** : Signalez les problèmes sur le dépôt
-- **Discussions** : Partagez vos idées et suggestions
+  This works on other non-standard Linux distros.
+</details>
 
----
+<details>
+  <summary><b>Community Maintained Packages</b></summary>
 
-## 🤝 Contribuer
+  Available via [pkgx](https://pkgx.sh/). Package script [here](https://github.com/pkgxdev/pantry/blob/main/projects/supabase.com/cli/package.yml).
+  To install in your working directory:
 
-Nous apprécions les contributions ! Voici comment participer :
+  ```bash
+  pkgx install supabase
+  ```
 
-### Étapes
+  Available via [Nixpkgs](https://nixos.org/). Package script [here](https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/supabase-cli/default.nix).
+</details>
 
-1. **Forker** le dépôt
-2. **Créer une branche** pour votre fonctionnalité
-3. **Committer** vos changements
-4. **Pousser** vers votre fork
-5. **Ouvrir une Pull Request**
-
-### Standards de Code
-
-- **TypeScript** pour tout nouveau code
-- **ESLint** pour le style de code
-- **Tests** pour les nouvelles fonctionnalités
-- **Documentation** mise à jour
-
-### Convention de Commits
+### Run the CLI
 
 ```bash
-# Feature nouvelle fonctionnalité
-git commit -m "feat: ajouter le support de l'export GIF"
-
-# Correction de bug
-git commit -m "fix: corriger le problème de boucle infinie"
-
-# Documentation
-git commit -m "docs: mettre à jour le README"
-
-# Style
-git commit -m "style: améliorer l'animation du curseur"
+supabase bootstrap
 ```
 
----
+Or using npx:
 
-## 📜 Licence
+```bash
+npx supabase bootstrap
+```
 
-Ce projet est sous licence **MIT**. Consultez le fichier `LICENSE` pour plus d'informations.
+The bootstrap command will guide you through the process of setting up a Supabase project using one of the [starter](https://github.com/supabase-community/supabase-samples/blob/main/samples.json) templates.
 
----
+## Docs
 
-## 🙏 Remerciements
+Command & config reference can be found [here](https://supabase.com/docs/reference/cli/about).
 
-- **VS Code** pour l'inspiration de l'éditeur
-- **Monaco Editor** pour l'éditeur de code exceptionnel
-- **FFmpeg** pour le traitement vidéo
-- **shadcn/ui** pour les composants UI de qualité
-- **Vercel** pour l'hébergement et le déploiement
+## Breaking changes
 
----
+We follow semantic versioning for changes that directly impact CLI commands, flags, and configurations.
 
-## 📞 Contact
+However, due to dependencies on other service images, we cannot guarantee that schema migrations, seed.sql, and generated types will always work for the same CLI major version. If you need such guarantees, we encourage you to pin a specific version of CLI in package.json.
 
-- **GitHub** : [Dépôt du projet](https://github.com/votre-username/code-video-forge)
-- **Email** : [contact@votre-domaine.com](mailto:contact@votre-domaine.com)
-- **Twitter** : [@votre_compte](https://twitter.com/votre_compte)
+## Developing
 
----
+To run from source:
 
-**✨ Transformez votre code en narration visuelle avec Code Video Forge !**
+```sh
+# Go >= 1.22
+go run . help
+```

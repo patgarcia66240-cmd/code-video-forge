@@ -60,6 +60,10 @@ const Index = () => {
     navigate('/gallery');
   };
 
+  const handleNavigateToAuth = () => {
+    navigate('/auth?redirect=/');
+  };
+
   return (
     <VSCodeLayout
       activeView={activeView}

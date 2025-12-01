@@ -11,15 +11,58 @@ import {
     Clock,
     HardDrive,
     ArrowLeft,
-    Video
+    Video,
+    AlertTriangle
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useVideoStorage, SavedVideo } from "@/hooks/useVideoStorage";
+import { createTestVideoForEtremise, checkVideoNameAvailability } from "@/utils/createTestVideo";
+import { debugSupabaseUpload, testDirectSupabaseInsert } from "@/utils/debugSupabaseUpload";
+import { VideoPlayer } from "@/components/VideoPlayer";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useAuth } from "@/components/AuthProvider";
+import AuthModal from "@/components/AuthModal";
+import { User, LogOut, LogIn } from "lucide-react";
 
 const Gallery = () => {
     const navigate = useNavigate();
     const { toast } = useToast();
-    const { savedVideos, deleteVideo, getStats, isLoading } = useVideoStorage();
+    const { savedVideos, deleteVideo, getStats, isLoading, isSupabaseEnabled } = useVideoStorage();
+    const { user, signOut } = useAuth();
+    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+    const [stats, setStats] = useState({
+        totalVideos: 0,
+        totalSize: 0,
+        totalDuration: 0,
+        formatBreakdown: {} as Record<string, number>
+    });
+    const [selectedVideo, setSelectedVideo] = useState<SavedVideo | null>(null);
+    const [isVideoPlayerOpen, setIsVideoPlayerOpen] = useState(false);
+    const [videoToDelete, setVideoToDelete] = useState<SavedVideo | null>(null);
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+    // Charger les statistiques au chargement et quand les vidéos changent
+    useEffect(() => {
+        const loadStats = async () => {
+            try {
+                const currentStats = await getStats();
+                setStats(currentStats);
+            } catch (error) {
+                console.error('Erreur chargement statistiques:', error);
+            }
+        };
+
+        loadStats();
+    }, [savedVideos, getStats]);
 
     const formatFileSize = (bytes: number): string => {
         if (bytes === 0) return "0 B";
@@ -45,32 +88,156 @@ const Gallery = () => {
     };
 
     const handlePlayVideo = (video: SavedVideo) => {
-        toast({
-            title: "Lecture vidéo",
-            description: `Ouverture de "${video.name}"`,
-        });
-        // Ici on pourrait naviguer vers VideoPreview ou ouvrir un modal
+        setSelectedVideo(video);
+        setIsVideoPlayerOpen(true);
     };
 
     const handleDownloadVideo = (video: SavedVideo) => {
-        // Simulation du téléchargement
+        // Créer un lien de téléchargement
+        const link = document.createElement('a');
+        link.href = video.url;
+        link.download = `${video.name.replace(/[^a-z0-9]/gi, '_')}.${video.format.toLowerCase()}`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
         toast({
             title: "Téléchargement",
             description: `Téléchargement de "${video.name}" commencé`,
         });
     };
 
-    const handleDeleteVideo = async (videoId: string) => {
+    const handleDeleteClick = (video: SavedVideo) => {
+        setVideoToDelete(video);
+        setIsDeleteDialogOpen(true);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!videoToDelete) return;
+
         try {
-            await deleteVideo(videoId);
+            // Si la vidéo est en cours de lecture dans le lecteur, fermer le lecteur
+            if (selectedVideo?.id === videoToDelete.id) {
+                setIsVideoPlayerOpen(false);
+                setSelectedVideo(null);
+            }
+
+            // Supprimer la vidéo (cela supprimera aussi de Supabase Storage si configuré)
+            await deleteVideo(videoToDelete.id);
+
+            // Messages différents selon le mode de stockage
+            if (isSupabaseEnabled) {
+                toast({
+                    title: "Vidéo supprimée définitivement",
+                    description: `"${videoToDelete.name}" a été supprimée de Supabase Storage et de la base de données`,
+                });
+            } else {
+                toast({
+                    title: "Vidéo supprimée",
+                    description: `"${videoToDelete.name}" a été supprimée de la galerie locale`,
+                });
+            }
+
+            // Fermer le dialogue et réinitialiser
+            setIsDeleteDialogOpen(false);
+            setVideoToDelete(null);
+
+        } catch (error) {
+            console.error('Erreur suppression vidéo:', error);
             toast({
-                title: "Vidéo supprimée",
-                description: "La vidéo a été supprimée de la galerie",
+                title: "Erreur lors de la suppression",
+                description: isSupabaseEnabled
+                    ? "Impossible de supprimer la vidéo de Supabase. Vérifiez vos permissions."
+                    : "Impossible de supprimer la vidéo de la galerie.",
+                variant: "destructive",
             });
+        }
+    };
+
+    const handleCancelDelete = () => {
+        setIsDeleteDialogOpen(false);
+        setVideoToDelete(null);
+    };
+
+    const handleCreateTestVideo = async () => {
+        try {
+            toast({
+                title: "Création vidéo test",
+                description: "Création d'une vidéo test avec gestion du nom unique...",
+            });
+
+            await createTestVideoForEtremise();
+
+            toast({
+                title: "Vidéo test créée",
+                description: "La vidéo test a été créée avec succès!",
+            });
+
+            // Recharger la liste des vidéos
+            window.location.reload();
+
         } catch (error) {
             toast({
                 title: "Erreur",
-                description: "Impossible de supprimer la vidéo",
+                description: "Impossible de créer la vidéo test",
+                variant: "destructive",
+            });
+        }
+    };
+
+    const handleCheckName = async () => {
+        const isAvailable = await checkVideoNameAvailability('pour etre mise');
+
+        toast({
+            title: isAvailable ? "Nom disponible" : "Nom déjà utilisé",
+            description: isAvailable
+                ? "Le nom 'pour etre mise' est disponible"
+                : "Le nom 'pour etre mise' existe déjà, un nom unique sera généré",
+            variant: isAvailable ? "default" : "destructive",
+        });
+    };
+
+    const handleDebugUpload = async () => {
+        try {
+            toast({
+                title: "Debug Supabase",
+                description: "Lancement du debug pour l'erreur 'invalid input syntax for type integer'",
+            });
+
+            await debugSupabaseUpload();
+
+            toast({
+                title: "Debug terminé",
+                description: "Vérifiez la console pour les détails",
+            });
+
+        } catch (error) {
+            toast({
+                title: "Erreur de debug",
+                description: "Vérifiez la console pour l'erreur détaillée",
+                variant: "destructive",
+            });
+        }
+    };
+
+    const handleDirectInsertTest = async () => {
+        try {
+            toast({
+                title: "Test insertion directe",
+                description: "Test d'insertion SQL directe dans Supabase",
+            });
+
+            await testDirectSupabaseInsert();
+
+            toast({
+                title: "Test terminé",
+                description: "Vérifiez la console pour les résultats",
+            });
+
+        } catch (error) {
+            toast({
+                title: "Erreur test direct",
+                description: "Vérifiez la console pour l'erreur",
                 variant: "destructive",
             });
         }
@@ -80,26 +247,113 @@ const Gallery = () => {
         <div className="h-full bg-background overflow-auto">
             <div className="container max-w-6xl mx-auto p-6 space-y-6">
                 {/* Header */}
-                <div className="flex items-center gap-4">
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => navigate('/')}
-                        className="flex items-center gap-2"
-                    >
-                        <ArrowLeft className="w-4 h-4" />
-                        Retour
-                    </Button>
-                    <div>
-                        <h1 className="text-2xl font-bold flex items-center gap-2">
-                            <Video className="w-6 h-6" />
-                            Galerie des vidéos
-                        </h1>
-                        <p className="text-muted-foreground">
-                            Toutes vos animations de code sauvegardées
-                        </p>
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => navigate('/')}
+                            className="flex items-center gap-2"
+                        >
+                            <ArrowLeft className="w-4 h-4" />
+                            Retour
+                        </Button>
+                        <div>
+                            <h1 className="text-2xl font-bold flex items-center gap-2">
+                                <Video className="w-6 h-6" />
+                                Galerie des vidéos
+                            </h1>
+                            <p className="text-muted-foreground">
+                                Toutes vos animations de code sauvegardées
+                            </p>
+                        </div>
                     </div>
+
+                    {/* Bouton d'authentification */}
+                    {user ? (
+                        <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 px-3 py-1 bg-green-50 border border-green-200 rounded-full">
+                                <User className="w-4 h-4 text-green-600" />
+                                <span className="text-sm text-green-700 font-medium">
+                                    {user.email?.split('@')[0]}
+                                </span>
+                            </div>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={signOut}
+                                className="flex items-center gap-2"
+                            >
+                                <LogOut className="w-4 h-4" />
+                                Déconnexion
+                            </Button>
+                        </div>
+                    ) : (
+                        <Button
+                            variant="default"
+                            size="sm"
+                            onClick={() => navigate('/auth?redirect=/gallery')}
+                            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+                        >
+                            <LogIn className="w-4 h-4" />
+                            Se connecter
+                        </Button>
+                    )}
                 </div>
+
+                {/* Information Supabase */}
+                {isSupabaseEnabled && (
+                    <Card className="border-blue-200 bg-blue-50/50">
+                        <CardContent className="p-4">
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                                    <Video className="w-4 h-4 text-white" />
+                                </div>
+                                <div className="flex-1">
+                                    <div className="font-medium text-blue-900">
+                                        Stockage activé
+                                    </div>
+                                    <div className="text-sm text-blue-700">
+                                        Vos vidéos sont sauvegardées dans le cloud Storage
+                                    </div>
+                                </div>
+                                <div className="flex gap-2">
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={handleCheckName}
+                                        className="text-xs"
+                                    >
+                                        Vérifier nom
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        onClick={handleCreateTestVideo}
+                                        className="text-xs"
+                                    >
+                                        Créer test
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={handleDebugUpload}
+                                        className="text-xs"
+                                    >
+                                        Debug
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={handleDirectInsertTest}
+                                        className="text-xs"
+                                    >
+                                        Test SQL
+                                    </Button>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
 
                 {/* Statistiques */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -108,8 +362,10 @@ const Gallery = () => {
                             <div className="flex items-center gap-3">
                                 <Video className="w-8 h-8 text-primary" />
                                 <div>
-                                    <div className="text-2xl font-bold">{savedVideos.length}</div>
-                                    <div className="text-sm text-muted-foreground">Vidéos</div>
+                                    <div className="text-2xl font-bold">{stats.totalVideos}</div>
+                                    <div className="text-sm text-muted-foreground">
+                                        Vidéos {isSupabaseEnabled && "(Supabase)"}
+                                    </div>
                                 </div>
                             </div>
                         </CardContent>
@@ -120,7 +376,7 @@ const Gallery = () => {
                                 <HardDrive className="w-8 h-8 text-primary" />
                                 <div>
                                     <div className="text-2xl font-bold">
-                                        {formatFileSize(savedVideos.reduce((acc, v) => acc + v.size, 0))}
+                                        {formatFileSize(stats.totalSize)}
                                     </div>
                                     <div className="text-sm text-muted-foreground">Espace utilisé</div>
                                 </div>
@@ -133,7 +389,7 @@ const Gallery = () => {
                                 <Clock className="w-8 h-8 text-primary" />
                                 <div>
                                     <div className="text-2xl font-bold">
-                                        {formatDuration(savedVideos.reduce((acc, v) => acc + v.duration, 0))}
+                                        {formatDuration(stats.totalDuration)}
                                     </div>
                                     <div className="text-sm text-muted-foreground">Durée totale</div>
                                 </div>
@@ -222,8 +478,9 @@ const Gallery = () => {
                                             variant="outline"
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                handleDeleteVideo(video.id);
+                                                handleDeleteClick(video);
                                             }}
+                                            className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
                                         >
                                             <Trash2 className="w-3 h-3" />
                                         </Button>
@@ -233,6 +490,77 @@ const Gallery = () => {
                         ))}
                     </div>
                 )}
+
+                {/* Video Player Modal */}
+                <VideoPlayer
+                    video={selectedVideo}
+                    isOpen={isVideoPlayerOpen}
+                    onClose={() => {
+                        setIsVideoPlayerOpen(false);
+                        setSelectedVideo(null);
+                    }}
+                    onDownload={handleDownloadVideo}
+                />
+
+                {/* Delete Confirmation Dialog */}
+                <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle className="flex items-center gap-2">
+                                <AlertTriangle className="w-5 h-5 text-red-600" />
+                                Confirmer la suppression
+                            </AlertDialogTitle>
+                            <AlertDialogDescription className="text-left">
+                                {videoToDelete && (
+                                    <>
+                                        <p className="mb-2">
+                                            Êtes-vous sûr de vouloir supprimer la vidéo <strong>"{videoToDelete.name}"</strong> ?
+                                        </p>
+                                        {isSupabaseEnabled ? (
+                                            <div className="bg-red-50 border border-red-200 rounded-md p-3 text-sm">
+                                                <p className="font-semibold text-red-800 mb-1">⚠️ Attention - Suppression définitive</p>
+                                                <p className="text-red-700">
+                                                    Cette action supprimera définitivement :
+                                                </p>
+                                                <ul className="list-disc list-inside text-red-700 mt-1">
+                                                    <li>Le fichier vidéo de Supabase Storage</li>
+                                                    <li>Les métadonnées de la base de données</li>
+                                                </ul>
+                                                <p className="text-red-800 font-medium mt-2">
+                                                    Cette action est irréversible !
+                                                </p>
+                                            </div>
+                                        ) : (
+                                            <div className="bg-orange-50 border border-orange-200 rounded-md p-3 text-sm">
+                                                <p className="font-semibold text-orange-800 mb-1">
+                                                    Cette vidéo sera supprimée de la galerie locale
+                                                </p>
+                                            </div>
+                                        )}
+                                    </>
+                                )}
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel onClick={handleCancelDelete}>
+                                Annuler
+                            </AlertDialogCancel>
+                            <AlertDialogAction
+                                onClick={handleConfirmDelete}
+                                className="bg-red-600 hover:bg-red-700 text-white"
+                            >
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Supprimer définitivement
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+
+                {/* Auth Modal */}
+                <AuthModal
+                    isOpen={isAuthModalOpen}
+                    onClose={() => setIsAuthModalOpen(false)}
+                />
             </div>
         </div>
     );
