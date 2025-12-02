@@ -21,7 +21,7 @@ $plainPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.Int
 
 # Vérifier si Supabase CLI est installé
 try {
-    $supabaseVersion = supabase --version 2>$null
+    supabase --version >$null 2>&1
     if ($LASTEXITCODE -eq 0) {
         Write-Host "[OK] Supabase CLI trouvée" -ForegroundColor Green
     }

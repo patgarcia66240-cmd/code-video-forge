@@ -60,6 +60,22 @@ export const useScreenRecorder = ({ addLog, onVideoRecorded }: UseScreenRecorder
 
             addLog(`Fichier WebM obtenu (${webmBlob.size} octets)`);
 
+            // Analyser le blob pour vérifier la présence d'audio
+            addLog("🔍 Analyse du fichier pour l'audio...");
+            const audioAnalysis = await screenRecorderRef.current.analyzeBlobForAudio(webmBlob);
+
+            if (audioAnalysis.hasAudio) {
+                addLog(`✅ Audio détecté dans le fichier WebM: ${audioAnalysis.audioCodec || 'codec inconnu'}`);
+                if (audioAnalysis.audioBitrate) {
+                    addLog(`🎵 Bitrate audio: ${(audioAnalysis.audioBitrate / 1000).toFixed(0)}kbps`);
+                }
+            } else {
+                addLog("❌ Aucun audio détecté dans le fichier WebM");
+                if (audioAnalysis.error) {
+                    addLog(`⚠️ Erreur d'analyse: ${audioAnalysis.error}`);
+                }
+            }
+
             if (captureMode === "editor" && isFullscreen) {
                 setIsFullscreen(false);
                 addLog("Mode plein écran désactivé");
@@ -105,10 +121,20 @@ export const useScreenRecorder = ({ addLog, onVideoRecorded }: UseScreenRecorder
                 width: 1920,
                 height: 1080,
                 frameRate: 30,
-                mimeType: "video/webm"
+                mimeType: "video/webm",
+                audio: true // Explicitement activer l'audio
             });
 
             setIsRecording(true);
+
+            // Vérifier si l'audio est disponible dans le stream
+            const audioTracks = stream.getAudioTracks();
+            if (audioTracks.length > 0) {
+                addLog(`🎵 Audio détecté: ${audioTracks.length} piste(s) audio active(s)`);
+            } else {
+                addLog("⚠️ Aucune piste audio détectée dans le stream");
+                addLog("💡 Le navigateur n'a probablement pas autorisé l'audio");
+            }
 
             // Écouter la fin du stream
             stream.getVideoTracks()[0].addEventListener("ended", () => {

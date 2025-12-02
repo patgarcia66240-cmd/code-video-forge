@@ -10,6 +10,7 @@ export interface VideoConversionOptions {
     format?: 'mp4' | 'webm';
     audioCodec?: string;
     videoCodec?: string;
+    preserveAudio?: boolean; // Nouvelle option pour préserver l'audio
 }
 
 export interface ConversionResult {
@@ -144,7 +145,8 @@ export class VideoConverter {
                 options: {
                     preset: options.preset || 'ultrafast',
                     crf: options.crf || 28,
-                    scale: options.scale || null
+                    scale: options.scale || null,
+                    preserveAudio: options.preserveAudio !== false // par défaut true
                 },
                 id: this.currentConversionId
             };
@@ -221,14 +223,17 @@ export function createVideoConverter(): VideoConverter {
 }
 
 // Fonctions utilitaires pour les options de conversion
-export function createConversionOptions(quality: 'high' | 'medium' | 'fast' = 'medium'): VideoConversionOptions {
+export function createConversionOptions(quality: 'high' | 'medium' | 'fast' = 'medium', preserveAudio: boolean = true): VideoConversionOptions {
     const qualitySettings = {
         high: { preset: 'medium' as const, crf: 18 },
         medium: { preset: 'fast' as const, crf: 23 },
         fast: { preset: 'ultrafast' as const, crf: 28 }
     };
 
-    return qualitySettings[quality];
+    return {
+        ...qualitySettings[quality],
+        preserveAudio
+    };
 }
 
 export function createScaleOption(resolution: 'original' | '1080p' | '720p' | '480p'): string | null {

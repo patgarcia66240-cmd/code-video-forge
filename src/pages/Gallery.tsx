@@ -272,9 +272,9 @@ const Gallery = () => {
                     {/* Bouton d'authentification */}
                     {user ? (
                         <div className="flex items-center gap-2">
-                            <div className="flex items-center gap-2 px-3 py-1 bg-green-50 border border-green-200 rounded-full">
-                                <User className="w-4 h-4 text-green-600" />
-                                <span className="text-sm text-green-700 font-medium">
+                            <div className="flex items-center gap-2 px-3 py-1 bg-blue-500/90 border border-gray-50 rounded-full">
+                                <User className="w-4 h-4 text-blue-50" />
+                                <span className="text-sm text-blue-50 font-medium">
                                     {user.email?.split('@')[0]}
                                 </span>
                             </div>
@@ -303,53 +303,21 @@ const Gallery = () => {
 
                 {/* Information Supabase */}
                 {isSupabaseEnabled && (
-                    <Card className="border-blue-200 bg-blue-50/50">
+                    <Card className="border-gray-400/20 bg-gray-850/80">
                         <CardContent className="p-4">
                             <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                                <div className="w-8 h-8 bg-gray-900 rounded-full flex items-center justify-center">
                                     <Video className="w-4 h-4 text-white" />
                                 </div>
                                 <div className="flex-1">
-                                    <div className="font-medium text-blue-900">
+                                    <div className="font-medium text-gray-400">
                                         Stockage activé
                                     </div>
-                                    <div className="text-sm text-blue-700">
+                                    <div className="text-sm text-gray-500">
                                         Vos vidéos sont sauvegardées dans le cloud Storage
                                     </div>
                                 </div>
-                                <div className="flex gap-2">
-                                    <Button
-                                        size="sm"
-                                        variant="outline"
-                                        onClick={handleCheckName}
-                                        className="text-xs"
-                                    >
-                                        Vérifier nom
-                                    </Button>
-                                    <Button
-                                        size="sm"
-                                        onClick={handleCreateTestVideo}
-                                        className="text-xs"
-                                    >
-                                        Créer test
-                                    </Button>
-                                    <Button
-                                        size="sm"
-                                        variant="outline"
-                                        onClick={handleDebugUpload}
-                                        className="text-xs"
-                                    >
-                                        Debug
-                                    </Button>
-                                    <Button
-                                        size="sm"
-                                        variant="outline"
-                                        onClick={handleDirectInsertTest}
-                                        className="text-xs"
-                                    >
-                                        Test SQL
-                                    </Button>
-                                </div>
+                            
                             </div>
                         </CardContent>
                     </Card>
