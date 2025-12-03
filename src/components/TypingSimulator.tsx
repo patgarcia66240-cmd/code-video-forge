@@ -704,7 +704,7 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }:
   return (
     <div className="flex-1 flex flex-col bg-editor relative">
       {/* Tab Bar */}
-      {!isFullscreen && !(hideControlsDuringRecording && isRecording) && (
+      {!isFullscreen && !(hideControlsDuringRecording && (isRecording || !isPaused)) && (
         <div className="h-10 bg-panel-bg flex items-center px-4 border-b border-border">
           <div className="flex items-center gap-2 px-3 py-1 bg-editor rounded-t border-t-2 border-primary">
             <span className="text-sm text-foreground">typing-demo.py</span>
@@ -716,7 +716,7 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }:
       )}
 
       {/* Controls */}
-      {!isFullscreen && !(hideControlsDuringRecording && isRecording) && (
+      {!isFullscreen && !(hideControlsDuringRecording && (isRecording || !isPaused)) && (
         <div className="bg-panel-bg border-b border-border">
           {/* Ligne 1: Contrôles principaux */}
           <div className="h-16 flex items-center px-4 gap-4 flex-wrap border-b border-border/50">
