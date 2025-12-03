@@ -391,6 +391,16 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }:
         e.preventDefault();
         downloadRecording();
       }
+
+      // Entrée pour lancer/arrêter l'enregistrement
+      if (e.key === "Enter" && !isConverting) {
+        e.preventDefault();
+        if (isRecording) {
+          stopRecording();
+        } else {
+          startRecording();
+        }
+      }
     };
 
     // Utiliser capture: true pour intercepter avant Monaco Editor
@@ -1004,6 +1014,10 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }:
                 <div className="flex justify-between items-center p-2 bg-secondary/50 rounded">
                   <span>Télécharger la vidéo</span>
                   <span className="font-mono text-foreground">Ctrl+P</span>
+                </div>
+                <div className="flex justify-between items-center p-2 bg-secondary/50 rounded">
+                  <span>Lancer/Arrêter l'enregistrement</span>
+                  <span className="font-mono text-foreground">Entrée</span>
                 </div>
               </div>
             </div>
