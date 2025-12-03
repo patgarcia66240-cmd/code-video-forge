@@ -339,9 +339,10 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }:
         }
       }
 
-      // Pause/Reprendre avec Espace
+      // Pause/Reprendre avec Espace (fonctionne aussi pendant l'enregistrement)
       if (key === shortcuts.pause && !isConverting) {
         e.preventDefault();
+        e.stopPropagation(); // Empêcher Monaco Editor de capturer l'espace
         setIsPaused(!isPaused);
         if (isRecording) {
           addLog(isPaused ? "Animation reprise" : "Animation mise en pause");
