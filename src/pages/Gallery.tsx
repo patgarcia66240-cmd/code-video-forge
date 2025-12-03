@@ -457,40 +457,46 @@ const Gallery = ({ embedded = false, onBack }: GalleryProps) => {
                                         </span>
                                     </div>
 
-                                    <div className="flex gap-2">
+                                    <div className="flex flex-col gap-2">
+                                        {/* Bouton téléchargement principal */}
                                         <Button
                                             size="sm"
-                                            variant="outline"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handlePlayVideo(video);
-                                            }}
-                                            className="flex-1"
-                                        >
-                                            <Play className="w-3 h-3 mr-1" />
-                                            Voir
-                                        </Button>
-                                        <Button
-                                            size="sm"
-                                            variant="outline"
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 handleDownloadVideo(video);
                                             }}
+                                            className="w-full bg-primary hover:bg-primary/90"
                                         >
-                                            <Download className="w-3 h-3" />
+                                            <Download className="w-4 h-4 mr-2" />
+                                            Télécharger
                                         </Button>
-                                        <Button
-                                            size="sm"
-                                            variant="outline"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleDeleteClick(video);
-                                            }}
-                                            className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
-                                        >
-                                            <Trash2 className="w-3 h-3" />
-                                        </Button>
+                                        
+                                        {/* Actions secondaires */}
+                                        <div className="flex gap-2">
+                                            <Button
+                                                size="sm"
+                                                variant="outline"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handlePlayVideo(video);
+                                                }}
+                                                className="flex-1"
+                                            >
+                                                <Play className="w-3 h-3 mr-1" />
+                                                Aperçu
+                                            </Button>
+                                            <Button
+                                                size="sm"
+                                                variant="outline"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleDeleteClick(video);
+                                                }}
+                                                className="text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/30"
+                                            >
+                                                <Trash2 className="w-3 h-3" />
+                                            </Button>
+                                        </div>
                                     </div>
                                 </CardContent>
                             </Card>
