@@ -1,24 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Configuration Supabase
-// IMPORTANT: Remplacez ces valeurs par vos vraies clés Supabase
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://your-project-id.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key';
+const supabaseUrl = 'https://vfraioqxeuepplxvbvkf.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZmcmFpb3F4ZXVlcHBseHZidmtmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1NDEyMTIsImV4cCI6MjA4MDExNzIxMn0.vy-kSBJzRNBE7BbSV9odFWzNlED9AqFJ1engDXH_pCU';
 
 // Client standard (utilise la clé anon)
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-// Client admin (utilise la clé service_role pour les opérations d'administration)
-export const supabaseAdmin = createClient(
-  supabaseUrl,
-  import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY || 'your-service-role-key',
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
-  }
-);
 
 // Types pour les vidéos dans Supabase
 export interface VideoMetadata {
@@ -30,7 +17,7 @@ export interface VideoMetadata {
   format: 'MP4' | 'WebM';
   created_at: string;
   updated_at: string;
-  user_id?: string; // Pour l'authentification future
+  user_id?: string;
 }
 
 export interface UploadResult {
