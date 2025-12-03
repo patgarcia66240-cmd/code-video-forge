@@ -258,6 +258,20 @@ export const useVideoStorage = () => {
         deleteVideo,
         getStats,
         clearAllVideos,
-        isSupabaseEnabled: USE_SUPABASE
+        isSupabaseEnabled: USE_SUPABASE,
+        // Fonction pour rafraîchir les URLs (régénère les signed URLs)
+        refreshVideos: async () => {
+            setIsLoading(true);
+            try {
+                if (USE_SUPABASE) {
+                    const videos = await supabaseStorage.getAllVideos();
+                    setSavedVideos(videos);
+                }
+            } catch (error) {
+                console.error('Erreur rafraîchissement vidéos:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        }
     };
 };
