@@ -131,6 +131,10 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }:
     return saved ? JSON.parse(saved) : false;
   });
   const [loopCount, setLoopCount] = useState(0);
+  const [hideControlsDuringRecording, setHideControlsDuringRecording] = useState(() => {
+    const saved = localStorage.getItem("typingSimulatorHideControlsDuringRecording");
+    return saved ? JSON.parse(saved) : false;
+  });
 
   const recorderRef = useRef<RecordRTC | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -196,6 +200,10 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }:
   useEffect(() => {
     localStorage.setItem("typingSimulatorAutoStart", JSON.stringify(autoStart));
   }, [autoStart]);
+
+  useEffect(() => {
+    localStorage.setItem("typingSimulatorHideControlsDuringRecording", JSON.stringify(hideControlsDuringRecording));
+  }, [hideControlsDuringRecording]);
 
   // Fournir la fonction d'ouverture des paramètres au parent
   useEffect(() => {
@@ -696,7 +704,7 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }:
   return (
     <div className="flex-1 flex flex-col bg-editor relative">
       {/* Tab Bar */}
-      {!isFullscreen && (
+      {!isFullscreen && !(hideControlsDuringRecording && isRecording) && (
         <div className="h-10 bg-panel-bg flex items-center px-4 border-b border-border">
           <div className="flex items-center gap-2 px-3 py-1 bg-editor rounded-t border-t-2 border-primary">
             <span className="text-sm text-foreground">typing-demo.py</span>
@@ -708,7 +716,7 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }:
       )}
 
       {/* Controls */}
-      {!isFullscreen && (
+      {!isFullscreen && !(hideControlsDuringRecording && isRecording) && (
         <div className="bg-panel-bg border-b border-border">
           {/* Ligne 1: Contrôles principaux */}
           <div className="h-16 flex items-center px-4 gap-4 flex-wrap border-b border-border/50">
@@ -904,6 +912,8 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }:
         setDisplayEffect={setDisplayEffect}
         cursorType={cursorType}
         setCursorType={setCursorType}
+        hideControlsDuringRecording={hideControlsDuringRecording}
+        setHideControlsDuringRecording={setHideControlsDuringRecording}
         onShortcutsClick={() => {
           setIsSettingsDialogOpen(false);
           setIsShortcutsDialogOpen(true);
