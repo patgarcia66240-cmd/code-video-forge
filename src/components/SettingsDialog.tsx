@@ -99,16 +99,6 @@ const SettingsDialog = ({
   audioVolume,
   setAudioVolume,
 }: SettingsDialogProps) => {
-  // Lire la valeur actuelle depuis localStorage pour éviter les problèmes de synchronisation
-  const getCurrentAudioEnabled = () => {
-    const saved = localStorage.getItem("typingSimulatorAudioEnabled");
-    return saved ? JSON.parse(saved) : true;
-  };
-
-  const currentAudioEnabled = getCurrentAudioEnabled();
-  console.log("📝 SettingsDialog audio from localStorage:", currentAudioEnabled);
-  console.log("📝 SettingsDialog audio from props:", audioEnabled);
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[650px] max-h-[80vh] overflow-y-auto">
@@ -451,12 +441,8 @@ const SettingsDialog = ({
                     </span>
                   </div>
                   <Switch
-                    checked={currentAudioEnabled}
+                    checked={audioEnabled ?? true}
                     onCheckedChange={(checked) => {
-                        console.log("🔊 Switch cliqué:", checked);
-                        console.log("🔊 setAudioEnabled existe:", !!setAudioEnabled);
-                        // Sauvegarder directement dans localStorage
-                        localStorage.setItem("typingSimulatorAudioEnabled", JSON.stringify(checked));
                         setAudioEnabled?.(checked);
                     }}
                     disabled={isRecording || isConverting}
