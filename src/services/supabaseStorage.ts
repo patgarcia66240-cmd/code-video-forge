@@ -177,14 +177,23 @@ class SupabaseStorageService {
    */
   async getAllVideos(): Promise<SavedVideo[]> {
     try {
+      console.log('🔍 Début getAllVideos - Récupération depuis la DB...');
+      
       // Essayer de récupérer depuis la base de données
       const { data: videos, error } = await supabase
         .from('videos')
         .select('*')
         .order('created_at', { ascending: false });
 
+      console.log('📊 Résultat requête DB:', { 
+        videosCount: videos?.length, 
+        error: error?.message,
+        videos: videos 
+      });
+
       if (error) {
-        console.warn('Erreur récupération vidéos depuis DB:', error);
+        console.warn('❌ Erreur récupération vidéos depuis DB:', error);
+        console.log('🔄 Fallback: récupération depuis Storage...');
         // Fallback: lister les fichiers directement depuis Storage
         return this.getVideosFromStorage();
       }
