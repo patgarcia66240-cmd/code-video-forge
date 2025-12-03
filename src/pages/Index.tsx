@@ -4,13 +4,8 @@ import VSCodeLayout from "@/components/VSCodeLayout";
 import CodeEditor from "@/components/CodeEditor";
 import TypingSimulator from "@/components/TypingSimulator";
 import VideoPreview from "@/components/VideoPreview";
+import Gallery from "@/pages/Gallery";
 import { useForgeStore } from "@/store/useForgeStore";
-import {
-  FileVideo,
-  List,
-  Plus,
-  Play
-} from "lucide-react";
 
 const Index = () => {
   // Utiliser le store global au lieu des useState locaux
@@ -29,6 +24,7 @@ const Index = () => {
     setVideoPreviewUrl,
   } = useForgeStore();
 
+  const [showGallery, setShowGallery] = useState(false);
   const [onSettingsClick, setOnSettingsClick] = useState<(() => void) | undefined>(undefined);
   const [onCodeEditorSettingsClick, setOnCodeEditorSettingsClick] = useState<(() => void) | undefined>(undefined);
 
@@ -36,7 +32,7 @@ const Index = () => {
   const activeSettingsClick = isSimulating ? onSettingsClick : onCodeEditorSettingsClick;
 
   // Déterminer la vue active
-  const activeView = showVideoPreview ? 'preview' : isSimulating ? 'simulation' : 'explorer';
+  const activeView = showGallery ? 'gallery' : showVideoPreview ? 'preview' : isSimulating ? 'simulation' : 'explorer';
 
   const handleDownloadVideo = () => {
     if (recordedBlob && videoPreviewUrl) {
@@ -56,8 +52,12 @@ const Index = () => {
 
   const navigate = useNavigate();
 
-  const handleNavigateToGallery = () => {
-    navigate('/gallery');
+  const handleShowGallery = () => {
+    setShowGallery(true);
+  };
+
+  const handleBackFromGallery = () => {
+    setShowGallery(false);
   };
 
   const handleNavigateToAuth = () => {
@@ -68,16 +68,25 @@ const Index = () => {
     <VSCodeLayout
       activeView={activeView}
       onSettingsClick={activeSettingsClick}
-      onExplorerClick={resetToEditor}
-      onSimulationClick={startSimulation}
+      onExplorerClick={() => {
+        setShowGallery(false);
+        resetToEditor();
+      }}
+      onSimulationClick={() => {
+        setShowGallery(false);
+        startSimulation();
+      }}
       onPreviewClick={() => {
         if (videoPreviewUrl && recordedBlob) {
+          setShowGallery(false);
           showPreview();
         }
       }}
-      onGalleryClick={handleNavigateToGallery}
+      onGalleryClick={handleShowGallery}
     >
-      {showVideoPreview && videoPreviewUrl && recordedBlob ? (
+      {showGallery ? (
+        <Gallery embedded onBack={handleBackFromGallery} />
+      ) : showVideoPreview && videoPreviewUrl && recordedBlob ? (
         <VideoPreview
           videoUrl={videoPreviewUrl}
           videoBlob={recordedBlob}
