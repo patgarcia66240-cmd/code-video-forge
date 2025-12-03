@@ -40,60 +40,10 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const [showControls, setShowControls] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [videoError, setVideoError] = useState<string | null>(null);
+  const [showCenterIcon, setShowCenterIcon] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const controlsTimeoutRef = useRef<NodeJS.Timeout>();
-
-  useEffect(() => {
-    const videoEl = videoRef.current;
-    if (!videoEl) return;
-
-    const handleTimeUpdate = () => {
-      setCurrentTime(videoEl.currentTime);
-    };
-
-    const handleLoadedMetadata = () => {
-      setDuration(videoEl.duration);
-      setIsLoading(false);
-      setVideoError(null);
-    };
-
-    const handleLoadStart = () => {
-      setIsLoading(true);
-      setVideoError(null);
-    };
-
-    const handleEnded = () => {
-      setIsPlaying(false);
-    };
-
-    const handleError = (e: Event) => {
-      console.error('Erreur lecture vidéo:', e);
-      setIsLoading(false);
-      setVideoError('Impossible de lire cette vidéo. Le fichier peut être inaccessible ou le format non supporté.');
-    };
-
-    const handleCanPlay = () => {
-      setIsLoading(false);
-      setVideoError(null);
-    };
-
-    videoEl.addEventListener('timeupdate', handleTimeUpdate);
-    videoEl.addEventListener('loadedmetadata', handleLoadedMetadata);
-    videoEl.addEventListener('loadstart', handleLoadStart);
-    videoEl.addEventListener('ended', handleEnded);
-    videoEl.addEventListener('error', handleError);
-    videoEl.addEventListener('canplay', handleCanPlay);
-
-    return () => {
-      videoEl.removeEventListener('timeupdate', handleTimeUpdate);
-      videoEl.removeEventListener('loadedmetadata', handleLoadedMetadata);
-      videoEl.removeEventListener('loadstart', handleLoadStart);
-      videoEl.removeEventListener('ended', handleEnded);
-      videoEl.removeEventListener('error', handleError);
-      videoEl.removeEventListener('canplay', handleCanPlay);
-    };
-  }, [video]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -113,7 +63,9 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     if (isOpen && video) {
       setIsLoading(true);
       setCurrentTime(0);
-      setDuration(video.duration || 0);
+      // Garder la durée de l'objet video comme base
+      const videoDuration = video.duration || 0;
+      setDuration(videoDuration);
     }
   }, [isOpen, video]);
 
@@ -123,10 +75,17 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
 
     if (isPlaying) {
       video.pause();
+      setShowCenterIcon(true); // Afficher l'icône pause
     } else {
       video.play();
+      setShowCenterIcon(true); // Afficher l'icône play
     }
     setIsPlaying(!isPlaying);
+
+    // Cacher l'icône après 600ms
+    setTimeout(() => {
+      setShowCenterIcon(false);
+    }, 600);
   };
 
   const handleSeek = (value: number[]) => {
@@ -134,8 +93,11 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     if (!video) return;
 
     const newTime = value[0];
-    video.currentTime = newTime;
-    setCurrentTime(newTime);
+    // Vérifier que la valeur est finie
+    if (isFinite(newTime)) {
+      video.currentTime = newTime;
+      setCurrentTime(newTime);
+    }
   };
 
   const handleVolumeChange = (value: number[]) => {
@@ -224,19 +186,68 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl w-full h-[90vh] p-0 overflow-hidden">
+      <DialogContent
+        className="max-w-5xl w-full h-[90vh] p-0 overflow-hidden"
+        aria-describedby="video-player-description"
+      >
         <div
           className="relative w-full h-full bg-black flex items-center justify-center"
           onMouseMove={handleMouseMove}
           onMouseLeave={() => isPlaying && setShowControls(false)}
+          onClick={togglePlay}
         >
           {/* Vidéo */}
           <video
             ref={videoRef}
             src={video.url}
             className="max-w-full max-h-full object-contain"
-            onClick={togglePlay}
+            onClick={(e) => {
+              e.stopPropagation();
+              togglePlay();
+            }}
             playsInline
+            onLoadStart={() => {
+              setIsLoading(true);
+              setVideoError(null);
+            }}
+            onLoadedMetadata={() => {
+              if (videoRef.current) {
+                // Mettre à jour la durée seulement si elle est valide
+                const videoElementDuration = videoRef.current.duration;
+                if (videoElementDuration && videoElementDuration > 0) {
+                  setDuration(videoElementDuration);
+                }
+              }
+              setIsLoading(false);
+              setVideoError(null);
+            }}
+            onCanPlay={() => {
+              setIsLoading(false);
+              setVideoError(null);
+            }}
+            onProgress={() => {
+              // Si la vidéo a déjà commencé à jouer, s'assurer que le loader est désactivé
+              if (videoRef.current && videoRef.current.readyState >= 2) {
+                setIsLoading(false);
+              }
+            }}
+            onLoadedData={() => {
+              setIsLoading(false);
+            }}
+            onError={(e) => {
+              setIsLoading(false);
+              setVideoError('Impossible de lire cette vidéo. Le fichier peut être inaccessible ou le format non supporté.');
+            }}
+            onTimeUpdate={() => {
+              if (videoRef.current) {
+                setCurrentTime(videoRef.current.currentTime);
+              }
+            }}
+            onEnded={() => {
+              setIsLoading(false);
+              setIsPlaying(false);
+              setVideoError(null);
+            }}
           />
 
           {/* Loading overlay */}
@@ -273,20 +284,35 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
           {/* Overlay contrôles */}
           <div className={`absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/70 transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0'}`} />
 
+          {/* I centrale animée Play/Pause */}
+          <div
+            className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity duration-300 ${
+              showCenterIcon ? 'opacity-100' : 'opacity-0'
+            }`}
+          >
+            <div className="bg-black/60 rounded-full p-6 transform transition-all duration-300 scale-100 hover:scale-110">
+              {!isPlaying ? (
+                <Play className="w-16 h-16 text-white ml-1" />
+              ) : (
+                <Pause className="w-16 h-16 text-white" />
+              )}
+            </div>
+          </div>
+
           {/* Contrôles principaux */}
           <div className={`absolute bottom-0 left-0 right-0 p-4 transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0'}`}>
             {/* Progress bar */}
             <div className="mb-4">
               <Slider
                 value={[currentTime]}
-                max={duration || 100}
+                max={duration > 0 ? duration : (video?.duration || 100)}
                 step={0.1}
                 onValueChange={handleSeek}
                 className="w-full"
               />
               <div className="flex justify-between text-xs text-white mt-1">
                 <span>{formatTime(currentTime)}</span>
-                <span>{formatTime(duration)}</span>
+                <span>{formatTime(duration > 0 ? duration : (video?.duration || 0))}</span>
               </div>
             </div>
 
@@ -357,13 +383,13 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                     onChange={(e) => handleSpeedChange(parseFloat(e.target.value))}
                     className="bg-white/20 text-white text-sm rounded px-1 py-0.5 border border-white/30"
                   >
-                    <option value="0.25">0.25x</option>
-                    <option value="0.5">0.5x</option>
-                    <option value="0.75">0.75x</option>
-                    <option value="1">1x</option>
-                    <option value="1.25">1.25x</option>
-                    <option value="1.5">1.5x</option>
-                    <option value="2">2x</option>
+                    <option value="0.25" className="text-black">0.25x</option>
+                    <option value="0.5" className="text-black">0.5x</option>
+                    <option value="0.75" className="text-black">0.75x</option>
+                    <option value="1" className="text-black">1x</option>
+                    <option value="1.25" className="text-black">1.25x</option>
+                    <option value="1.5" className="text-black">1.5x</option>
+                    <option value="2" className="text-black">2x</option>
                   </select>
                 </div>
               </div>
@@ -402,29 +428,26 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
             </div>
           </div>
 
+          {/* Description cachée pour l'accessibilité */}
+          <div id="video-player-description" className="sr-only">
+            Lecteur vidéo : {video.name}. Durée : {formatTime(video.duration)}. Format : {video.format}.
+            Utilisez les contrôles pour lire, mettre en pause et naviguer dans la vidéo.
+            Barre de progression disponible en bas de l'écran.
+          </div>
+
           {/* Header avec infos vidéo */}
           {showControls && (
             <div className="absolute top-0 left-0 right-0 p-4">
               <DialogHeader className="text-left">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <DialogTitle className="text-white text-xl mb-2">{video.name}</DialogTitle>
-                    <div className="flex items-center gap-2 text-white/80 text-sm">
-                      <Badge variant="secondary">{video.format}</Badge>
-                      <span>•</span>
-                      <span>{formatTime(video.duration)}</span>
-                      <span>•</span>
-                      <span>{(video.size / 1024 / 1024).toFixed(1)} MB</span>
-                    </div>
+                <div>
+                  <DialogTitle className="text-white text-xl mb-2">{video.name}</DialogTitle>
+                  <div className="flex items-center gap-2 text-white/80 text-sm">
+                    <Badge variant="secondary">{video.format}</Badge>
+                    <span>•</span>
+                    <span>{formatTime(video.duration)}</span>
+                    <span>•</span>
+                    <span>{(video.size / 1024 / 1024).toFixed(1)} MB</span>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={onClose}
-                    className="text-white hover:bg-white/20"
-                  >
-                    ×
-                  </Button>
                 </div>
               </DialogHeader>
             </div>
