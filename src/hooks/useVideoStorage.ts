@@ -30,9 +30,14 @@ export const useVideoStorage = () => {
         const loadVideos = async () => {
             try {
                 if (USE_SUPABASE) {
-                    // Utiliser Supabase Storage
-                    const videos = await supabaseStorage.getAllVideos();
-                    setSavedVideos(videos);
+                    // Utiliser Supabase Storage avec gestion d'erreur
+                    try {
+                        const videos = await supabaseStorage.getAllVideos();
+                        setSavedVideos(videos);
+                    } catch (supabaseError) {
+                        console.warn('⚠️ Supabase non disponible, utilisation du mode local:', supabaseError);
+                        setSavedVideos([]);
+                    }
                 } else {
                     // Utiliser localStorage (fallback)
                     const stored = localStorage.getItem(STORAGE_KEY);
