@@ -39,41 +39,59 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const [playbackRate, setPlaybackRate] = useState(1);
   const [showControls, setShowControls] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [videoError, setVideoError] = useState<string | null>(null);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const controlsTimeoutRef = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
+    const videoEl = videoRef.current;
+    if (!videoEl) return;
 
     const handleTimeUpdate = () => {
-      setCurrentTime(video.currentTime);
+      setCurrentTime(videoEl.currentTime);
     };
 
     const handleLoadedMetadata = () => {
-      setDuration(video.duration);
+      setDuration(videoEl.duration);
       setIsLoading(false);
+      setVideoError(null);
     };
 
     const handleLoadStart = () => {
       setIsLoading(true);
+      setVideoError(null);
     };
 
     const handleEnded = () => {
       setIsPlaying(false);
     };
 
-    video.addEventListener('timeupdate', handleTimeUpdate);
-    video.addEventListener('loadedmetadata', handleLoadedMetadata);
-    video.addEventListener('loadstart', handleLoadStart);
-    video.addEventListener('ended', handleEnded);
+    const handleError = (e: Event) => {
+      console.error('Erreur lecture vidéo:', e);
+      setIsLoading(false);
+      setVideoError('Impossible de lire cette vidéo. Le fichier peut être inaccessible ou le format non supporté.');
+    };
+
+    const handleCanPlay = () => {
+      setIsLoading(false);
+      setVideoError(null);
+    };
+
+    videoEl.addEventListener('timeupdate', handleTimeUpdate);
+    videoEl.addEventListener('loadedmetadata', handleLoadedMetadata);
+    videoEl.addEventListener('loadstart', handleLoadStart);
+    videoEl.addEventListener('ended', handleEnded);
+    videoEl.addEventListener('error', handleError);
+    videoEl.addEventListener('canplay', handleCanPlay);
 
     return () => {
-      video.removeEventListener('timeupdate', handleTimeUpdate);
-      video.removeEventListener('loadedmetadata', handleLoadedMetadata);
-      video.removeEventListener('loadstart', handleLoadStart);
-      video.removeEventListener('ended', handleEnded);
+      videoEl.removeEventListener('timeupdate', handleTimeUpdate);
+      videoEl.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      videoEl.removeEventListener('loadstart', handleLoadStart);
+      videoEl.removeEventListener('ended', handleEnded);
+      videoEl.removeEventListener('error', handleError);
+      videoEl.removeEventListener('canplay', handleCanPlay);
     };
   }, [video]);
 
@@ -224,7 +242,31 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
           {/* Loading overlay */}
           {isLoading && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-              <div className="text-white text-lg">Chargement...</div>
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-10 h-10 border-4 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="text-white text-lg">Chargement...</div>
+              </div>
+            </div>
+          )}
+
+          {/* Error overlay */}
+          {videoError && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/80">
+              <div className="flex flex-col items-center gap-4 p-6 text-center max-w-md">
+                <div className="w-16 h-16 rounded-full bg-destructive/20 flex items-center justify-center">
+                  <span className="text-3xl">⚠️</span>
+                </div>
+                <p className="text-white text-lg">{videoError}</p>
+                {onDownload && video && (
+                  <Button
+                    onClick={handleDownload}
+                    className="bg-primary hover:bg-primary/90"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Télécharger à la place
+                  </Button>
+                )}
+              </div>
             </div>
           )}
 
