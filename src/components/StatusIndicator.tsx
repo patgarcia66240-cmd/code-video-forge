@@ -243,52 +243,58 @@ const StatusIndicator: React.FC<StatusIndicatorProps> = ({
       {/* Détails des status par opération */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
         {/* Status de simulation */}
-        {phase === AppPhase.SIMULATION && (
-          <div className="flex items-center gap-2 p-2 rounded border">
-            <getStatusConfig(simulationStatus).icon
-              className={`w-4 h-4 ${getStatusConfig(simulationStatus).animation}`}
-            />
-            <div className="flex-1">
-              <div className="font-medium">Simulation</div>
-              <div className="text-xs text-muted-foreground">
-                {getStatusMessage(simulationStatus, 'simulation')}
+        {phase === AppPhase.SIMULATION && (() => {
+          const simConfig = getStatusConfig(simulationStatus);
+          const SimIcon = simConfig.icon;
+          return (
+            <div className="flex items-center gap-2 p-2 rounded border">
+              <SimIcon className={`w-4 h-4 ${simConfig.animation}`} />
+              <div className="flex-1">
+                <div className="font-medium">Simulation</div>
+                <div className="text-xs text-muted-foreground">
+                  {getStatusMessage(simulationStatus, 'simulation')}
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Status d'enregistrement */}
-        {(recordingStatus !== 'idle') && (
-          <div className="flex items-center gap-2 p-2 rounded border">
-            <getStatusConfig(recordingStatus).icon
-              className={`w-4 h-4 ${getStatusConfig(recordingStatus).animation}`}
-            />
-            <div className="flex-1">
-              <div className="font-medium flex items-center gap-2">
-                <Video className="w-3 h-3" />
-                Enregistrement
-              </div>
-              <div className="text-xs text-muted-foreground">
-                {getStatusMessage(recordingStatus, 'recording')}
+        {(recordingStatus !== 'idle') && (() => {
+          const recConfig = getStatusConfig(recordingStatus);
+          const RecIcon = recConfig.icon;
+          return (
+            <div className="flex items-center gap-2 p-2 rounded border">
+              <RecIcon className={`w-4 h-4 ${recConfig.animation}`} />
+              <div className="flex-1">
+                <div className="font-medium flex items-center gap-2">
+                  <Video className="w-3 h-3" />
+                  Enregistrement
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {getStatusMessage(recordingStatus, 'recording')}
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Status de conversion */}
-        {(conversionStatus !== 'idle') && (
-          <div className="flex items-center gap-2 p-2 rounded border">
-            <getStatusConfig(conversionStatus).icon
-              className={`w-4 h-4 ${getStatusConfig(conversionStatus).animation}`}
-            />
-            <div className="flex-1">
-              <div className="font-medium">Conversion</div>
-              <div className="text-xs text-muted-foreground">
-                {getStatusMessage(conversionStatus, 'conversion')}
+        {(conversionStatus !== 'idle') && (() => {
+          const convConfig = getStatusConfig(conversionStatus);
+          const ConvIcon = convConfig.icon;
+          return (
+            <div className="flex items-center gap-2 p-2 rounded border">
+              <ConvIcon className={`w-4 h-4 ${convConfig.animation}`} />
+              <div className="flex-1">
+                <div className="font-medium">Conversion</div>
+                <div className="text-xs text-muted-foreground">
+                  {getStatusMessage(conversionStatus, 'conversion')}
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
       </div>
 
       {/* Message d'erreur */}
