@@ -352,6 +352,7 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }:
       // Flèche droite : avancer d'un caractère
       if (e.key === "ArrowRight" && !isConverting) {
         e.preventDefault();
+        e.stopPropagation();
         const newIndex = Math.min(currentIndex + 1, code.length);
         setCurrentIndex(newIndex);
         setDisplayedCode(code.slice(0, newIndex));
@@ -361,6 +362,7 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }:
       // Flèche gauche : reculer d'un caractère
       if (e.key === "ArrowLeft" && !isConverting) {
         e.preventDefault();
+        e.stopPropagation();
         const newIndex = Math.max(currentIndex - 1, 0);
         setCurrentIndex(newIndex);
         setDisplayedCode(code.slice(0, newIndex));
