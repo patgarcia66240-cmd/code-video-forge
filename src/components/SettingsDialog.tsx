@@ -285,9 +285,9 @@ const SettingsDialog = ({
                 <Label className="text-sm font-semibold">Enregistrement</Label>
                 <div className="flex items-center justify-between p-4 bg-secondary/30 rounded-lg">
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm font-medium">Masquer les contrôles pendant l'enregistrement</span>
+                    <span className="text-sm font-medium">Masquer les contrôles pendant la lecture</span>
                     <span className="text-xs text-muted-foreground">
-                      Cache les contrôles du simulateur quand l'enregistrement est actif
+                      Cache les contrôles du simulateur pendant la lecture et l'enregistrement
                     </span>
                   </div>
                   <Switch
