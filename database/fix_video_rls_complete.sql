@@ -31,12 +31,12 @@ CREATE POLICY "Allow insert videos" ON videos
 
 -- UPDATE: Propriétaire ou vidéos anonymes
 CREATE POLICY "Allow update videos" ON videos
-  FOR UPDATE USING (user_id IS NULL OR auth.uid()::text = user_id)
-  WITH CHECK (user_id IS NULL OR auth.uid()::text = user_id);
+  FOR UPDATE USING (user_id IS NULL OR user_id::text = auth.uid()::text)
+  WITH CHECK (user_id IS NULL OR user_id::text = auth.uid()::text);
 
 -- DELETE: Propriétaire ou vidéos anonymes
 CREATE POLICY "Allow delete videos" ON videos
-  FOR DELETE USING (user_id IS NULL OR auth.uid()::text = user_id);
+  FOR DELETE USING (user_id IS NULL OR user_id::text = auth.uid()::text);
 
 -- 4. Créer le bucket 'videos' s'il n'existe pas
 INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
