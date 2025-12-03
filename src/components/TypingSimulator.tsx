@@ -1005,7 +1005,7 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }:
       </Dialog>
 
       {/* Progress Bar */}
-      {!isFullscreen && (
+      {!isFullscreen && !(hideControlsDuringRecording && (isRecording || !isPaused)) && (
         <div className="h-1 bg-secondary">
           <motion.div
             className="h-full bg-primary"
