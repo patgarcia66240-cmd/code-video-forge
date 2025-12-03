@@ -376,14 +376,36 @@ const Gallery = ({ embedded = false, onBack }: GalleryProps) => {
 
                 {/* Liste des vidéos */}
                 {isLoading ? (
-                    <Card className="p-12 text-center">
-                        <CardContent>
-                            <div className="flex flex-col items-center gap-4">
-                                <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
-                                <p className="text-muted-foreground">Chargement des vidéos...</p>
-                            </div>
-                        </CardContent>
-                    </Card>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {[1, 2, 3, 4, 5, 6].map((i) => (
+                            <Card key={i} className="overflow-hidden">
+                                {/* Skeleton video thumbnail */}
+                                <div className="aspect-video bg-muted animate-pulse relative">
+                                    <div className="absolute top-2 left-2">
+                                        <div className="h-5 w-12 bg-muted-foreground/20 rounded" />
+                                    </div>
+                                    <div className="absolute bottom-2 right-2">
+                                        <div className="h-5 w-10 bg-muted-foreground/20 rounded" />
+                                    </div>
+                                </div>
+                                {/* Skeleton content */}
+                                <CardHeader className="pb-3">
+                                    <div className="h-5 w-3/4 bg-muted animate-pulse rounded" />
+                                    <div className="h-4 w-1/3 bg-muted animate-pulse rounded mt-2" />
+                                </CardHeader>
+                                <CardContent className="pt-0">
+                                    <div className="flex items-center justify-between mb-3">
+                                        <div className="h-4 w-16 bg-muted animate-pulse rounded" />
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <div className="h-9 flex-1 bg-muted animate-pulse rounded" />
+                                        <div className="h-9 w-9 bg-muted animate-pulse rounded" />
+                                        <div className="h-9 w-9 bg-muted animate-pulse rounded" />
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
                 ) : savedVideos.length === 0 ? (
                     <Card className="p-12 text-center">
                         <CardContent>
