@@ -1016,8 +1016,6 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }:
         </div>
       )}
 
-      {/* Recording Guide */}
-      {isRecording && !isFullscreen && <RecordingGuide />}
 
       {/* Countdown overlay */}
       {countdown !== null && (
