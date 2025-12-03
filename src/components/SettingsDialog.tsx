@@ -53,6 +53,8 @@ interface SettingsDialogProps {
   setCursorType?: (type: "none" | "bar" | "block" | "underline" | "outline") => void;
   codeOnlyMode?: boolean;
   setCodeOnlyMode?: (enabled: boolean) => void;
+  hideControlsDuringRecording?: boolean;
+  setHideControlsDuringRecording?: (enabled: boolean) => void;
   onShortcutsClick: () => void;
 }
 
@@ -96,6 +98,8 @@ const SettingsDialog = ({
   setCursorType,
   codeOnlyMode,
   setCodeOnlyMode,
+  hideControlsDuringRecording,
+  setHideControlsDuringRecording,
   audioVolume,
   setAudioVolume,
 }: SettingsDialogProps) => {
@@ -272,6 +276,23 @@ const SettingsDialog = ({
                   <Switch
                     checked={codeOnlyMode}
                     onCheckedChange={setCodeOnlyMode}
+                    disabled={isRecording || isConverting}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <Label className="text-sm font-semibold">Enregistrement</Label>
+                <div className="flex items-center justify-between p-4 bg-secondary/30 rounded-lg">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-sm font-medium">Masquer les contrôles pendant l'enregistrement</span>
+                    <span className="text-xs text-muted-foreground">
+                      Cache les contrôles du simulateur quand l'enregistrement est actif
+                    </span>
+                  </div>
+                  <Switch
+                    checked={hideControlsDuringRecording}
+                    onCheckedChange={setHideControlsDuringRecording}
                     disabled={isRecording || isConverting}
                   />
                 </div>
