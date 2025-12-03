@@ -67,7 +67,8 @@ const Gallery = ({ embedded = false, onBack }: GalleryProps) => {
         };
 
         loadStats();
-    }, [savedVideos, getStats]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [savedVideos]);
 
     const formatFileSize = (bytes: number): string => {
         if (bytes === 0) return "0 B";
