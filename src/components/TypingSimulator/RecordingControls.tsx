@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { MdVideocam, MdStopCircle, MdDownload } from "react-icons/md";
+import { MdVideocam, MdStopCircle, MdDownload, MdMic, MdMicOff } from "react-icons/md";
 
 interface RecordingControlsProps {
     isRecording: boolean;
@@ -11,6 +11,8 @@ interface RecordingControlsProps {
     onStopRecording: () => void;
     onCancelConversion: () => void;
     onDownloadRecording: () => void;
+    audioEnabled?: boolean;
+    audioSource?: "microphone" | "system" | "both";
 }
 
 export const RecordingControls = ({
@@ -21,7 +23,9 @@ export const RecordingControls = ({
     onStartRecording,
     onStopRecording,
     onCancelConversion,
-    onDownloadRecording
+    onDownloadRecording,
+    audioEnabled = true,
+    audioSource = "microphone"
 }: RecordingControlsProps) => {
     return (
         <div className="flex items-center gap-2">
@@ -32,8 +36,12 @@ export const RecordingControls = ({
                     size="sm"
                     className="border-destructive text-destructive hover:bg-destructive hover:text-white"
                 >
-                    <div className="w-3 h-3 rounded-full bg-destructive mr-2" />
-                    Enregistrer
+                    {audioEnabled && (audioSource === "microphone" || audioSource === "both") ? (
+                        <MdMic className="w-4 h-4 mr-2" />
+                    ) : (
+                        <MdMicOff className="w-4 h-4 mr-2 opacity-50" />
+                    )}
+                    Enregistrer {audioEnabled && (audioSource === "microphone" || audioSource === "both") ? "(🎤)" : ""}
                 </Button>
             ) : isRecording ? (
                 <Button

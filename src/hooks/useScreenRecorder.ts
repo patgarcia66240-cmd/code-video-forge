@@ -5,17 +5,19 @@ import { useToast } from "@/hooks/use-toast";
 interface UseScreenRecorderProps {
     addLog: (message: string) => void;
     onVideoRecorded?: (blob: Blob) => void;
+    audioEnabled?: boolean;
+    audioSource?: "microphone" | "system" | "both";
 }
 
-export const useScreenRecorder = ({ addLog, onVideoRecorded }: UseScreenRecorderProps) => {
+export const useScreenRecorder = ({ addLog, onVideoRecorded, audioEnabled = true, audioSource = "microphone" }: UseScreenRecorderProps) => {
     const [isRecording, setIsRecording] = useState(false);
     const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
     const [countdown, setCountdown] = useState<number | null>(null);
     const [isFullscreen, setIsFullscreen] = useState(false);
 
-    const [captureMode, setCaptureMode] = useState<"screen" | "editor">(() => {
+    const [captureMode, setCaptureMode] = useState<"screen" | "window" | "tab">(() => {
         const saved = localStorage.getItem("typingSimulatorCaptureMode");
-        return (saved as "screen" | "editor") || "editor";
+        return (saved as "screen" | "window" | "tab") || "tab";
     });
 
     const [aspectRatio, setAspectRatio] = useState<"16:9" | "9:16" | "1:1" | "4:3" | "21:9">(() => {
@@ -76,7 +78,7 @@ export const useScreenRecorder = ({ addLog, onVideoRecorded }: UseScreenRecorder
                 }
             }
 
-            if (captureMode === "editor" && isFullscreen) {
+            if (captureMode === "tab" && isFullscreen) {
                 setIsFullscreen(false);
                 addLog("Mode plein écran désactivé");
             }
@@ -98,31 +100,56 @@ export const useScreenRecorder = ({ addLog, onVideoRecorded }: UseScreenRecorder
         if (!screenRecorderRef.current) return;
 
         try {
-            // If editor mode, go fullscreen first
-            if (captureMode === "editor" && !isFullscreen) {
+            // If tab mode, go fullscreen first
+            if (captureMode === "tab" && !isFullscreen) {
                 setIsFullscreen(true);
-                addLog("Mode plein écran activé pour capture éditeur");
+                addLog("Mode plein écran activé pour capture d'onglet");
                 await new Promise((resolve) => setTimeout(resolve, 500));
             }
 
             addLog("Demande de partage d'écran...");
 
             // Démarrer le compte à rebours
-            addLog("Partage d'écran accepté, lancement du compte à rebours...");
+            addLog("Lancement du compte à rebours...");
             for (let i = 3; i > 0; i--) {
                 setCountdown(i);
-                await new Promise((resolve) => setTimeout(resolve, 1000));
+                await new Promise((resolve) => setTimeout(resolve, 900));
             }
             setCountdown(null);
+
+            // Attendre suffisamment pour que l'animation de sortie du countdown se termine complètement
+            addLog("Attente pour éviter la capture du countdown...");
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+
             addLog("Démarrage de l'enregistrement...");
 
-            // Utiliser la classe ScreenRecorder du core
+            // Calculer les dimensions basées sur l'aspect ratio
+            const getDimensions = (aspectRatio: string) => {
+                switch (aspectRatio) {
+                    case "16:9":
+                        return { width: 1920, height: 1080 };
+                    case "9:16":
+                        return { width: 1080, height: 1920 };
+                    case "1:1":
+                        return { width: 1080, height: 1080 };
+                    case "4:3":
+                        return { width: 1440, height: 1080 };
+                    case "21:9":
+                        return { width: 2520, height: 1080 };
+                    default:
+                        return { width: 1920, height: 1080 };
+                }
+            };
+
+            const dimensions = getDimensions(aspectRatio);
+
             const stream = await screenRecorderRef.current.startRecording({
-                width: 1920,
-                height: 1080,
+                width: dimensions.width,
+                height: dimensions.height,
                 frameRate: 30,
                 mimeType: "video/webm",
-                audio: true // Explicitement activer l'audio
+                audio: audioEnabled,
+                audioSource: audioSource
             });
 
             setIsRecording(true);

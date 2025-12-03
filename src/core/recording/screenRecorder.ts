@@ -6,6 +6,7 @@
 export interface RecordingOptions {
     mimeType?: string;
     audio?: boolean;
+    audioSource?: "microphone" | "system" | "both";
     video?: boolean;
     width?: number;
     height?: number;
@@ -45,6 +46,11 @@ export class ScreenRecorder {
         }
 
         try {
+            // Configuration audio selon la source demandée
+            const audioSource = options.audioSource || "microphone";
+            const needsSystemAudio = audioSource === "system" || audioSource === "both";
+            const needsMicrophone = audioSource === "microphone" || audioSource === "both";
+
             // Demander l'autorisation d'accès à l'écran
             const displayMediaOptions: DisplayMediaStreamOptions = {
                 video: {
@@ -52,10 +58,46 @@ export class ScreenRecorder {
                     height: options.height || 1080,
                     frameRate: options.frameRate || 30
                 },
-                audio: options.audio !== false // audio par défaut activé
+                audio: needsSystemAudio && options.audio !== false
             };
 
+            console.log("[ScreenRecorder] Demande de partage d'écran:", {
+                audioSource,
+                needsSystemAudio,
+                needsMicrophone,
+                displayAudioEnabled: displayMediaOptions.audio
+            });
+
             this.stream = await navigator.mediaDevices.getDisplayMedia(displayMediaOptions);
+
+            // Si on a besoin du microphone, le demander séparément
+            if (needsMicrophone && options.audio !== false) {
+                try {
+                    console.log("[ScreenRecorder] Demande d'accès au microphone...");
+                    const microphoneStream = await navigator.mediaDevices.getUserMedia({
+                        audio: true,
+                        video: false
+                    });
+
+                    // Combiner les streams : écran + microphone
+                    const combinedStream = new MediaStream([
+                        ...this.stream.getVideoTracks(),
+                        ...this.stream.getAudioTracks(),
+                        ...microphoneStream.getAudioTracks()
+                    ]);
+
+                    // Remplacer le stream principal
+                    this.stream = combinedStream;
+
+                    console.log("[ScreenRecorder] Streams combinés:", {
+                        videoTracks: this.stream.getVideoTracks().length,
+                        audioTracks: this.stream.getAudioTracks().length
+                    });
+                } catch (microphoneError) {
+                    console.warn("[ScreenRecorder] Impossible d'accéder au microphone:", microphoneError);
+                    // Continuer sans microphone si l'autorisation est refusée
+                }
+            }
 
             // Créer l'enregistreur RecordRTC
             this.recorder = new RecordRTC(this.stream, {

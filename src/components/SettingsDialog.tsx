@@ -15,8 +15,8 @@ import SliderSpeed from "@/components/SliderSpeed";
 interface SettingsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  captureMode: "screen" | "editor";
-  setCaptureMode: (mode: "screen" | "editor") => void;
+  captureMode: "screen" | "window" | "tab";
+  setCaptureMode: (mode: "screen" | "window" | "tab") => void;
   speed: number;
   setSpeed: (speed: number) => void;
   isLoopEnabled: boolean;
@@ -37,12 +37,20 @@ interface SettingsDialogProps {
   setMp4Preset: (preset: "ultrafast" | "fast" | "medium") => void;
   mp4Resolution: "original" | "1080p" | "720p";
   setMp4Resolution: (resolution: "original" | "1080p" | "720p") => void;
+  audioEnabled?: boolean;
+  setAudioEnabled?: (enabled: boolean) => void;
+  audioQuality?: "high" | "medium" | "low";
+  setAudioQuality?: (quality: "high" | "medium" | "low") => void;
+  audioSource?: "microphone" | "system" | "both";
+  setAudioSource?: (source: "microphone" | "system" | "both") => void;
   scrollEffect?: "none" | "instant" | "smooth" | "center";
   setScrollEffect?: (effect: "none" | "instant" | "smooth" | "center") => void;
   displayEffect?: "typewriter" | "word" | "line" | "block" | "instant";
   setDisplayEffect?: (effect: "typewriter" | "word" | "line" | "block" | "instant") => void;
   cursorType?: "none" | "bar" | "block" | "underline" | "outline";
   setCursorType?: (type: "none" | "bar" | "block" | "underline" | "outline") => void;
+  codeOnlyMode?: boolean;
+  setCodeOnlyMode?: (enabled: boolean) => void;
   onShortcutsClick: () => void;
 }
 
@@ -71,6 +79,12 @@ const SettingsDialog = ({
   setMp4Preset,
   mp4Resolution,
   setMp4Resolution,
+  audioEnabled,
+  setAudioEnabled,
+  audioQuality,
+  setAudioQuality,
+  audioSource,
+  setAudioSource,
   onShortcutsClick,
   scrollEffect,
   setScrollEffect,
@@ -78,6 +92,8 @@ const SettingsDialog = ({
   setDisplayEffect,
   cursorType,
   setCursorType,
+  codeOnlyMode,
+  setCodeOnlyMode,
 }: SettingsDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -100,27 +116,29 @@ const SettingsDialog = ({
             <div className="space-y-4">
               <div className="space-y-3">
                 <Label className="text-sm font-semibold">Mode de capture</Label>
-                <div className="flex items-center gap-4 p-4 bg-secondary/30 rounded-lg">
-                  <span
-                    className={`text-sm ${captureMode === "screen" ? "font-semibold text-foreground" : "text-muted-foreground"}`}
-                  >
-                    Écran complet
-                  </span>
-                  <Switch
-                    checked={captureMode === "editor"}
-                    onCheckedChange={(checked) => setCaptureMode(checked ? "editor" : "screen")}
-                    disabled={isRecording || isConverting}
-                  />
-                  <span
-                    className={`text-sm ${captureMode === "editor" ? "font-semibold text-foreground" : "text-muted-foreground"}`}
-                  >
-                    Éditeur seul
-                  </span>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { value: "screen", label: "Écran complet", desc: "Capture tout l'écran" },
+                    { value: "window", label: "Fenêtre", desc: "Capture une fenêtre" },
+                    { value: "tab", label: "Onglet", desc: "Capture l'onglet complet" },
+                  ].map((mode) => (
+                    <Button
+                      key={mode.value}
+                      variant={captureMode === mode.value ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setCaptureMode(mode.value as any)}
+                      disabled={isRecording || isConverting}
+                      className="flex flex-col h-auto py-3"
+                    >
+                      <span className="text-sm font-medium">{mode.label}</span>
+                      <span className="text-xs opacity-70">{mode.desc}</span>
+                    </Button>
+                  ))}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {captureMode === "editor"
-                    ? "Mode plein écran automatique pour capturer uniquement l'éditeur"
-                    : "Capture complète de l'écran partagé"}
+                  {captureMode === "screen" && "Capture complète de l'écran partagé"}
+                  {captureMode === "window" && "Capture une fenêtre d'application spécifique"}
+                  {captureMode === "tab" && "Capture l'onglet du navigateur en plein écran"}
                 </p>
               </div>
 
@@ -236,6 +254,23 @@ const SettingsDialog = ({
                   ))}
                 </div>
                 <p className="text-xs text-muted-foreground">Style visuel du curseur utilisé par le simulateur.</p>
+              </div>
+
+              <div className="space-y-3">
+                <Label className="text-sm font-semibold">Mode code seul</Label>
+                <div className="flex items-center justify-between p-4 bg-secondary/30 rounded-lg">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-sm font-medium">Masquer les contrôles pendant la lecture</span>
+                    <span className="text-xs text-muted-foreground">
+                      Cache les contrôles au-dessus de l'éditeur quand la lecture est en cours
+                    </span>
+                  </div>
+                  <Switch
+                    checked={codeOnlyMode}
+                    onCheckedChange={setCodeOnlyMode}
+                    disabled={isRecording || isConverting}
+                  />
+                </div>
               </div>
 
               <div className="space-y-3">
@@ -391,11 +426,86 @@ const SettingsDialog = ({
           {/* Onglet Audio */}
           <TabsContent value="audio" className="space-y-6 py-4">
             <div className="space-y-4">
-              <div className="p-6 bg-secondary/30 rounded-lg text-center">
-                <p className="text-sm text-muted-foreground">L'enregistrement audio n'est pas encore disponible.</p>
-                <p className="text-xs text-muted-foreground mt-2">
-                  Cette fonctionnalité sera ajoutée dans une prochaine version.
+              {/* Activation audio */}
+              <div className="space-y-3">
+                <Label className="text-sm font-semibold">Enregistrement audio</Label>
+                <div className="flex items-center justify-between p-4 bg-secondary/30 rounded-lg">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-sm font-medium">Activer l'audio</span>
+                    <span className="text-xs text-muted-foreground">
+                      Enregistrer le son pendant la capture vidéo
+                    </span>
+                  </div>
+                  <Switch
+                    checked={audioEnabled}
+                    onCheckedChange={setAudioEnabled}
+                    disabled={isRecording || isConverting}
+                  />
+                </div>
+              </div>
+
+              {/* Source audio */}
+              <div className="space-y-3">
+                <Label className="text-sm font-semibold">Source audio</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { value: "microphone", label: "Microphone", desc: "Votre voix" },
+                    { value: "system", label: "Système", desc: "Audio système" },
+                    { value: "both", label: "Les deux", desc: "Micro + système" },
+                  ].map((source) => (
+                    <Button
+                      key={source.value}
+                      variant={audioSource === source.value ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setAudioSource?.(source.value as any)}
+                      disabled={isRecording || isConverting || !audioEnabled}
+                      className="flex flex-col h-auto py-3"
+                    >
+                      <span className="text-sm font-medium">{source.label}</span>
+                      <span className="text-xs opacity-70">{source.desc}</span>
+                    </Button>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Choisissez la source audio à enregistrer avec la vidéo.
                 </p>
+              </div>
+
+              {/* Qualité audio */}
+              <div className="space-y-3">
+                <Label className="text-sm font-semibold">Qualité audio</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { value: "high", label: "Haute", desc: "192kbps" },
+                    { value: "medium", label: "Moyenne", desc: "128kbps" },
+                    { value: "low", label: "Basse", desc: "96kbps" },
+                  ].map((quality) => (
+                    <Button
+                      key={quality.value}
+                      variant={audioQuality === quality.value ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setAudioQuality?.(quality.value as any)}
+                      disabled={isRecording || isConverting || !audioEnabled}
+                      className="flex flex-col h-auto py-2"
+                    >
+                      <span className="text-sm">{quality.label}</span>
+                      <span className="text-xs opacity-70">{quality.desc}</span>
+                    </Button>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Qualité de l'enregistrement audio (débit binaire).
+                </p>
+              </div>
+
+              {/* Informations */}
+              <div className="space-y-3">
+                <div className="p-4 bg-accent/30 rounded-lg border border-border">
+                  <p className="text-xs text-muted-foreground">
+                    <strong>Note :</strong> L'enregistrement audio nécessite l'autorisation du navigateur.
+                    Assurez-vous d'accepter la demande d'accès au microphone/système audio.
+                  </p>
+                </div>
               </div>
             </div>
           </TabsContent>
