@@ -98,9 +98,9 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }:
   const [logs, setLogs] = useState<string[]>([]);
   const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [captureMode, setCaptureMode] = useState<"screen" | "editor">(() => {
+  const [captureMode, setCaptureMode] = useState<"screen" | "window" | "tab">(() => {
     const saved = localStorage.getItem("typingSimulatorCaptureMode");
-    return (saved as "screen" | "editor") || "editor";
+    return (saved as "screen" | "window" | "tab") || "tab";
   });
   const [aspectRatio, setAspectRatio] = useState<"16:9" | "9:16" | "1:1" | "4:3" | "21:9">(() => {
     const saved = localStorage.getItem("typingSimulatorAspectRatio");
@@ -486,10 +486,10 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }:
       setIsPaused(true);
       addLog("Éditeur réinitialisé et mis en pause");
 
-      // Si mode éditeur, activer le plein écran d'abord
-      if (captureMode === "editor" && !isFullscreen) {
+      // Si mode tab, activer le plein écran d'abord
+      if (captureMode === "tab" && !isFullscreen) {
         setIsFullscreen(true);
-        addLog("Mode plein écran activé pour capture éditeur");
+        addLog("Mode plein écran activé pour capture onglet");
         // Attendre un peu que le rendu soit fait
         await new Promise((resolve) => setTimeout(resolve, 500));
       }
@@ -555,8 +555,8 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }:
         streamRef.current!.getTracks().forEach((track) => track.stop());
         addLog(`Fichier WebM obtenu (${webmBlob.size} octets)`);
 
-        // Désactiver le mode plein écran si on était en mode éditeur
-        if (captureMode === "editor" && isFullscreen) {
+        // Désactiver le mode plein écran si on était en mode tab
+        if (captureMode === "tab" && isFullscreen) {
           setIsFullscreen(false);
           addLog("Mode plein écran désactivé");
         }

@@ -27,7 +27,13 @@ import {
   Eye,
   Settings
 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+const { toast } = __useToast();
+
+function __useToast() {
+  return { toast: (props: { title: string; description: string; variant?: 'default' | 'destructive' }) => {
+    console.log('Toast:', props.title, props.description);
+  }};
+}
 
 // Types pour les vidéos enregistrées
 interface SavedVideo {
@@ -381,7 +387,7 @@ const VideoGallery = () => {
 
             <div className="flex items-center gap-4">
               {/* Filtre format */}
-              <Select value={filterFormat} onValueChange={setFilterFormat}>
+              <Select value={filterFormat} onValueChange={(value) => setFilterFormat(value as "all" | "mp4" | "webm")}>
                 <SelectTrigger className="w-32">
                   <SelectValue placeholder="Format" />
                 </SelectTrigger>
