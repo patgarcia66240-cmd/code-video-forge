@@ -7,9 +7,10 @@ interface UseScreenRecorderProps {
     onVideoRecorded?: (blob: Blob) => void;
     audioEnabled?: boolean;
     audioSource?: "microphone" | "system" | "both";
+    audioVolume?: number;
 }
 
-export const useScreenRecorder = ({ addLog, onVideoRecorded, audioEnabled = true, audioSource = "microphone" }: UseScreenRecorderProps) => {
+export const useScreenRecorder = ({ addLog, onVideoRecorded, audioEnabled = true, audioSource = "microphone", audioVolume = 1.0 }: UseScreenRecorderProps) => {
     const [isRecording, setIsRecording] = useState(false);
     const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
     const [countdown, setCountdown] = useState<number | null>(null);
@@ -149,7 +150,8 @@ export const useScreenRecorder = ({ addLog, onVideoRecorded, audioEnabled = true
                 frameRate: 30,
                 mimeType: "video/webm",
                 audio: audioEnabled,
-                audioSource: audioSource
+                audioSource: audioSource,
+                audioVolume: audioVolume
             });
 
             setIsRecording(true);

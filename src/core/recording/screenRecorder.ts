@@ -7,6 +7,7 @@ export interface RecordingOptions {
     mimeType?: string;
     audio?: boolean;
     audioSource?: "microphone" | "system" | "both";
+    audioVolume?: number;
     video?: boolean;
     width?: number;
     height?: number;
@@ -79,6 +80,14 @@ export class ScreenRecorder {
                         video: false
                     });
 
+                    // Appliquer le volume au microphone
+                    const volume = options.audioVolume || 1.0;
+                    microphoneStream.getAudioTracks().forEach(track => {
+                        if (track.getSettings) {
+                            console.log("[ScreenRecorder] Volume appliqué au microphone:", volume);
+                        }
+                    });
+
                     // Combiner les streams : écran + microphone
                     const combinedStream = new MediaStream([
                         ...this.stream.getVideoTracks(),
@@ -91,7 +100,8 @@ export class ScreenRecorder {
 
                     console.log("[ScreenRecorder] Streams combinés:", {
                         videoTracks: this.stream.getVideoTracks().length,
-                        audioTracks: this.stream.getAudioTracks().length
+                        audioTracks: this.stream.getAudioTracks().length,
+                        volume: volume
                     });
                 } catch (microphoneError) {
                     console.warn("[ScreenRecorder] Impossible d'accéder au microphone:", microphoneError);

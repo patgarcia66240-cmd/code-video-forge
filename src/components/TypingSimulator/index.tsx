@@ -53,12 +53,24 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }:
 
     const [audioEnabled, setAudioEnabled] = useState(() => {
         const saved = localStorage.getItem("typingSimulatorAudioEnabled");
-        return saved ? JSON.parse(saved) : true;
+        const value = saved ? JSON.parse(saved) : true;
+        console.log("🔊 audioEnabled initialisé:", value);
+        return value;
     });
 
     const [audioSource, setAudioSource] = useState<"microphone" | "system" | "both">(() => {
         const saved = localStorage.getItem("typingSimulatorAudioSource");
         return saved ? JSON.parse(saved) : "microphone";
+    });
+
+    const [audioQuality, setAudioQuality] = useState<"high" | "medium" | "low">(() => {
+        const saved = localStorage.getItem("typingSimulatorAudioQuality");
+        return saved ? JSON.parse(saved) : "medium";
+    });
+
+    const [audioVolume, setAudioVolume] = useState(() => {
+        const saved = localStorage.getItem("typingSimulatorAudioVolume");
+        return saved ? JSON.parse(saved) : 1.0; // Volume par défaut à 100%
     });
 
     // Hook d'enregistrement d'écran
@@ -79,6 +91,7 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }:
         },
         audioEnabled,
         audioSource,
+        audioVolume,
     });
 
     // États d'enregistrement calculés
@@ -92,11 +105,6 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }:
     const editorRef = useRef<any | null>(null);
     const monacoRef = useRef<any | null>(null);
     const decorationsRef = useRef<string[] | null>(null);
-
-    const [audioQuality, setAudioQuality] = useState<"high" | "medium" | "low">(() => {
-        const saved = localStorage.getItem("typingSimulatorAudioQuality");
-        return saved ? JSON.parse(saved) : "medium";
-    });
 
     // États pour le mode code seul
     const [displayEffect, setDisplayEffect] = useState<"typewriter" | "word" | "line" | "block" | "instant">(() => {
@@ -135,10 +143,7 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }:
     }, [cursorType]);
 
     useEffect(() => {
-        localStorage.setItem("typingSimulatorAudioEnabled", JSON.stringify(audioEnabled));
-    }, [audioEnabled]);
-
-    useEffect(() => {
+        console.log("🔊 audioEnabled changé:", audioEnabled);
         localStorage.setItem("typingSimulatorAudioEnabled", JSON.stringify(audioEnabled));
     }, [audioEnabled]);
 
@@ -149,6 +154,10 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }:
     useEffect(() => {
         localStorage.setItem("typingSimulatorAudioSource", JSON.stringify(audioSource));
     }, [audioSource]);
+
+    useEffect(() => {
+        localStorage.setItem("typingSimulatorAudioVolume", JSON.stringify(audioVolume));
+    }, [audioVolume]);
 
     // Calculs dérivés
     const isComplete = currentIndex >= code.length;
@@ -493,6 +502,8 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }:
                 setAudioQuality={setAudioQuality}
                 audioSource={audioSource}
                 setAudioSource={setAudioSource}
+                audioVolume={audioVolume}
+                setAudioVolume={setAudioVolume}
                 displayEffect={displayEffect}
                 setDisplayEffect={setDisplayEffect}
                 cursorType={cursorType}

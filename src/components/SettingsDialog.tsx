@@ -43,6 +43,8 @@ interface SettingsDialogProps {
   setAudioQuality?: (quality: "high" | "medium" | "low") => void;
   audioSource?: "microphone" | "system" | "both";
   setAudioSource?: (source: "microphone" | "system" | "both") => void;
+  audioVolume?: number;
+  setAudioVolume?: (volume: number) => void;
   scrollEffect?: "none" | "instant" | "smooth" | "center";
   setScrollEffect?: (effect: "none" | "instant" | "smooth" | "center") => void;
   displayEffect?: "typewriter" | "word" | "line" | "block" | "instant";
@@ -94,7 +96,19 @@ const SettingsDialog = ({
   setCursorType,
   codeOnlyMode,
   setCodeOnlyMode,
+  audioVolume,
+  setAudioVolume,
 }: SettingsDialogProps) => {
+  // Lire la valeur actuelle depuis localStorage pour éviter les problèmes de synchronisation
+  const getCurrentAudioEnabled = () => {
+    const saved = localStorage.getItem("typingSimulatorAudioEnabled");
+    return saved ? JSON.parse(saved) : true;
+  };
+
+  const currentAudioEnabled = getCurrentAudioEnabled();
+  console.log("📝 SettingsDialog audio from localStorage:", currentAudioEnabled);
+  console.log("📝 SettingsDialog audio from props:", audioEnabled);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[650px] max-h-[80vh] overflow-y-auto">
@@ -437,8 +451,14 @@ const SettingsDialog = ({
                     </span>
                   </div>
                   <Switch
-                    checked={audioEnabled}
-                    onCheckedChange={setAudioEnabled}
+                    checked={currentAudioEnabled}
+                    onCheckedChange={(checked) => {
+                        console.log("🔊 Switch cliqué:", checked);
+                        console.log("🔊 setAudioEnabled existe:", !!setAudioEnabled);
+                        // Sauvegarder directement dans localStorage
+                        localStorage.setItem("typingSimulatorAudioEnabled", JSON.stringify(checked));
+                        setAudioEnabled?.(checked);
+                    }}
                     disabled={isRecording || isConverting}
                   />
                 </div>
@@ -495,6 +515,46 @@ const SettingsDialog = ({
                 </div>
                 <p className="text-xs text-muted-foreground">
                   Qualité de l'enregistrement audio (débit binaire).
+                </p>
+              </div>
+
+              {/* Volume audio */}
+              <div className="space-y-3">
+                <Label className="text-sm font-semibold">Volume audio</Label>
+                <div className="p-4 bg-secondary/30 rounded-lg space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-sm font-medium">Volume d'enregistrement</span>
+                      <span className="text-xs text-muted-foreground">
+                        Contrôle le volume du microphone et de l'audio système
+                      </span>
+                    </div>
+                    <span className="text-sm font-mono text-muted-foreground">
+                      {audioVolume ? Math.round(audioVolume * 100) : 100}%
+                    </span>
+                  </div>
+                  <div className="w-full">
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={audioVolume ? audioVolume * 100 : 100}
+                      onChange={(e) => {
+                        const volume = parseInt(e.target.value) / 100;
+                        setAudioVolume?.(volume);
+                      }}
+                      disabled={isRecording || isConverting || !audioEnabled}
+                      className="w-full h-2 bg-secondary rounded-lg appearance-none cursor-pointer disabled:opacity-50"
+                      style={{
+                        background: audioEnabled
+                          ? `linear-gradient(to right, hsl(var(--primary)) 0%, hsl(var(--primary)) ${audioVolume ? audioVolume * 100 : 100}%, hsl(var(--secondary)) ${audioVolume ? audioVolume * 100 : 100}%, hsl(var(--secondary)) 100%)`
+                          : 'hsl(var(--secondary))'
+                      }}
+                    />
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Ajustez le volume d'entrée pour optimiser la qualité de l'enregistrement audio.
                 </p>
               </div>
 
