@@ -198,23 +198,40 @@ class SupabaseStorageService {
         return this.getVideosFromStorage();
       }
 
-      // Transformer les métadonnées en SavedVideo avec URLs publiques
-      const savedVideos: SavedVideo[] = videos.map((metadata: VideoRecord) => {
-        const { data: { publicUrl } } = supabase.storage
-          .from(this.bucketName)
-          .getPublicUrl(metadata.storage_path);
+      // Transformer les métadonnées en SavedVideo avec URLs signées (fonctionne pour buckets privés)
+      const savedVideos: SavedVideo[] = await Promise.all(
+        videos.map(async (metadata: VideoRecord) => {
+          // Essayer d'abord une URL signée (pour buckets privés)
+          const { data: signedUrlData, error: signedError } = await supabase.storage
+            .from(this.bucketName)
+            .createSignedUrl(metadata.storage_path, 3600); // 1 heure d'expiration
 
-        return {
-          id: metadata.id,
-          name: metadata.name,
-          url: publicUrl,
-          duration: metadata.duration,
-          size: metadata.size,
-          createdAt: new Date(metadata.created_at),
-          format: metadata.format,
-          storagePath: metadata.storage_path,
-        };
-      });
+          let videoUrl: string;
+          
+          if (signedError || !signedUrlData?.signedUrl) {
+            // Fallback sur URL publique
+            console.warn('⚠️ Signed URL échouée, utilisation URL publique:', signedError);
+            const { data: { publicUrl } } = supabase.storage
+              .from(this.bucketName)
+              .getPublicUrl(metadata.storage_path);
+            videoUrl = publicUrl;
+          } else {
+            videoUrl = signedUrlData.signedUrl;
+            console.log('✅ URL signée générée pour:', metadata.name);
+          }
+
+          return {
+            id: metadata.id,
+            name: metadata.name,
+            url: videoUrl,
+            duration: metadata.duration,
+            size: metadata.size,
+            createdAt: new Date(metadata.created_at),
+            format: metadata.format,
+            storagePath: metadata.storage_path,
+          };
+        })
+      );
 
       return savedVideos;
 
