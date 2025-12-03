@@ -29,10 +29,13 @@ export const useVideoStorage = () => {
     useEffect(() => {
         const loadVideos = async () => {
             try {
+                console.log('🔄 Chargement des vidéos... USE_SUPABASE =', USE_SUPABASE);
                 if (USE_SUPABASE) {
                     // Utiliser Supabase Storage avec gestion d'erreur
                     try {
+                        console.log('📥 Appel supabaseStorage.getAllVideos()...');
                         const videos = await supabaseStorage.getAllVideos();
+                        console.log('✅ Vidéos récupérées:', videos.length, videos);
                         setSavedVideos(videos);
                     } catch (supabaseError) {
                         console.warn('⚠️ Supabase non disponible, utilisation du mode local:', supabaseError);
