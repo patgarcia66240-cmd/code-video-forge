@@ -1158,7 +1158,7 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }:
       </ResizablePanelGroup>
 
       {/* Console */}
-      {!isFullscreen && (
+      {!isFullscreen && !isRecording && (
         <div className="h-32 bg-panel-bg border-t border-border px-4 py-2 text-xs font-mono overflow-y-auto">
           <div className="flex items-center justify-between mb-1">
             <span className="text-muted-foreground">Console</span>
