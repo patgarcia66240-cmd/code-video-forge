@@ -503,6 +503,18 @@ const Gallery = ({ embedded = false, onBack }: GalleryProps) => {
                                                 variant="outline"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
+                                                    // Ouvrir l'URL dans un nouvel onglet pour debug
+                                                    window.open(video.url, '_blank');
+                                                }}
+                                                title="Ouvrir dans un nouvel onglet"
+                                            >
+                                                🔗
+                                            </Button>
+                                            <Button
+                                                size="sm"
+                                                variant="outline"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
                                                     handleDeleteClick(video);
                                                 }}
                                                 className="text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/30"
