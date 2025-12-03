@@ -33,7 +33,12 @@ import { useAuth } from "@/components/AuthProvider";
 import AuthModal from "@/components/AuthModal";
 import { User, LogOut, LogIn } from "lucide-react";
 
-const Gallery = () => {
+interface GalleryProps {
+    embedded?: boolean;
+    onBack?: () => void;
+}
+
+const Gallery = ({ embedded = false, onBack }: GalleryProps) => {
     const navigate = useNavigate();
     const { toast } = useToast();
     const { savedVideos, deleteVideo, getStats, isLoading, isSupabaseEnabled } = useVideoStorage();
@@ -249,15 +254,17 @@ const Gallery = () => {
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => navigate('/')}
-                            className="flex items-center gap-2"
-                        >
-                            <ArrowLeft className="w-4 h-4" />
-                            Retour
-                        </Button>
+                        {!embedded && (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => onBack ? onBack() : navigate('/')}
+                                className="flex items-center gap-2"
+                            >
+                                <ArrowLeft className="w-4 h-4" />
+                                Retour
+                            </Button>
+                        )}
                         <div>
                             <h1 className="text-2xl font-bold flex items-center gap-2">
                                 <Video className="w-6 h-6" />
