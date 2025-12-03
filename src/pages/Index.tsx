@@ -6,6 +6,7 @@ import TypingSimulator from "@/components/TypingSimulator";
 import VideoPreview from "@/components/VideoPreview";
 import Gallery from "@/pages/Gallery";
 import { useForgeStore } from "@/store/useForgeStore";
+import { useAuth } from "@/components/AuthProvider";
 
 const Index = () => {
   // Utiliser le store global au lieu des useState locaux
@@ -23,6 +24,9 @@ const Index = () => {
     setRecordedBlob,
     setVideoPreviewUrl,
   } = useForgeStore();
+
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const [showGallery, setShowGallery] = useState(false);
   const [onSettingsClick, setOnSettingsClick] = useState<(() => void) | undefined>(undefined);
@@ -50,18 +54,17 @@ const Index = () => {
     resetToEditor();
   };
 
-  const navigate = useNavigate();
-
   const handleShowGallery = () => {
+    // Vérifier si l'utilisateur est connecté avant d'afficher la galerie
+    if (!user) {
+      navigate('/auth?redirect=/gallery');
+      return;
+    }
     setShowGallery(true);
   };
 
   const handleBackFromGallery = () => {
     setShowGallery(false);
-  };
-
-  const handleNavigateToAuth = () => {
-    navigate('/auth?redirect=/');
   };
 
   return (
