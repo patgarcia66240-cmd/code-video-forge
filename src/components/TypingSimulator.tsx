@@ -387,8 +387,9 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }:
       }
     };
 
-    window.addEventListener("keydown", handleKeyPress);
-    return () => window.removeEventListener("keydown", handleKeyPress);
+    // Utiliser capture: true pour intercepter avant Monaco Editor
+    window.addEventListener("keydown", handleKeyPress, true);
+    return () => window.removeEventListener("keydown", handleKeyPress, true);
   }, [isRecording, isConverting, isFullscreen, isPaused, shortcuts, editingShortcut, currentIndex, code]);
 
   useEffect(() => {
