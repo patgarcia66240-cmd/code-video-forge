@@ -375,7 +375,16 @@ const Gallery = ({ embedded = false, onBack }: GalleryProps) => {
                 </div>
 
                 {/* Liste des vidéos */}
-                {savedVideos.length === 0 ? (
+                {isLoading ? (
+                    <Card className="p-12 text-center">
+                        <CardContent>
+                            <div className="flex flex-col items-center gap-4">
+                                <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+                                <p className="text-muted-foreground">Chargement des vidéos...</p>
+                            </div>
+                        </CardContent>
+                    </Card>
+                ) : savedVideos.length === 0 ? (
                     <Card className="p-12 text-center">
                         <CardContent>
                             <Video className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
