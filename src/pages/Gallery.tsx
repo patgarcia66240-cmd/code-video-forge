@@ -12,7 +12,8 @@ import {
     HardDrive,
     ArrowLeft,
     Video,
-    AlertTriangle
+    AlertTriangle,
+    RefreshCw
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useVideoStorage, SavedVideo } from "@/hooks/useVideoStorage";
@@ -41,7 +42,7 @@ interface GalleryProps {
 const Gallery = ({ embedded = false, onBack }: GalleryProps) => {
     const navigate = useNavigate();
     const { toast } = useToast();
-    const { savedVideos, deleteVideo, getStats, isLoading, isSupabaseEnabled } = useVideoStorage();
+    const { savedVideos, deleteVideo, getStats, isLoading, isSupabaseEnabled, refreshVideos } = useVideoStorage();
     const { user, signOut } = useAuth();
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const [stats, setStats] = useState({
@@ -270,6 +271,18 @@ const Gallery = ({ embedded = false, onBack }: GalleryProps) => {
                             <h1 className="text-2xl font-bold flex items-center gap-2">
                                 <Video className="w-6 h-6" />
                                 Galerie des vidéos
+                                {isSupabaseEnabled && (
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={refreshVideos}
+                                        disabled={isLoading}
+                                        className="ml-2"
+                                        title="Rafraîchir les URLs des vidéos"
+                                    >
+                                        <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+                                    </Button>
+                                )}
                             </h1>
                             <p className="text-muted-foreground">
                                 Toutes vos animations de code sauvegardées
