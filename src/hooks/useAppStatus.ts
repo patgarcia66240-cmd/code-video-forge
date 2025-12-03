@@ -211,17 +211,17 @@ export const useAppStatus = (): AppStatusHook => {
     lastError,
     progress,
 
-    // Utilitaires
-    isEditorMode,
-    isSimulationMode,
-    isPreviewMode,
-    isSettingsMode,
-    isSimulating,
+    // Utilitaires (appelés pour obtenir les valeurs booléennes)
+    isEditorMode: isEditorMode(),
+    isSimulationMode: isSimulationMode(),
+    isPreviewMode: isPreviewMode(),
+    isSettingsMode: isSettingsMode(),
+    isSimulating: isSimulating(),
     isPaused,
-    isRecording,
-    isProcessing,
-    hasError,
-    isBusy,
+    isRecording: isRecording(),
+    isProcessing: isProcessing(),
+    hasError: hasError(),
+    isBusy: isBusy(),
 
     // Actions
     goToEditor,

@@ -10,7 +10,7 @@ export { useVideoConverter } from './useVideoConverter';
 export { useAppStatus } from './useAppStatus';
 
 // Hooks UI et utilitaires
-export { useMobile } from './use-mobile';
+export { useIsMobile } from './use-mobile';
 export { useToast } from './use-toast';
 
 // Réexporter les types et stores pour un accès facile

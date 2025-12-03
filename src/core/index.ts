@@ -3,11 +3,6 @@
  * Exporte tous les modules core de manière organisée
  */
 
-// Modules principaux
-export * from './typing';
-export * from './recording';
-export * from './converter';
-
 // Types communs
 export type { TypingEvent, TypingConfig, TypingState, TypingSequence } from './typing/types';
 
