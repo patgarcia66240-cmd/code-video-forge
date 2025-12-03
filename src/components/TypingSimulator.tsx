@@ -385,12 +385,18 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }:
       if (e.key === "Escape" && isFullscreen && (!isRecording || recordedBlob)) {
         setIsFullscreen(false);
       }
+
+      // Ctrl+P pour télécharger/partager la vidéo
+      if (e.ctrlKey && e.key === "p" && recordedBlob && !isConverting) {
+        e.preventDefault();
+        downloadRecording();
+      }
     };
 
     // Utiliser capture: true pour intercepter avant Monaco Editor
     window.addEventListener("keydown", handleKeyPress, true);
     return () => window.removeEventListener("keydown", handleKeyPress, true);
-  }, [isRecording, isConverting, isFullscreen, isPaused, shortcuts, editingShortcut, currentIndex, code]);
+  }, [isRecording, isConverting, isFullscreen, isPaused, shortcuts, editingShortcut, currentIndex, code, recordedBlob]);
 
   useEffect(() => {
     if (currentIndex >= code.length) {
@@ -994,6 +1000,10 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }:
                 <div className="flex justify-between items-center p-2 bg-secondary/50 rounded">
                   <span>Quitter le plein écran</span>
                   <span className="font-mono text-foreground">Échap</span>
+                </div>
+                <div className="flex justify-between items-center p-2 bg-secondary/50 rounded">
+                  <span>Télécharger la vidéo</span>
+                  <span className="font-mono text-foreground">Ctrl+P</span>
                 </div>
               </div>
             </div>
