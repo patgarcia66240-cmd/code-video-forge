@@ -99,19 +99,64 @@ const Gallery = ({ embedded = false, onBack }: GalleryProps) => {
         setIsVideoPlayerOpen(true);
     };
 
-    const handleDownloadVideo = (video: SavedVideo) => {
-        // Créer un lien de téléchargement
-        const link = document.createElement('a');
-        link.href = video.url;
-        link.download = `${video.name.replace(/[^a-z0-9]/gi, '_')}.${video.format.toLowerCase()}`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+    const handleDownloadVideo = async (video: SavedVideo) => {
+        try {
+            toast({
+                title: "Téléchargement",
+                description: `Préparation du téléchargement de "${video.name}"...`,
+            });
 
-        toast({
-            title: "Téléchargement",
-            description: `Téléchargement de "${video.name}" commencé`,
-        });
+            // Récupérer le fichier via fetch pour garantir le téléchargement
+            const response = await fetch(video.url);
+
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP: ${response.status}`);
+            }
+
+            // Créer un blob depuis la réponse
+            const blob = await response.blob();
+
+            // Créer un URL objet pour le blob
+            const blobUrl = URL.createObjectURL(blob);
+
+            // Créer un lien de téléchargement forcé
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = `${video.name.replace(/[^a-z0-9]/gi, '_')}.${video.format.toLowerCase()}`;
+
+            // Forcer le téléchargement
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // Nettoyer l'URL objet après un court délai
+            setTimeout(() => {
+                URL.revokeObjectURL(blobUrl);
+            }, 1000);
+
+            toast({
+                title: "Téléchargement réussi",
+                description: `"${video.name}" a été téléchargé avec succès`,
+            });
+
+        } catch (error) {
+            console.error('Erreur téléchargement vidéo:', error);
+
+            // Fallback: essayer l'ancienne méthode
+            const link = document.createElement('a');
+            link.href = video.url;
+            link.download = `${video.name.replace(/[^a-z0-9]/gi, '_')}.${video.format.toLowerCase()}`;
+            link.target = '_blank';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            toast({
+                title: "Téléchargement",
+                description: `Téléchargement de "${video.name}" (ouverture dans un nouvel onglet si nécessaire)`,
+                variant: "default",
+            });
+        }
     };
 
     const handleDeleteClick = (video: SavedVideo) => {
