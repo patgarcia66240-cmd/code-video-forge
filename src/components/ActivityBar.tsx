@@ -1,4 +1,4 @@
-import { MdInsertDriveFile, MdPlayArrow, MdOndemandVideo, MdSettings, MdViewList } from "react-icons/md";
+import { MdInsertDriveFile, MdPlayArrow, MdOndemandVideo, MdSettings, MdViewList, MdCode } from "react-icons/md";
 import {
   Tooltip,
   TooltipContent,
@@ -7,15 +7,16 @@ import {
 } from "@/components/ui/tooltip";
 
 interface ActivityBarProps {
-  activeView?: 'explorer' | 'simulation' | 'preview' | 'gallery';
+  activeView?: 'explorer' | 'simulation' | 'preview' | 'gallery' | 'codes';
   onSettingsClick?: () => void;
   onExplorerClick?: () => void;
   onSimulationClick?: () => void;
   onPreviewClick?: () => void;
   onGalleryClick?: () => void;
+  onCodesClick?: () => void;
 }
 
-const ActivityBar = ({ activeView, onSettingsClick, onExplorerClick, onSimulationClick, onPreviewClick, onGalleryClick }: ActivityBarProps) => {
+const ActivityBar = ({ activeView, onSettingsClick, onExplorerClick, onSimulationClick, onPreviewClick, onGalleryClick, onCodesClick }: ActivityBarProps) => {
   return (
     <TooltipProvider delayDuration={300}>
       <div className="w-12 bg-vscode-activitybar flex flex-col items-center py-4 gap-4 border-r border-border">
@@ -72,6 +73,20 @@ const ActivityBar = ({ activeView, onSettingsClick, onExplorerClick, onSimulatio
           </TooltipTrigger>
           <TooltipContent side="right">
             <p>Liste des vidéos</p>
+          </TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              className="p-2 hover:bg-secondary rounded transition-colors"
+              onClick={onCodesClick}
+            >
+              <MdCode className={`w-5 h-5 ${activeView === 'codes' ? 'text-primary' : 'text-muted-foreground'}`} />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="right">
+            <p>Mes codes</p>
           </TooltipContent>
         </Tooltip>
 

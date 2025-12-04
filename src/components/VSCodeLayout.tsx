@@ -4,21 +4,26 @@ import ActivityBar from "./ActivityBar";
 
 interface VSCodeLayoutProps {
   children: ReactNode;
-  activeView?: 'explorer' | 'simulation' | 'preview' | 'gallery';
+  activeView?: 'explorer' | 'simulation' | 'preview' | 'gallery' | 'codes';
   onSettingsClick?: () => void;
   onExplorerClick?: () => void;
   onSimulationClick?: () => void;
   onPreviewClick?: () => void;
   onGalleryClick?: () => void;
+  onCodesClick?: () => void;
+  fileName?: string;
 }
 
-const VSCodeLayout = ({ children, activeView, onSettingsClick, onExplorerClick, onSimulationClick, onPreviewClick, onGalleryClick }: VSCodeLayoutProps) => {
+const VSCodeLayout = ({ children, activeView, onSettingsClick, onExplorerClick, onSimulationClick, onPreviewClick, onGalleryClick, onCodesClick, fileName = "typing-demo.py" }: VSCodeLayoutProps) => {
+  // Debug
+  console.log('🔍 Debug VSCodeLayout:', { activeView, fileName });
+
   return (
     <div className="h-screen w-screen flex flex-col bg-background overflow-hidden">
       {/* Title Bar */}
       <div className="h-9 bg-vscode-titlebar flex items-center px-4 text-xs text-muted-foreground border-b border-border">
         <MdCode className="w-4 h-4 mr-2" />
-        <span>Code Typing Simulator - typing-demo.py</span>
+        <span>Code Typing Simulator - {fileName || 'typing-demo.py'}</span>
       </div>
 
       <div className="flex flex-1 overflow-hidden">
@@ -29,6 +34,7 @@ const VSCodeLayout = ({ children, activeView, onSettingsClick, onExplorerClick, 
           onSimulationClick={onSimulationClick}
           onPreviewClick={onPreviewClick}
           onGalleryClick={onGalleryClick}
+          onCodesClick={onCodesClick}
         />
 
         {/* Main Content */}

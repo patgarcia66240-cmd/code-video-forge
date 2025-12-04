@@ -39,6 +39,7 @@ interface TypingSimulatorProps {
   onComplete: () => void;
   onSettingsReady?: (callback: () => void) => void;
   onVideoRecorded?: (blob: Blob) => void;
+  fileName?: string;
 }
 
 interface KeyboardShortcuts {
@@ -55,7 +56,7 @@ const defaultShortcuts: KeyboardShortcuts = {
   fullscreen: "f",
 };
 
-const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }: TypingSimulatorProps) => {
+const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded, fileName }: TypingSimulatorProps) => {
   const [displayedCode, setDisplayedCode] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [autoStart, setAutoStart] = useState(() => {
@@ -727,7 +728,7 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }:
       {!isFullscreen && !hideControlsDuringRecording && (
         <div className="h-10 bg-panel-bg flex items-center px-4 border-b border-border">
           <div className="flex items-center gap-2 px-3 py-1 bg-editor rounded-t border-t-2 border-primary">
-            <span className="text-sm text-foreground">typing-demo.py</span>
+            <span className="text-sm text-foreground">{fileName || "typing-demo.py"}</span>
             <span className="text-xs text-muted-foreground ml-2">
               {currentIndex} / {code.length} caractères
             </span>
@@ -737,7 +738,7 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }:
 
       {/* Controls */}
       {!isFullscreen && !hideControlsDuringRecording && (
-        <div className="bg-panel-bg border-b border-border">
+        <div className="bg-panel-bg border-b border-border pt-4">
           {/* Ligne 1: Contrôles principaux */}
           <div className="h-16 flex items-center px-4 gap-4 flex-wrap border-b border-border/50">
             <div className="flex items-center gap-2">

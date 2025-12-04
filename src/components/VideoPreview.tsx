@@ -21,16 +21,26 @@ interface VideoPreviewProps {
   videoBlob: Blob;
   onDownload: () => void;
   onDelete: () => void;
+  fileName?: string;
 }
 
-const VideoPreview = ({ videoUrl, videoBlob, onDownload, onDelete }: VideoPreviewProps) => {
+const VideoPreview = ({ videoUrl, videoBlob, onDownload, onDelete, fileName = "typing-demo.py" }: VideoPreviewProps) => {
   const { toast } = useToast();
   const { saveVideo } = useVideoStorage();
   const [isSharing, setIsSharing] = useState(false);
   const [showYouTubeDialog, setShowYouTubeDialog] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Fonction pour générer le nom avec le format demandé
+  const generateVideoName = () => {
+    const now = new Date();
+    const dateStr = `${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear().toString().slice(-2)}`;
+    const timeStr = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+    return `${fileName} - ${dateStr} - ${timeStr}`;
+  };
+
   const [videoMetadata, setVideoMetadata] = useState({
-    name: `Animation de code - ${new Date().toLocaleDateString('fr-FR')}`,
+    name: generateVideoName(),
     format: videoBlob.type.includes("mp4") ? "MP4" : "WebM",
     size: videoBlob.size,
     duration: 0,

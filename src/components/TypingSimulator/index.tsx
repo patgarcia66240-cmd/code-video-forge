@@ -11,15 +11,32 @@ import { RecordingControls } from "./RecordingControls";
 import { VideoPreviewPanel } from "./VideoPreviewPanel";
 import { TimelinePanel } from "./TimelinePanel";
 import { useScreenRecorder } from "@/hooks/useScreenRecorder";
+import { useForgeCurrentFileName } from "@/store/useForgeStore";
 
 interface TypingSimulatorProps {
     code: string;
     onComplete: () => void;
     onSettingsReady?: (callback: () => void) => void;
     onVideoRecorded?: (blob: Blob) => void;
+    fileName?: string;
 }
 
-const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }: TypingSimulatorProps) => {
+const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded, fileName: propFileName }: TypingSimulatorProps) => {
+    // Récupérer le nom de fichier depuis le store global
+    const currentFileName = useForgeCurrentFileName();
+
+    // Priorité: prop > store global
+    const effectiveFileName = propFileName || currentFileName;
+
+    // État local pour le nom de fichier pour éviter les problèmes de réactivité
+    const [fileName, setFileName] = useState(effectiveFileName);
+
+    // Synchroniser le nom de fichier quand il change
+    useEffect(() => {
+        console.log('🔍 TypingSimulator - effectiveFileName:', effectiveFileName);
+        setFileName(effectiveFileName);
+    }, [effectiveFileName]);
+
     // États principaux
     const [displayedCode, setDisplayedCode] = useState("");
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -117,6 +134,7 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }:
         return (saved as any) || "none"; // Par défaut sans curseur en mode code seul
     });
 
+    
     // Sauvegarde des paramètres dans localStorage
     useEffect(() => {
         localStorage.setItem("typingSimulatorSpeed", JSON.stringify(speed));
@@ -315,7 +333,7 @@ const TypingSimulator = ({ code, onComplete, onSettingsReady, onVideoRecorded }:
             {!isFullscreen && (
                 <div className="h-10 bg-panel-bg flex items-center px-4 border-b border-border">
                     <div className="flex items-center gap-2 px-3 py-1 bg-editor rounded-t border-t-2 border-primary">
-                        <span className="text-sm text-foreground">typing-demo.py</span>
+                        <span className="text-sm text-foreground">{fileName}</span>
                         <span className="text-xs text-muted-foreground ml-2">
                             {currentIndex} / {code.length} caractères
                         </span>

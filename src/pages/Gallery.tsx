@@ -435,7 +435,7 @@ const Gallery = ({ embedded = false, onBack }: GalleryProps) => {
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {savedVideos.map((video) => (
-                            <Card key={video.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                            <Card key={video.id} className="overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full">
                                 <div className="aspect-video bg-black relative group cursor-pointer" onClick={() => handlePlayVideo(video)}>
                                     <div className="absolute inset-0 flex items-center justify-center">
                                         <div className="w-16 h-16 bg-black/50 rounded-full flex items-center justify-center">
@@ -452,17 +452,18 @@ const Gallery = ({ embedded = false, onBack }: GalleryProps) => {
                                     </div>
                                 </div>
 
-                                <CardHeader className="pb-3">
-                                    <CardTitle className="text-base line-clamp-2" title={video.name}>
-                                        {video.name}
-                                    </CardTitle>
-                                    <CardDescription className="flex items-center gap-1 text-xs">
-                                        <Calendar className="w-3 h-3" />
-                                        {video.createdAt.toLocaleDateString('fr-FR')}
-                                    </CardDescription>
-                                </CardHeader>
+                                <div className="flex-1 flex flex-col">
+                                    <CardHeader className="pb-3">
+                                        <CardTitle className="text-base line-clamp-2" title={video.name}>
+                                            {video.name}
+                                        </CardTitle>
+                                        <CardDescription className="flex items-center gap-1 text-xs">
+                                            <Calendar className="w-3 h-3" />
+                                            {video.createdAt.toLocaleDateString('fr-FR')}
+                                        </CardDescription>
+                                    </CardHeader>
 
-                                <CardContent className="pt-0">
+                                    <CardContent className="pt-0 flex-1 flex flex-col">
                                     <div className="flex items-center justify-between text-sm text-muted-foreground mb-3">
                                         <span className="flex items-center gap-1">
                                             <HardDrive className="w-3 h-3" />
@@ -470,60 +471,57 @@ const Gallery = ({ embedded = false, onBack }: GalleryProps) => {
                                         </span>
                                     </div>
 
-                                    <div className="flex flex-col gap-2">
-                                        {/* Bouton téléchargement principal */}
+                                    {/* Actions alignées visuellement au même niveau et calées en bas */}
+                                    <div className="flex gap-2 mt-auto">
                                         <Button
                                             size="sm"
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 handleDownloadVideo(video);
                                             }}
-                                            className="w-full bg-primary hover:bg-primary/90"
+                                            className="flex-1 bg-primary hover:bg-primary/90"
                                         >
                                             <Download className="w-4 h-4 mr-2" />
                                             Télécharger
                                         </Button>
-                                        
-                                        {/* Actions secondaires */}
-                                        <div className="flex gap-2">
-                                            <Button
-                                                size="sm"
-                                                variant="outline"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handlePlayVideo(video);
-                                                }}
-                                                className="flex-1"
-                                            >
-                                                <Play className="w-3 h-3 mr-1" />
-                                                Aperçu
-                                            </Button>
-                                            <Button
-                                                size="sm"
-                                                variant="outline"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    // Ouvrir l'URL dans un nouvel onglet pour debug
-                                                    window.open(video.url, '_blank');
-                                                }}
-                                                title="Ouvrir dans un nouvel onglet"
-                                            >
-                                                🔗
-                                            </Button>
-                                            <Button
-                                                size="sm"
-                                                variant="outline"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleDeleteClick(video);
-                                                }}
-                                                className="text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/30"
-                                            >
-                                                <Trash2 className="w-3 h-3" />
-                                            </Button>
-                                        </div>
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handlePlayVideo(video);
+                                            }}
+                                            title="Voir la vidéo"
+                                            className="flex-1"
+                                        >
+                                            <Play className="w-3 h-3 mr-1" />
+                                            Voir
+                                        </Button>
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                window.open(video.url, '_blank');
+                                            }}
+                                            title="Ouvrir dans un nouvel onglet"
+                                        >
+                                            🔗
+                                        </Button>
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleDeleteClick(video);
+                                            }}
+                                            className="text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/30"
+                                        >
+                                            <Trash2 className="w-3 h-3" />
+                                        </Button>
                                     </div>
                                 </CardContent>
+                            </div>
                             </Card>
                         ))}
                     </div>

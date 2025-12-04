@@ -9,6 +9,7 @@ interface ForgeState {
     showVideoPreview: boolean;
     recordedBlob: Blob | null;
     videoPreviewUrl: string | null;
+    currentFileName: string;
 
     // Paramètres de simulation
     speed: number;
@@ -35,6 +36,7 @@ interface ForgeState {
     setShowVideoPreview: (show: boolean) => void;
     setRecordedBlob: (blob: Blob | null) => void;
     setVideoPreviewUrl: (url: string | null) => void;
+    setCurrentFileName: (fileName: string) => void;
 
     // Actions de navigation
     startSimulation: () => void;
@@ -100,6 +102,7 @@ export const useForgeStore = create<ForgeState>()(
             showVideoPreview: false,
             recordedBlob: null,
             videoPreviewUrl: null,
+            currentFileName: "typing-demo.py",
 
             // Paramètres avec valeurs par défaut
             speed: 50,
@@ -124,6 +127,7 @@ export const useForgeStore = create<ForgeState>()(
             setShowVideoPreview: (showVideoPreview: boolean) => set({ showVideoPreview }),
             setRecordedBlob: (recordedBlob: Blob | null) => set({ recordedBlob }),
             setVideoPreviewUrl: (videoPreviewUrl: string | null) => set({ videoPreviewUrl }),
+            setCurrentFileName: (currentFileName: string) => set({ currentFileName }),
 
             // Actions de navigation
             startSimulation: () => set({
@@ -164,28 +168,58 @@ export const useForgeStore = create<ForgeState>()(
         }),
         {
             name: 'code-video-forge-store',
-            partialize: (state) => ({
-                // Persister seulement les paramètres, pas l'état temporaire
-                speed: state.speed,
-                autoStart: state.autoStart,
-                isLoopEnabled: state.isLoopEnabled,
-                displayEffect: state.displayEffect,
-                cursorType: state.cursorType,
-                scrollEffect: state.scrollEffect,
-                exportFormat: state.exportFormat,
-                captureMode: state.captureMode,
-                aspectRatio: state.aspectRatio,
-                mp4Quality: state.mp4Quality,
-                mp4Preset: state.mp4Preset,
-                mp4Resolution: state.mp4Resolution,
-                saveWebmBackup: state.saveWebmBackup,
-            }),
+            partialize: (state) => {
+                // Ne sauvegarder le code que s'il est différent du code par défaut
+                const shouldSaveCode = state.code !== defaultCode || state.currentFileName !== "typing-demo.py";
+
+                return {
+                    // Persister seulement les paramètres importants
+                    speed: state.speed,
+                    autoStart: state.autoStart,
+                    isLoopEnabled: state.isLoopEnabled,
+                    displayEffect: state.displayEffect,
+                    cursorType: state.cursorType,
+                    scrollEffect: state.scrollEffect,
+                    exportFormat: state.exportFormat,
+                    captureMode: state.captureMode,
+                    aspectRatio: state.aspectRatio,
+                    mp4Quality: state.mp4Quality,
+                    mp4Preset: state.mp4Preset,
+                    mp4Resolution: state.mp4Resolution,
+                    saveWebmBackup: state.saveWebmBackup,
+                    // Toujours sauvegarder le nom de fichier
+                    currentFileName: state.currentFileName,
+                    // Sauvegarder le code seulement si c'est du code utilisateur
+                    ...(shouldSaveCode && { code: state.code }),
+                };
+            },
+            onRehydrateStorage: () => (state) => {
+                // Restaurer l'état depuis localStorage
+                if (state) {
+                    console.log('🔄 Restauration depuis localStorage:', {
+                        hasUserCode: !!state.code,
+                        fileName: state.currentFileName
+                    });
+
+                    // Si aucun code n'est trouvé dans localStorage, utiliser le code par défaut
+                    if (!state.code) {
+                        state.code = defaultCode;
+                    }
+
+                    // Si aucun nom de fichier n'est trouvé, utiliser le nom par défaut
+                    if (!state.currentFileName) {
+                        state.currentFileName = "typing-demo.py";
+                    }
+                }
+                return state;
+            },
         }
     )
 );
 
 // Selectors pour optimiser les re-renders
 export const useForgeCode = () => useForgeStore((state) => state.code);
+export const useForgeCurrentFileName = () => useForgeStore((state) => state.currentFileName);
 export const useForgeSimulationState = () => useForgeStore((state) => ({
     isSimulating: state.isSimulating,
     showVideoPreview: state.showVideoPreview,
