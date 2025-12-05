@@ -1,11 +1,5 @@
 import { MdKeyboard } from "react-icons/md";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -161,11 +155,7 @@ const SettingsDialog = ({
                       Lance l'animation automatiquement au démarrage
                     </span>
                   </div>
-                  <Switch
-                    checked={autoStart}
-                    onCheckedChange={setAutoStart}
-                    disabled={isRecording || isConverting}
-                  />
+                  <Switch checked={autoStart} onCheckedChange={setAutoStart} disabled={isRecording || isConverting} />
                 </div>
               </div>
 
@@ -300,11 +290,7 @@ const SettingsDialog = ({
 
               <div className="space-y-3">
                 <Label className="text-sm font-semibold">Raccourcis clavier</Label>
-                <Button
-                  variant="outline"
-                  className="w-full justify-between"
-                  onClick={onShortcutsClick}
-                >
+                <Button variant="outline" className="w-full justify-between" onClick={onShortcutsClick}>
                   <span className="flex items-center gap-2">
                     <MdKeyboard className="w-4 h-4" />
                     Configurer les raccourcis
@@ -457,14 +443,12 @@ const SettingsDialog = ({
                 <div className="flex items-center justify-between p-4 bg-secondary/30 rounded-lg">
                   <div className="flex flex-col gap-1">
                     <span className="text-sm font-medium">Activer l'audio</span>
-                    <span className="text-xs text-muted-foreground">
-                      Enregistrer le son pendant la capture vidéo
-                    </span>
+                    <span className="text-xs text-muted-foreground">Enregistrer le son pendant la capture vidéo</span>
                   </div>
                   <Switch
                     checked={audioEnabled ?? true}
                     onCheckedChange={(checked) => {
-                        setAudioEnabled?.(checked);
+                      setAudioEnabled?.(checked);
                     }}
                     disabled={isRecording || isConverting}
                   />
@@ -493,9 +477,7 @@ const SettingsDialog = ({
                     </Button>
                   ))}
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Choisissez la source audio à enregistrer avec la vidéo.
-                </p>
+                <p className="text-xs text-muted-foreground">Choisissez la source audio à enregistrer avec la vidéo.</p>
               </div>
 
               {/* Qualité audio */}
@@ -520,9 +502,7 @@ const SettingsDialog = ({
                     </Button>
                   ))}
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Qualité de l'enregistrement audio (débit binaire).
-                </p>
+                <p className="text-xs text-muted-foreground">Qualité de l'enregistrement audio (débit binaire).</p>
               </div>
 
               {/* Volume audio */}
@@ -555,7 +535,7 @@ const SettingsDialog = ({
                       style={{
                         background: audioEnabled
                           ? `linear-gradient(to right, hsl(var(--primary)) 0%, hsl(var(--primary)) ${audioVolume ? audioVolume * 100 : 100}%, hsl(var(--secondary)) ${audioVolume ? audioVolume * 100 : 100}%, hsl(var(--secondary)) 100%)`
-                          : 'hsl(var(--secondary))'
+                          : "hsl(var(--secondary))",
                       }}
                     />
                   </div>
@@ -569,8 +549,8 @@ const SettingsDialog = ({
               <div className="space-y-3">
                 <div className="p-4 bg-accent/30 rounded-lg border border-border">
                   <p className="text-xs text-muted-foreground">
-                    <strong>Note :</strong> L'enregistrement audio nécessite l'autorisation du navigateur.
-                    Assurez-vous d'accepter la demande d'accès au microphone/système audio.
+                    <strong>Note :</strong> L'enregistrement audio nécessite l'autorisation du navigateur. Assurez-vous
+                    d'accepter la demande d'accès au microphone/système audio.
                   </p>
                 </div>
               </div>
@@ -585,7 +565,7 @@ const SettingsDialog = ({
                 <Label className="text-sm font-semibold">Version</Label>
                 <div className="p-4 bg-secondary/30 rounded-lg">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Code Typing Simulator</span>
+                    <span className="text-sm text-muted-foreground">CodeVideo</span>
                     <span className="text-sm font-mono font-semibold">v1.0.0</span>
                   </div>
                 </div>
@@ -596,8 +576,8 @@ const SettingsDialog = ({
                 <Label className="text-sm font-semibold">Description</Label>
                 <div className="p-4 bg-secondary/30 rounded-lg">
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    Simulateur de frappe de code avec enregistrement vidéo. Créez des animations professionnelles 
-                    de code qui s'écrit automatiquement, parfait pour les tutoriels, présentations et démos.
+                    Simulateur de frappe de code avec enregistrement vidéo. Créez des animations professionnelles de
+                    code qui s'écrit automatiquement, parfait pour les tutoriels, présentations et démos.
                   </p>
                 </div>
               </div>

@@ -4,7 +4,7 @@ import ActivityBar from "./ActivityBar";
 
 interface VSCodeLayoutProps {
   children: ReactNode;
-  activeView?: 'explorer' | 'simulation' | 'preview' | 'gallery' | 'codes';
+  activeView?: "explorer" | "simulation" | "preview" | "gallery" | "codes";
   onSettingsClick?: () => void;
   onExplorerClick?: () => void;
   onSimulationClick?: () => void;
@@ -14,16 +14,26 @@ interface VSCodeLayoutProps {
   fileName?: string;
 }
 
-const VSCodeLayout = ({ children, activeView, onSettingsClick, onExplorerClick, onSimulationClick, onPreviewClick, onGalleryClick, onCodesClick, fileName = "typing-demo.py" }: VSCodeLayoutProps) => {
+const VSCodeLayout = ({
+  children,
+  activeView,
+  onSettingsClick,
+  onExplorerClick,
+  onSimulationClick,
+  onPreviewClick,
+  onGalleryClick,
+  onCodesClick,
+  fileName = "typing-demo.py",
+}: VSCodeLayoutProps) => {
   // Debug
-  console.log('🔍 Debug VSCodeLayout:', { activeView, fileName });
+  console.log("🔍 Debug VSCodeLayout:", { activeView, fileName });
 
   return (
     <div className="h-screen w-screen flex flex-col bg-background overflow-hidden">
       {/* Title Bar */}
       <div className="h-9 bg-vscode-titlebar flex items-center px-4 text-xs text-muted-foreground border-b border-border">
         <MdCode className="w-4 h-4 mr-2" />
-        <span>Code Typing Simulator - {fileName || 'typing-demo.py'}</span>
+        <span>CodeVideo - {fileName || "typing-demo.py"}</span>
       </div>
 
       <div className="flex flex-1 overflow-hidden">
@@ -38,9 +48,7 @@ const VSCodeLayout = ({ children, activeView, onSettingsClick, onExplorerClick, 
         />
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          {children}
-        </div>
+        <div className="flex-1 flex flex-col overflow-hidden">{children}</div>
       </div>
 
       {/* Status Bar */}
